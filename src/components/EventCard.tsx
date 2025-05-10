@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 interface EventCardProps {
   title: string;
-  price: number | 'FREE';
+  price: number | string;
   coinCost?: number;
   date?: string;
 }
