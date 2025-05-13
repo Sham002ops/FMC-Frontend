@@ -1,18 +1,43 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useSignIn } from '@clerk/clerk-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Logo from '@/components/Logo';
+import { Processing } from '@/components/ui/icons/Processing';
 
 const AdminLogin = () => {
+  const { signIn, setActive, isLoaded } = useSignIn();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [adminId, setAdminId] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, authenticate admin here
-    navigate('/admin-dashboard');
+    if (!isLoaded) return;
+    setIsLoading(true);
+
+    try {
+      const result = await signIn!.create({
+        identifier: adminId,
+        password,
+      });
+
+      if (result.status === 'complete') {
+        await setActive!({ session: result.createdSessionId });
+        navigate('/admin-dashboard');
+      } else {
+        console.log(result);
+      }
+    } catch (err: any) {
+      setErrorMsg(err.errors?.[0]?.message || 'Admin login failed');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -32,7 +57,8 @@ const AdminLogin = () => {
                 id="adminId" 
                 type="text" 
                 placeholder="Your admin ID"
-                className="mt-1"
+                value={adminId}
+                onChange={(e) => setAdminId(e.target.value)}
                 required
               />
             </div>
@@ -48,13 +74,18 @@ const AdminLogin = () => {
                 id="password" 
                 type="password"
                 placeholder="••••••••"
-                className="mt-1"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
 
+            {errorMsg && (
+              <p className="text-sm text-red-600 text-center">{errorMsg}</p>
+            )}
+
             <Button type="submit" className="w-full bg-event-primary hover:bg-event-dark">
-              Secure Sign In
+              Secure Sign In {isLoading && <Processing />}
             </Button>
           </div>
 

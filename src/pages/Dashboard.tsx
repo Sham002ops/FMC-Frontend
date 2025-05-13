@@ -1,12 +1,15 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Logo from '@/components/Logo';
 import EventCard from '@/components/EventCard';
+import { sign } from 'crypto';
+import { useClerk } from '@clerk/clerk-react';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const upcomingEvents = [
     { id: 1, title: 'AI for Beginners', price: 'FREE', coinCost: 200, date: 'May 15, 2025' },
     { id: 2, title: 'Stock Market Basics', price: 'FREE', coinCost: 150, date: 'May 20, 2025' },
@@ -18,6 +21,14 @@ const Dashboard = () => {
     { id: 5, title: 'Introduction to Crypto', price: 'FREE', coinCost: 200, date: 'May 12, 2025' },
     { id: 6, title: 'Personal Finance 101', price: 'FREE', coinCost: 100, date: 'May 18, 2025' },
   ];
+
+  const { signOut } = useClerk();
+
+  const handleSignout = async () => {
+    await signOut();
+    navigate("/login"); // or replace with your actual login route
+  };
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -31,7 +42,7 @@ const Dashboard = () => {
                 800 <span className="font-bold">COIN</span>
               </span>
               <div className="flex items-center space-x-2">
-                <div className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center">
+                <div onClick={handleSignout} className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user">
                     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
                     <circle cx="12" cy="7" r="4"/>
