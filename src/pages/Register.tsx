@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react'; 
+import { useSignUp } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,16 +9,17 @@ import Logo from '@/components/Logo';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Processing } from '@/components/ui/icons/Processing';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000"; // Set this in .env
-
 const Register = () => {
   const navigate = useNavigate();
+  const { isLoaded, signUp, setActive } = useSignUp();
+
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
     termsAgreed: false,
+    isAdmin: false,
   });
 
   const [verificationCode, setVerificationCode] = useState('');
@@ -30,71 +31,61 @@ const Register = () => {
     setForm({ ...form, [e.target.id]: e.target.value });
   };
 
-  const handleCheckbox = () => {
-    setForm({ ...form, termsAgreed: !form.termsAgreed });
+  const handleCheckbox = (field: 'termsAgreed' | 'isAdmin') => {
+    setForm({ ...form, [field]: !form[field] });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.termsAgreed) return;
-console.log("just handleSubmit", form);
-
+    if (!isLoaded || !form.termsAgreed) return;
     setIsLoading(true);
-   
-    try {
-      const sendVerificationMail = await axios.post(`${BACKEND_URL}/api/send-verification`, {
-        email: form.email
-      });
-      console.log("just sendMail", sendVerificationMail.data);
 
-      if (sendVerificationMail.data.message === "Verification code sent") {
-        setShowVerificationModal(true);
-        console.log(sendVerificationMail.data.message);
-      } else {
-        setVerificationError("Failed to send verification email.");
-      }
-    } catch (error) {
-      console.error("Error during registration:", error);
-      setIsLoading(false);
-      return;
-    }
-     finally {
+    try {
+      await signUp.create({
+        emailAddress: form.email,
+        password: form.password,
+      });
+
+      await signUp.update({
+        unsafeMetadata: {
+          firstName: form.firstName,
+          lastName: form.lastName,
+          role: form.isAdmin ? 'admin' : 'user',
+        },
+      });
+
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
+      setShowVerificationModal(true);
+    } catch (err) {
+      const message = err?.errors?.[0]?.message || err?.message || "Something went wrong.";
+      console.error("Signup error:", message);
+      alert(message);
+    } finally {
       setIsLoading(false);
     }
   };
 
   const handleVerify = async () => {
+    if (!isLoaded) return;
     setIsLoading(true);
+
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/v1/verify-email`, {
-        email: form.email,
+      const attempt = await signUp.attemptEmailAddressVerification({
         code: verificationCode,
       });
 
-      if (response.data.success) {
-        try {
-          const response = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
-            email: form.email,
-            password: form.password,
-            firstName: form.firstName,
-            lastName: form.lastName,
-            username: form.email.split('@')[0], // Default username logic
-          });
-          if (response.data.success) {
-            navigate('/dashboard');
-          } else {
-            alert(response.data.message || "Signup failed.");
-          }
-        } catch (err) {
-          console.error("Signup Error:", err);
-          alert(err?.response?.data?.message || "Signup failed.");
+      if (attempt.status === 'complete') {
+        await setActive({ session: attempt.createdSessionId });
+        if (form.isAdmin) {
+          navigate('/admin-dashboard');
+        } else {
+          navigate('/dashboard');
         }
-       
       } else {
-        setVerificationError("Invalid verification code");
+        setVerificationError("Verification failed. Try again.");
       }
     } catch (err) {
-      setVerificationError(err?.response?.data?.message || "Verification failed.");
+      setVerificationError(err.errors?.[0]?.message || "Invalid code.");
     } finally {
       setIsLoading(false);
     }
@@ -104,7 +95,7 @@ console.log("just handleSubmit", form);
     <div className="min-h-screen bg-event-gradient py-10 flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-6">
-          <Logo size="md" />
+          <Logo size="medium" />
           <h1 className="text-2xl font-bold text-white mt-6">Create Your Account</h1>
         </div>
 
@@ -129,17 +120,24 @@ console.log("just handleSubmit", form);
             <div>
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" value={form.password} onChange={handleChange} required />
-              <p className="text-xs text-gray-500 mt-1">Must be strong with letters, numbers & symbols</p>
+              <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
             </div>
 
             <div className="flex items-start space-x-2">
-              <Checkbox id="terms" checked={form.termsAgreed} onCheckedChange={handleCheckbox} />
+              <Checkbox id="terms" checked={form.termsAgreed} onCheckedChange={() => handleCheckbox('termsAgreed')} />
               <Label htmlFor="terms" className="text-sm font-normal leading-none">
                 I agree to the <a href="/terms" className="text-event-primary hover:underline">Terms</a> and <a href="/privacy" className="text-event-primary hover:underline">Privacy Policy</a>
               </Label>
             </div>
 
-            <Button type="submit" className="w-full bg-event-primary hover:bg-event-dark">
+            <div className="flex items-start space-x-2">
+              <Checkbox id="admin" checked={form.isAdmin} onCheckedChange={() => handleCheckbox('isAdmin')} />
+              <Label htmlFor="admin" className="text-sm font-normal leading-none">
+                I want to register as Admin
+              </Label>
+            </div>
+
+            <Button type="submit" className="w-full bg-primary hover:bg-event-dark">
               {isLoading ? <Processing /> : <>Create Account</>}
             </Button>
           </div>

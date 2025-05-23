@@ -1,5 +1,5 @@
-
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
 	darkMode: ["class"],
@@ -25,6 +25,8 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				gradientStart: "#a18cd1", // purple
+        		gradientEnd: "#fbc2eb",   // violet
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
@@ -63,14 +65,14 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-                // Custom event horizon theme colors
-                'event': {
-                    'primary': '#6b21a8',
-                    'secondary': '#9b87f5',
-                    'accent': '#e5deff',
-                    'light': '#f3f0ff',
-                    'dark': '#4c1d95',
-                },
+				
+				'event': {
+					'primary': '#4e47e5', 
+					'secondary': '#9b87f5',
+					'accent': '#e5deff',
+					'light': '#f3f0ff',
+					'dark': '#4c1d95',
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -94,27 +96,27 @@ export default {
 						height: '0'
 					}
 				},
-                'fade-in': {
-                    '0%': {
-                        opacity: '0',
-                        transform: 'translateY(10px)'
-                    },
-                    '100%': {
-                        opacity: '1',
-                        transform: 'translateY(0)'
-                    }
-                }
+				'fade-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(10px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-                'fade-in': 'fade-in 0.5s ease-out'
+				'fade-in': 'fade-in 0.5s ease-out'
 			},
-            backgroundImage: {
-                'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-                'event-gradient': 'linear-gradient(to bottom right, #7e22ce, #4c1d95)'
-            }
+			backgroundImage: {
+				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+				'event-gradient': 'linear-gradient(to bottom right, #7e22ce, #4c1d95)'
+			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [tailwindcssAnimate],
 } satisfies Config;

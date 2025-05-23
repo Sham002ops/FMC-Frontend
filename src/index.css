@@ -78,7 +78,7 @@
 }
 
 .gradient-bg {
-  @apply bg-event-gradient;
+  background-image: linear-gradient(90deg, #7b2ff2 0%, #9447ed 100%);
 }
 
 .event-card {
@@ -91,4 +91,18 @@
 
 .btn-outline {
   @apply border border-event-primary text-event-primary px-6 py-3 rounded-lg hover:bg-event-accent hover:text-event-primary transition-colors duration-300;
+}
+.wave-group.logo-letter {
+  display: inline-block;
+  animation: wave 1s infinite;
+  animation-delay: calc(var(--index) * 0.1s);
+}
+
+@keyframes wave {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
 }

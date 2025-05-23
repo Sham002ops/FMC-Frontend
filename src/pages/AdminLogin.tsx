@@ -33,7 +33,7 @@ const AdminLogin = () => {
       } else {
         console.log(result);
       }
-    } catch (err: any) {
+    } catch (err) {
       setErrorMsg(err.errors?.[0]?.message || 'Admin login failed');
     } finally {
       setIsLoading(false);

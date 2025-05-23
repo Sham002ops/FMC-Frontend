@@ -5,53 +5,22 @@ import Logo from '@/components/Logo';
 import EventCard from '@/components/EventCard';
 import { useClerk, useUser } from '@clerk/clerk-react';
 import { Processing } from '@/components/ui/icons/Processing';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { v4 as uuidv4 } from "uuid";
+import { Divide } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Form } from '@/components/ui/form';
 
-// ✅ Add this simple TopicCard component
+
 interface TopicCardProps {
   title: string;
   image: string;
   description: string;
   color: string;
 }
-const topics = [
-  {
-    title: "Yoga & Meditation",
-    image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=400&auto=format&fit=crop",
-    description: "Discover techniques for mindfulness and physical wellness",
-    color: "bg-purple-500",
-  },
-  {
-    title: "Biotechnology",
-    image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=400&auto=format&fit=crop",
-    description: "Learn about the latest advances in biotechnology research",
-    color: "bg-blue-500",
-  },
-  {
-    title: "Mental Wellness",
-    image: "https://images.unsplash.com/photo-1507413245164-6160d8298b31?q=80&w=400&auto=format&fit=crop",
-    description: "Explore strategies for better mental health and wellbeing",
-    color: "bg-green-500",
-  },
-  {
-    title: "Ayurveda",
-    image: "https://rukminim3.flixcart.com/image/850/1000/xif0q/poster/p/i/l/small-poster-doctors-poster-natural-healing-ayurveda-wall-poster-original-imah38gyxxdnuhnk.jpeg?q=90&crop=false",
-    description: "Discover ancient healing practices for modern wellness",
-    color: "bg-amber-500",
-  },
-  {
-    title: "Artificial Intelligence",
-    image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=400&auto=format&fit=crop",
-    description: "Understand AI applications in various industries",
-    color: "bg-red-500",
-  },
-  {
-    title: "Sustainable Living",
-    image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=400&auto=format&fit=crop",
-    description: "Learn practical ways to live more sustainably",
-    color: "bg-teal-500",
-  },
-];
+
 
 const TopicCard = ({ title, image, description, color }: TopicCardProps) => (
   <div className={`rounded-lg overflow-hidden shadow-sm border border-gray-200 bg-white`}>
@@ -63,17 +32,42 @@ const TopicCard = ({ title, image, description, color }: TopicCardProps) => (
   </div>
 );
 
-const Dashboard = () => {
+const AdminDashboard = () => {
   const navigate = useNavigate();
   const { signOut } = useClerk();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [openModel, setOpenModal] = useState(false);
+  const [openAdminModel, setOpenAdminModel] = useState(false);
+  const [thumbnail, setThumbnail] = useState(null);
+  const [topic1, setTopic1] = useState("");
+  const [registrationLink, setRegistrationLink] = useState("");
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [form, setForm] = useState({
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      termsAgreed: false,
+      isAdmin: false,
+    });
+
+
 
   const { isLoaded, user } = useUser();
+
+  useEffect(() => {
+    if (isLoaded && user && user.unsafeMetadata?.role !== "admin") {
+      navigate("/unauthorized");
+    }
+  }, [isLoaded, user, navigate]);
+
   if (!isLoaded || !user) {
     return <div className="justify-center items-center flex p-72 text-center"><Processing /></div>;
   }
 
   const username = typeof user.unsafeMetadata?.firstName === 'string' ? user.unsafeMetadata.firstName : "Guest";
+  console.log("user: ", user);
+  
   const profilePic = user.imageUrl;
 
   const handleSignout = async () => {
@@ -126,11 +120,29 @@ const Dashboard = () => {
       color: "bg-pink-500",
     },
   ];
+console.log("role : ", user.unsafeMetadata?.role);
+
+    const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setThumbnail(file);
+      setThumbnailPreview(URL.createObjectURL(file));
+    }
+  };
+
+   const handleCreateWebinar = () => {
+    const uniqueId = uuidv4();
+    const link = `https://yourapp.com/register/${uniqueId}`;
+    setRegistrationLink(link);
+
+    // TODO: send webinar data to backend
+    console.log("Webinar Created:", { topic1, thumbnail, link });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-event-gradient text-white">
+      <header className="bg-event-gradient text-white relative ">
         <div className="container mx-auto py-4 px-4 md:px-6">
           <div className="flex justify-between items-center">
             <Logo size="small" />
@@ -148,7 +160,7 @@ const Dashboard = () => {
                     <path d="M4 20c0-4 4-7 8-7s8 3 8 7" />
                   </svg>
                 </button>
-               {menuOpen && (
+                {menuOpen && (
   <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl border border-primary shadow-lg shadow-purple-300 z-50">
     <div className="py-6 px-5">
       {/* Avatar + Name */}
@@ -156,11 +168,12 @@ const Dashboard = () => {
         <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white text-xl font-semibold shadow-inner">
           U
         </div>
+        <div className=' absolute top-2 cursor-pointer hover:text-red-600 text-xl text-slate-700 right-4' onClick={() => setMenuOpen(false)}>x</div>
         <div>
-          <h3 className="text-lg font-semibold text-gray-800">
+          <h3 className="text-lg font-semibold mt-2 text-gray-800">
             {username || "DemoUser"}
           </h3>
-          <p className="text-sm text-gray-500">Admin • Joined Jan 2025</p>
+          <p className="text-sm text-gray-500"><p className=' text-violet-700'>• {String(user.unsafeMetadata?.role).toUpperCase()}</p> • Joined Jan 2025</p>
         </div>
       </div>
 
@@ -191,10 +204,89 @@ const Dashboard = () => {
         </div>
       </header>
 
+      {openModel && (<div className=' backdrop-blur-md top-0 absolute h-screen w-screen z-20'>
+         <div className="p-16 rounded-md max-w-xl mx-auto absolute left-80  right-72 top-40 bg-violet-200 border-2 border-violet-900">
+      <h1 className="text-2xl font-bold mb-4">Create Webinar</h1>
+      <div className=' absolute top-2 cursor-pointer hover:text-red-600 text-xl text-slate-700 right-4' onClick={() => setOpenModal(false)}>x</div>
+
+      <label className="block mb-2 font-medium">Webinar Topic</label>
+      <input
+        type="text"
+        value={topic1}
+        onChange={(e) => setTopic1(e.target.value)}
+        className="w-full p-2 border rounded mb-4 outline-none"
+        placeholder="e.g., Modern React Patterns"
+      />
+
+     <label className="block mb-2 font-medium">Discription</label>
+      <textarea
+        
+        value={topic1}
+        onChange={(e) => setTopic1(e.target.value)}
+        className="w-full p-2 border rounded mb-4 outline-none"
+        placeholder="e.g.,Discover techniques for mindfulness & physical wellness"
+      />
+
+      <label className="block mb-2 font-medium">Upload Thumbnail</label>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleThumbnailChange}
+        className="mb-4"
+      />
+
+      {thumbnailPreview && (
+        <img
+          src={thumbnailPreview}
+          alt="Thumbnail Preview"
+          className="w-64 h-auto mb-4 rounded border"
+        />
+      )}
+
+      <button
+        onClick={handleCreateWebinar}
+        className="bg-violet-700 text-white px-4 py-2 rounded hover:bg-violet-800 transition"
+      >
+        Create Webinar
+      </button>
+
+      {registrationLink && (
+        <div className="mt-4">
+          <p className="font-semibold">Registration Link:</p>
+          <a href={registrationLink} className="text-blue-600 underline">
+            {registrationLink}
+          </a>
+        </div>
+      )}
+    </div>
+      </div>)}
+
+      {openAdminModel && (<div className=' backdrop-blur-md top-0 absolute h-screen w-screen z-20'>
+         <div className="p-16 rounded-md max-w-xl mx-auto absolute left-80  right-72 top-40 bg-violet-200 border-2 border-violet-900">
+      <h1 className="text-2xl font-bold mb-4">Register New Admin</h1>
+      <div className=' absolute top-2 cursor-pointer hover:text-red-600 text-xl text-slate-700 right-4' onClick={() => setOpenAdminModel(false)}>x</div>
+
+     
+
+      {/* {registrationLink && (
+        <div className="mt-4">
+          <p className="font-semibold">Registration Link:</p>
+          <a href={registrationLink} className="text-blue-600 underline">
+            {registrationLink}
+          </a>
+        </div>
+      )} */}
+    </div>
+      </div>)}
+
       {/* Main */}
-      <main className="container mx-auto py-8 px-4 md:px-6">
-        <div className="mb-8">
+      <main className="container mx-auto py-6 px-4 md:px-6">
+        <div className="mb-8 flex justify-between">
           <img src={profilePic} alt="Profile Photo" className="w-12 h-12 rounded-full" />
+         <div className=' flex justify-between gap-4'>
+           <button  className=' bg-violet-200 px-4 rounded-sm hover:bg-violet-900 hover:text-white text-violet-800 border-2 border-violet-800' onClick={() => setOpenAdminModel(true)}>Register Admin</button>
+          <button  className=' bg-violet-800 px-4 rounded-sm hover:bg-violet-900 text-white' onClick={() => setOpenModal(true)}>Create Webinar</button>
+         </div>
         </div>
 
         <div className='flex gap-8 mb-8'>
@@ -264,4 +356,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default AdminDashboard;

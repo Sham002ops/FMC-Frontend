@@ -2,32 +2,21 @@
 import React from 'react';
 
 interface LogoProps {
-  size?: 'sm' | 'md' | 'lg';
-  variant?: 'light' | 'dark';
+  size?: 'small' | 'medium' | 'large';
+  className?: string;
 }
 
-const Logo: React.FC<LogoProps> = ({ size = 'md', variant = 'light' }) => {
+const Logo: React.FC<LogoProps> = ({ size = 'medium', className = '' }) => {
   const sizeClasses = {
-    sm: 'text-xl',
-    md: 'text-2xl',
-    lg: 'text-4xl',
-  };
-
-  const colorClasses = {
-    light: 'text-white',
-    dark: 'text-event-primary',
+    small: 'h-8 w-8',
+    medium: 'h-12 w-12',
+    large: 'h-20 w-20',
   };
 
   return (
-    <div className="flex items-center justify-center">
-      <div className={`font-bold ${sizeClasses[size]} ${colorClasses[variant]} flex items-center`}>
-        <div className="rounded-full bg-event-secondary p-1 flex items-center justify-center border-2 border-current">
-          <div className="px-1">
-            <span className="font-black tracking-tight">E</span>
-            <span className="font-black tracking-tight">H</span>
-          </div>
-        </div>
-        <span className="ml-2">Event Horizon</span>
+    <div className={`relative ${sizeClasses[size]} ${className}`}>
+      <div className="absolute inset-0 rounded-full bg-white flex items-center justify-center">
+        <div className="text-primary font-bold text-2xl">M</div>
       </div>
     </div>
   );

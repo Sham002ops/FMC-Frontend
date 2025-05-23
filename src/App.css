@@ -40,3 +40,18 @@
 .read-the-docs {
   color: #888;
 }
+
+.wave-group.logo-letter {
+  display: inline-block;
+  animation: wave 1s infinite;
+  animation-delay: calc(var(--index) * 0.1s);
+}
+
+@keyframes wave {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+}

@@ -17,7 +17,7 @@ const Index = () => {
       {/* Header */}
       <header className="container mx-auto py-4">
         <nav className="flex justify-between items-center">
-          <Logo size="md" />
+          <Logo size="medium" />
           <div className="space-x-4">
             <Link to="/login" className="text-white hover:text-event-accent">
               Login
@@ -133,7 +133,7 @@ const Index = () => {
       <footer className="bg-event-dark text-white py-10">
         <div className="container mx-auto px-4 md:px-0">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <Logo size="sm" />
+            <Logo size="small" />
             <div className="mt-4 md:mt-0">
               <p className="text-sm opacity-70">© 2025 Event Horizon. All rights reserved.</p>
             </div>
