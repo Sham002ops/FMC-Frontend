@@ -12,33 +12,40 @@ interface Plan {
 
 const plans: Plan[] = [
   {
-    name: "Basic",
-    price: "₹0",
+    name: "Elite",
+    price: "₹1999",
     features: [
-      "1 Free Webinar/Month",
+      "2  Webinar/week",
       "Access to Community",
       "Limited Support",
+      "Topics covered : ",
+      "Yoga, Career development, health and wellness",
     ],
   },
   {
-    name: "Plus",
-    price: "₹299",
+    name: "Gold",
+    price: "₹4999",
     highlighted: true,
     features: [
-      "5 Webinars/Month",
+      "5 Webinars/week",
       "Priority Support",
       "Webinar Replays",
+      "Topics covered : ",
+      "Basic + digital marketing, Biotechnology,",
       "Access to Community",
     ],
   },
   {
     name: "Premium",
-    price: "₹999",
+    price: "₹9999",
     features: [
-      "Unlimited Webinars",
+      "All Upcoming Webinars",
       "1-on-1 Mentoring",
+      "Topics covered : ",
+      "Elite +  AI, ML, product demonstrations",
       "Recorded Sessions",
       "All Plus Features",
+
     ],
   },
 ];
@@ -69,7 +76,7 @@ const PricingPlansSection: React.FC = () => {
                   </li>
                 ))}
               </ul>
-              <Button variant={plan.highlighted ? "default" : "outline"} className="w-full">
+              <Button variant={plan.highlighted ? "default" : "outline"} className="w-full border-2 hover:bg-violet-700 hover:text-white border-violet-700">
                 Get Started
               </Button>
             </div>

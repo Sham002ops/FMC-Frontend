@@ -1,6 +1,6 @@
 import React, { useState } from 'react'; 
 import { useSignUp } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -95,8 +95,10 @@ const Register = () => {
     <div className="min-h-screen bg-event-gradient py-10 flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-6">
-          <Logo size="medium" />
-          <h1 className="text-2xl font-bold text-white mt-6">Create Your Account</h1>
+         <div className=' flex justify-center items-center'>
+           <Logo size="medium"  className=''/>
+         </div>
+                    <h1 className="text-2xl font-bold text-white mt-6">Create Your Account</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 shadow-lg">
@@ -145,7 +147,7 @@ const Register = () => {
 
         <div className="text-center mt-6">
           <p className="text-white">
-            Already have an account? <a href="/login" className="font-medium hover:underline">Sign In</a>
+            Already have an account? <Link to="/login" className="font-medium hover:underline">Sign In</Link>
           </p>
         </div>
       </div>

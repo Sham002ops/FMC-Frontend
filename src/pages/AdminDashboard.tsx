@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Logo from '@/components/Logo';
@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form } from '@/components/ui/form';
-
+import { json } from 'stream/consumers';
 
 interface TopicCardProps {
   title: string;
@@ -20,7 +20,6 @@ interface TopicCardProps {
   description: string;
   color: string;
 }
-
 
 const TopicCard = ({ title, image, description, color }: TopicCardProps) => (
   <div className={`rounded-lg overflow-hidden shadow-sm border border-gray-200 bg-white`}>
@@ -51,8 +50,6 @@ const AdminDashboard = () => {
       isAdmin: false,
     });
 
-
-
   const { isLoaded, user } = useUser();
 
   useEffect(() => {
@@ -62,7 +59,7 @@ const AdminDashboard = () => {
   }, [isLoaded, user, navigate]);
 
   if (!isLoaded || !user) {
-    return <div className="justify-center items-center flex p-72 text-center"><Processing /></div>;
+    return <div className="justify-center items-center flex min-h-screen text-center"><Processing /></div>;
   }
 
   const username = typeof user.unsafeMetadata?.firstName === 'string' ? user.unsafeMetadata.firstName : "Guest";
@@ -75,16 +72,16 @@ const AdminDashboard = () => {
     navigate("/login");
   };
 
-  const upcomingEvents = [
-    { id: 1, title: 'AI for Beginners', price: 'FREE', coinCost: 200, date: 'May 15, 2025' },
-    { id: 2, title: 'Stock Market Basics', price: 'FREE', coinCost: 150, date: 'May 20, 2025' },
-    { id: 3, title: 'Public Speaking Masterclass', price: 'FREE', date: 'May 25, 2025' },
-    { id: 4, title: 'Digital Marketing Trends', price: 'FREE', coinCost: 300, date: 'June 5, 2025' },
+ const upcomingEvents = [
+    { id: 1, title: 'AI for Beginners', image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=400&auto=format&fit=crop", price: 'Elite', PlayNow: "Join", date: 'May 15, 2025' },
+    { id: 2, title: 'Stock Market Basics', image: "https://blog.shoonya.com/wp-content/uploads/2023/01/Basics-of-Stock-Market.jpg", price: 'Gold', PlayNow: "Join", date: 'May 20, 2025' },
+    { id: 3, title: 'Public Speaking Masterclass', image: "https://i.ytimg.com/vi/-osimXXsaQM/maxresdefault.jpg", price: 'Elite', PlayNow: "Join", date: 'May 25, 2025' },
+    { id: 4, title: 'Digital Marketing Trends', image: "https://neilpatel.com/wp-content/uploads/2024/01/11-A-2025-Digital-Marketing-Trends-Predictions-1.jpg", price: 'Platinum', PlayNow: "Join", date: 'June 5, 2025' },
   ];
 
   const registeredEvents = [
-    { id: 5, title: 'Introduction to Crypto', price: 'FREE', coinCost: 200, date: 'May 12, 2025' },
-    { id: 6, title: 'Personal Finance 101', price: 'FREE', coinCost: 100, date: 'May 18, 2025' },
+    { id: 5, title: 'Introduction to Crypto', image: "https://d1csarkz8obe9u.cloudfront.net/posterpreviews/what-is-cryptocurrency-youtube-thumbnail-temp-design-template-733229d072c1e87fd25fad085e840654_screen.jpg?ts=1665037426", price: 'Elite', PlayNow: "Join", date: 'May 12, 2025' },
+    { id: 6, title: 'Personal Finance 101', image: "https://i.ytimg.com/vi/dMwGIEzYvzU/mqdefault.jpg", price: 'Gold', PlayNow: "Join", date: 'May 18, 2025' },
   ];
 
   // ✅ Topics list
@@ -120,9 +117,10 @@ const AdminDashboard = () => {
       color: "bg-pink-500",
     },
   ];
+
 console.log("role : ", user.unsafeMetadata?.role);
 
-    const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setThumbnail(file);
@@ -142,14 +140,11 @@ console.log("role : ", user.unsafeMetadata?.role);
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-event-gradient text-white relative ">
+      <header className="bg-event-gradient text-white relative">
         <div className="container mx-auto py-4 px-4 md:px-6">
           <div className="flex justify-between items-center">
             <Logo size="small" />
             <div className="flex items-center space-x-6">
-              <span className="bg-white/20 px-4 py-2 rounded-full text-sm backdrop-blur-sm">
-                800 <span className="font-bold">COIN</span>
-              </span>
               <div className="relative">
                 <button
                   className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center focus:outline-none"
@@ -161,170 +156,217 @@ console.log("role : ", user.unsafeMetadata?.role);
                   </svg>
                 </button>
                 {menuOpen && (
-  <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl border border-primary shadow-lg shadow-purple-300 z-50">
-    <div className="py-6 px-5">
-      {/* Avatar + Name */}
-      <div className="flex items-center space-x-4 mb-4">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white text-xl font-semibold shadow-inner">
-          U
-        </div>
-        <div className=' absolute top-2 cursor-pointer hover:text-red-600 text-xl text-slate-700 right-4' onClick={() => setMenuOpen(false)}>x</div>
-        <div>
-          <h3 className="text-lg font-semibold mt-2 text-gray-800">
-            {username || "DemoUser"}
-          </h3>
-          <p className="text-sm text-gray-500"><p className=' text-violet-700'>• {String(user.unsafeMetadata?.role).toUpperCase()}</p> • Joined Jan 2025</p>
-        </div>
-      </div>
+                  <div className="absolute right-0 mt-2 w-72 max-w-[90vw] bg-white rounded-xl border border-primary shadow-lg shadow-purple-300 z-50">
+                    <div className="py-6 px-5">
+                      {/* Avatar + Name */}
+                      <div className="flex items-center space-x-4 mb-4">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white text-xl font-semibold shadow-inner">
+                          U
+                        </div>
+                        <div className='absolute top-2 cursor-pointer hover:text-red-600 text-xl text-slate-700 right-4' onClick={() => setMenuOpen(false)}>×</div>
+                        <div>
+                          <h3 className="text-lg font-semibold mt-2 text-gray-800">
+                            {username || "DemoUser"}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            <span className='text-violet-700'>• {String(user.unsafeMetadata?.role).toUpperCase()}</span> • Joined Jan 2025
+                          </p>
+                        </div>
+                      </div>
 
-      {/* Divider */}
-      <div className="border-t border-gray-200 my-4" />
+                      {/* Divider */}
+                      <div className="border-t border-gray-200 my-4" />
 
-      {/* Menu Links (Add more if needed) */}
-      <ul className="space-y-2 text-sm text-gray-700">
-        <li className="hover:text-primary cursor-pointer transition">Dashboard</li>
-        <li className="hover:text-primary cursor-pointer transition">My Webinars</li>
-        <li className="hover:text-primary cursor-pointer transition">Settings</li>
-      </ul>
+                      {/* Menu Links */}
+                      <ul className="space-y-2 text-sm text-gray-700">
+                        <li className="hover:text-primary cursor-pointer transition">Dashboard</li>
+                        <li className="hover:text-primary cursor-pointer transition">My Webinars</li>
+                        <li className="hover:text-primary cursor-pointer transition">Settings</li>
+                      </ul>
 
-      {/* Sign Out */}
-      <button
-        onClick={handleSignout}
-        className="mt-6 w-full py-2 border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition font-medium"
-      >
-        Sign Out
-      </button>
-    </div>
-  </div>
-)}
-
+                      {/* Sign Out */}
+                      <button
+                        onClick={handleSignout}
+                        className="mt-6 w-full py-2 border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition font-medium"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      {openModel && (<div className=' backdrop-blur-md top-0 absolute h-screen w-screen z-20'>
-         <div className="p-16 rounded-md max-w-xl mx-auto absolute left-80  right-72 top-40 bg-violet-200 border-2 border-violet-900">
-      <h1 className="text-2xl font-bold mb-4">Create Webinar</h1>
-      <div className=' absolute top-2 cursor-pointer hover:text-red-600 text-xl text-slate-700 right-4' onClick={() => setOpenModal(false)}>x</div>
+      {/* Create Webinar Modal */}
+      {openModel && (
+        <div className='fixed inset-0 backdrop-blur-md z-50 flex items-center justify-center p-4'>
+          <div className="bg-violet-200 border-2 border-violet-900 rounded-md w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-bold">Create Webinar</h1>
+                <button 
+                  className='cursor-pointer hover:text-red-600 text-xl text-slate-700' 
+                  onClick={() => setOpenModal(false)}
+                >
+                  ×
+                </button>
+              </div>
 
-      <label className="block mb-2 font-medium">Webinar Topic</label>
-      <input
-        type="text"
-        value={topic1}
-        onChange={(e) => setTopic1(e.target.value)}
-        className="w-full p-2 border rounded mb-4 outline-none"
-        placeholder="e.g., Modern React Patterns"
-      />
+              <label className="block mb-2 font-medium">Webinar Topic</label>
+              <input
+                type="text"
+                value={topic1}
+                onChange={(e) => setTopic1(e.target.value)}
+                className="w-full p-2 border rounded mb-4 outline-none"
+                placeholder="e.g., Modern React Patterns"
+              />
 
-     <label className="block mb-2 font-medium">Discription</label>
-      <textarea
-        
-        value={topic1}
-        onChange={(e) => setTopic1(e.target.value)}
-        className="w-full p-2 border rounded mb-4 outline-none"
-        placeholder="e.g.,Discover techniques for mindfulness & physical wellness"
-      />
+              <label className="block mb-2 font-medium">Description</label>
+              <textarea
+                value={topic1}
+                onChange={(e) => setTopic1(e.target.value)}
+                className="w-full p-2 border rounded mb-4 outline-none min-h-[80px]"
+                placeholder="e.g., Discover techniques for mindfulness & physical wellness"
+              />
 
-      <label className="block mb-2 font-medium">Upload Thumbnail</label>
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleThumbnailChange}
-        className="mb-4"
-      />
+              <label className="block mb-2 font-medium">Upload Thumbnail</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleThumbnailChange}
+                className="mb-4 w-full"
+              />
 
-      {thumbnailPreview && (
-        <img
-          src={thumbnailPreview}
-          alt="Thumbnail Preview"
-          className="w-64 h-auto mb-4 rounded border"
-        />
-      )}
+              {thumbnailPreview && (
+                <img
+                  src={thumbnailPreview}
+                  alt="Thumbnail Preview"
+                  className="w-full max-w-64 h-auto mb-4 rounded border"
+                />
+              )}
 
-      <button
-        onClick={handleCreateWebinar}
-        className="bg-violet-700 text-white px-4 py-2 rounded hover:bg-violet-800 transition"
-      >
-        Create Webinar
-      </button>
+              <button
+                onClick={handleCreateWebinar}
+                className="w-full bg-violet-700 text-white px-4 py-2 rounded hover:bg-violet-800 transition"
+              >
+                Create Webinar
+              </button>
 
-      {registrationLink && (
-        <div className="mt-4">
-          <p className="font-semibold">Registration Link:</p>
-          <a href={registrationLink} className="text-blue-600 underline">
-            {registrationLink}
-          </a>
+              {registrationLink && (
+                <div className="mt-4">
+                  <p className="font-semibold">Registration Link:</p>
+                  <a href={registrationLink} className="text-blue-600 underline break-all">
+                    {registrationLink}
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
-    </div>
-      </div>)}
 
-      {openAdminModel && (<div className=' backdrop-blur-md top-0 absolute h-screen w-screen z-20'>
-         <div className="p-16 rounded-md max-w-xl mx-auto absolute left-80  right-72 top-40 bg-violet-200 border-2 border-violet-900">
-      <h1 className="text-2xl font-bold mb-4">Register New Admin</h1>
-      <div className=' absolute top-2 cursor-pointer hover:text-red-600 text-xl text-slate-700 right-4' onClick={() => setOpenAdminModel(false)}>x</div>
-
-     
-
-      {/* {registrationLink && (
-        <div className="mt-4">
-          <p className="font-semibold">Registration Link:</p>
-          <a href={registrationLink} className="text-blue-600 underline">
-            {registrationLink}
-          </a>
+      {/* Register Admin Modal */}
+      {openAdminModel && (
+        <div className='fixed inset-0 backdrop-blur-md z-50 flex items-center justify-center p-4'>
+          <div className="bg-violet-200 border-2 border-violet-900 rounded-md w-full max-w-lg">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-bold">Register New Admin</h1>
+                <button 
+                  className='cursor-pointer hover:text-red-600 text-xl text-slate-700' 
+                  onClick={() => setOpenAdminModel(false)}
+                >
+                  ×
+                </button>
+              </div>
+              Under Development
+              {/* Add your admin registration form here */}
+            </div>
+          </div>
         </div>
-      )} */}
-    </div>
-      </div>)}
+      )}
 
-      {/* Main */}
+      {/* Main Content */}
       <main className="container mx-auto py-6 px-4 md:px-6">
-        <div className="mb-8 flex justify-between">
-          <img src={profilePic} alt="Profile Photo" className="w-12 h-12 rounded-full" />
-         <div className=' flex justify-between gap-4'>
-           <button  className=' bg-violet-200 px-4 rounded-sm hover:bg-violet-900 hover:text-white text-violet-800 border-2 border-violet-800' onClick={() => setOpenAdminModel(true)}>Register Admin</button>
-          <button  className=' bg-violet-800 px-4 rounded-sm hover:bg-violet-900 text-white' onClick={() => setOpenModal(true)}>Create Webinar</button>
+        {/* Profile and Action Buttons */}
+        <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+         <div className=' flex  items-center gap-4'>
+           <img src={profilePic} alt="Profile Photo" className="w-12 h-12 rounded-full" />
+            <div className=' text-event-primary font-bold text-2xl '>{(username).toUpperCase()}
+            </div>
          </div>
+        <span className='text-gray-400 md:left-[90px] text-sm absolute top-32 left-[80px]'>{String(user.unsafeMetadata?.role)}</span>
+
+          <div className='flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto'>
+            <button  
+              className='bg-violet-100 px-4 py-2 rounded-sm hover:bg-violet-900 hover:text-white text-violet-800 border-2 border-violet-800 text-sm sm:text-base' 
+              onClick={() => setOpenAdminModel(true)}
+            >
+              Register Admin
+            </button>
+            <button  
+              className='bg-violet-800 px-4 py-2 rounded-sm hover:bg-violet-900 text-white text-sm sm:text-base' 
+              onClick={() => setOpenModal(true)}
+            >
+              Create Webinar
+            </button>
+          </div>
         </div>
 
-        <div className='flex gap-8 mb-8'>
+        {/* Stats Cards - First Row */}
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6'>
           <div className="bg-white p-4 rounded-lg shadow-sm">
-            <h3 className="text-sm font-medium text-gray-500">Remaining Balance</h3>
-            <p className="text-2xl font-bold text-event-primary">800 <span className="text-lg">COIN</span></p>
+            <h3 className="text-sm font-medium text-gray-500">Total Users</h3>
+            <p className="text-2xl font-bold text-event-primary">138</p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <h3 className="text-sm font-medium text-gray-500">Attended Webinars</h3>
-            <p className="text-2xl font-bold text-event-primary">12</p>
+          <div className="bg-white border-2 border-event-primary p-4 rounded-lg shadow-sm">
+            <h3 className="text-sm font-medium text-gray-500">Elite Package Users</h3>
+            <p className="text-2xl font-bold text-event-primary">67</p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <h3 className="text-sm font-medium text-gray-500">Certificates Earned</h3>
-            <p className="text-2xl font-bold text-event-primary">5</p>
+          <div className="bg-white p-4 border-2 border-yellow-500 rounded-lg shadow-sm">
+            <h3 className="text-sm font-medium text-gray-500">Gold Package Users</h3>
+            <p className="text-2xl font-bold text-yellow-500">42</p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <h3 className="text-sm font-medium text-gray-500">Valid Until</h3>
-            <p className="text-2xl font-bold text-event-primary">Jan 2026</p>
+          <div className="bg-white border-2 border-slate-400 p-4 rounded-lg shadow-sm">
+            <h3 className="text-sm font-medium text-gray-500">Platinum Package Users</h3>
+            <p className="text-2xl font-bold text-slate-400">29</p>
+          </div>
+        </div>
+
+        {/* Stats Cards - Second Row */}
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8'>
+          <div className="bg-white p-4 border-2 rounded-lg shadow-sm">
+            <h3 className="text-sm font-medium text-gray-500">Total Executives</h3>
+            <p className="text-2xl font-bold text-event-primary">33</p>
+          </div>
+          <div className="bg-white p-4 border-2 border-red-500 rounded-lg shadow-sm">
+            <h3 className="text-sm font-medium text-gray-500">Banned Users</h3>
+            <p className="text-2xl font-bold text-red-500">3</p>
           </div>
         </div>
 
         {/* Tabs */}
         <Tabs defaultValue="upcoming" className="w-full">
-          <TabsList className="bg-gray-100 mb-6">
-            <TabsTrigger value="upcoming">Upcoming Webinars</TabsTrigger>
-            <TabsTrigger value="registered">Your Registrations</TabsTrigger>
-            <TabsTrigger value="history">Past Webinars</TabsTrigger>
-            <TabsTrigger value="topics">Topics</TabsTrigger> {/* ✅ New tab */}
-          </TabsList>
+          <div className="overflow-x-auto">
+            <TabsList className="bg-gray-100 mb-6 flex w-full min-w-max">
+              <TabsTrigger value="upcoming" className="flex-1 text-xs sm:text-sm">Upcoming Webinars</TabsTrigger>
+              <TabsTrigger value="registered" className="flex-1 text-xs sm:text-sm">Your Registrations</TabsTrigger>
+              <TabsTrigger value="history" className="flex-1 text-xs sm:text-sm">Past Webinars</TabsTrigger>
+              <TabsTrigger value="topics" className="flex-1 text-xs sm:text-sm">Topics</TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="upcoming">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {upcomingEvents.map(event => <EventCard key={event.id} {...event} />)}
             </div>
           </TabsContent>
 
           <TabsContent value="registered">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {registeredEvents.map(event => <EventCard key={event.id} {...event} />)}
             </div>
           </TabsContent>
@@ -336,7 +378,7 @@ console.log("role : ", user.unsafeMetadata?.role);
           </TabsContent>
 
           <TabsContent value="topics">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {topics.map((topic, index) => (
                 <TopicCard key={index} {...topic} />
               ))}
@@ -344,8 +386,8 @@ console.log("role : ", user.unsafeMetadata?.role);
           </TabsContent>
         </Tabs>
 
-        {/* Buttons */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+        {/* Action Buttons */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
           <Button variant="outline" className="border-event-primary text-event-primary hover:bg-event-accent">My Coins</Button>
           <Button variant="outline" className="border-event-primary text-event-primary hover:bg-event-accent">Events & Workshops</Button>
           <Button variant="outline" className="border-event-primary text-event-primary hover:bg-event-accent">Club News</Button>

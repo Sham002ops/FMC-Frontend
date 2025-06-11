@@ -14,44 +14,6 @@ interface TopicCardProps {
   description: string;
   color: string;
 }
-const topics = [
-  {
-    title: "Yoga & Meditation",
-    image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=400&auto=format&fit=crop",
-    description: "Discover techniques for mindfulness and physical wellness",
-    color: "bg-purple-500",
-  },
-  {
-    title: "Biotechnology",
-    image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=400&auto=format&fit=crop",
-    description: "Learn about the latest advances in biotechnology research",
-    color: "bg-blue-500",
-  },
-  {
-    title: "Mental Wellness",
-    image: "https://images.unsplash.com/photo-1507413245164-6160d8298b31?q=80&w=400&auto=format&fit=crop",
-    description: "Explore strategies for better mental health and wellbeing",
-    color: "bg-green-500",
-  },
-  {
-    title: "Ayurveda",
-    image: "https://rukminim3.flixcart.com/image/850/1000/xif0q/poster/p/i/l/small-poster-doctors-poster-natural-healing-ayurveda-wall-poster-original-imah38gyxxdnuhnk.jpeg?q=90&crop=false",
-    description: "Discover ancient healing practices for modern wellness",
-    color: "bg-amber-500",
-  },
-  {
-    title: "Artificial Intelligence",
-    image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=400&auto=format&fit=crop",
-    description: "Understand AI applications in various industries",
-    color: "bg-red-500",
-  },
-  {
-    title: "Sustainable Living",
-    image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=400&auto=format&fit=crop",
-    description: "Learn practical ways to live more sustainably",
-    color: "bg-teal-500",
-  },
-];
 
 const TopicCard = ({ title, image, description, color }: TopicCardProps) => (
   <div className={`rounded-lg overflow-hidden shadow-sm border border-gray-200 bg-white`}>
@@ -82,15 +44,15 @@ const Dashboard = () => {
   };
 
   const upcomingEvents = [
-    { id: 1, title: 'AI for Beginners', price: 'FREE', coinCost: 200, date: 'May 15, 2025' },
-    { id: 2, title: 'Stock Market Basics', price: 'FREE', coinCost: 150, date: 'May 20, 2025' },
-    { id: 3, title: 'Public Speaking Masterclass', price: 'FREE', date: 'May 25, 2025' },
-    { id: 4, title: 'Digital Marketing Trends', price: 'FREE', coinCost: 300, date: 'June 5, 2025' },
+    { id: 1, title: 'AI for Beginners', image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=400&auto=format&fit=crop", price: 'Elite', PlayNow: "Join", date: 'May 15, 2025' },
+    { id: 2, title: 'Stock Market Basics', image: "https://blog.shoonya.com/wp-content/uploads/2023/01/Basics-of-Stock-Market.jpg", price: 'Gold', PlayNow: "Join", date: 'May 20, 2025' },
+    { id: 3, title: 'Public Speaking Masterclass', image: "https://i.ytimg.com/vi/-osimXXsaQM/maxresdefault.jpg", price: 'Elite', PlayNow: "Join", date: 'May 25, 2025' },
+    { id: 4, title: 'Digital Marketing Trends', image: "https://neilpatel.com/wp-content/uploads/2024/01/11-A-2025-Digital-Marketing-Trends-Predictions-1.jpg", price: 'Platinum', PlayNow: "Join", date: 'June 5, 2025' },
   ];
 
   const registeredEvents = [
-    { id: 5, title: 'Introduction to Crypto', price: 'FREE', coinCost: 200, date: 'May 12, 2025' },
-    { id: 6, title: 'Personal Finance 101', price: 'FREE', coinCost: 100, date: 'May 18, 2025' },
+    { id: 5, title: 'Introduction to Crypto', image: "https://d1csarkz8obe9u.cloudfront.net/posterpreviews/what-is-cryptocurrency-youtube-thumbnail-temp-design-template-733229d072c1e87fd25fad085e840654_screen.jpg?ts=1665037426", price: 'Elite', PlayNow: "Join", date: 'May 12, 2025' },
+    { id: 6, title: 'Personal Finance 101', image: "https://i.ytimg.com/vi/dMwGIEzYvzU/mqdefault.jpg", price: 'Gold', PlayNow: "Join", date: 'May 18, 2025' },
   ];
 
   // ✅ Topics list
@@ -134,57 +96,59 @@ const Dashboard = () => {
         <div className="container mx-auto py-4 px-4 md:px-6">
           <div className="flex justify-between items-center">
             <Logo size="small" />
-            <div className="flex items-center space-x-6">
-              <span className="bg-white/20 px-4 py-2 rounded-full text-sm backdrop-blur-sm">
+            <div className="flex items-center space-x-4 md:space-x-6">
+              {/* Coins display - hidden on very small screens */}
+              {/* <span className="hidden sm:block bg-white/20 px-3 py-2 rounded-full text-sm backdrop-blur-sm">
                 800 <span className="font-bold">COIN</span>
-              </span>
+              </span> */}
               <div className="relative">
                 <button
                   className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center focus:outline-none"
                   onClick={() => setMenuOpen((open) => !open)}
                 >
-                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 md:w-7 md:h-7 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                     <circle cx="12" cy="8" r="4" />
                     <path d="M4 20c0-4 4-7 8-7s8 3 8 7" />
                   </svg>
                 </button>
-               {menuOpen && (
-  <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl border border-primary shadow-lg shadow-purple-300 z-50">
-    <div className="py-6 px-5">
-      {/* Avatar + Name */}
-      <div className="flex items-center space-x-4 mb-4">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white text-xl font-semibold shadow-inner">
-          U
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800">
-            {username || "DemoUser"}
-          </h3>
-          <p className="text-sm text-gray-500">Admin • Joined Jan 2025</p>
-        </div>
-      </div>
+                {menuOpen && (
+                  <div className="absolute right-0 mt-2 w-64 md:w-72 bg-white rounded-xl border border-primary shadow-lg shadow-purple-300 z-50">
+                    <div className="py-4 px-4 md:py-6 md:px-5">
+                      {/* Avatar + Name */}
+                      <div className="flex items-center space-x-3 md:space-x-4 mb-4">
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white text-lg md:text-xl font-semibold shadow-inner">
+                          U
+                        </div>
+                        <div>
+                          <h3 className="text-base md:text-lg font-semibold text-gray-800">
+                            {username || "DemoUser"}
+                          </h3>
+                          <p className="text-xs md:text-sm text-gray-500">
+                            <span className='text-violet-700'>• {String(user.unsafeMetadata?.role).toUpperCase()}</span> • Joined Jan 2025
+                          </p>
+                        </div>
+                      </div>
 
-      {/* Divider */}
-      <div className="border-t border-gray-200 my-4" />
+                      {/* Divider */}
+                      <div className="border-t border-gray-200 my-4" />
 
-      {/* Menu Links (Add more if needed) */}
-      <ul className="space-y-2 text-sm text-gray-700">
-        <li className="hover:text-primary cursor-pointer transition">Dashboard</li>
-        <li className="hover:text-primary cursor-pointer transition">My Webinars</li>
-        <li className="hover:text-primary cursor-pointer transition">Settings</li>
-      </ul>
+                      {/* Menu Links */}
+                      <ul className="space-y-2 text-sm text-gray-700">
+                        <li className="hover:text-primary cursor-pointer transition">Dashboard</li>
+                        <li className="hover:text-primary cursor-pointer transition">My Webinars</li>
+                        <li className="hover:text-primary cursor-pointer transition">Settings</li>
+                      </ul>
 
-      {/* Sign Out */}
-      <button
-        onClick={handleSignout}
-        className="mt-6 w-full py-2 border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition font-medium"
-      >
-        Sign Out
-      </button>
-    </div>
-  </div>
-)}
-
+                      {/* Sign Out */}
+                      <button
+                        onClick={handleSignout}
+                        className="mt-6 w-full py-2 border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition font-medium"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -192,59 +156,60 @@ const Dashboard = () => {
       </header>
 
       {/* Main */}
-      <main className="container mx-auto py-8 px-4 md:px-6">
-        <div className="mb-8">
-          <img src={profilePic} alt="Profile Photo" className="w-12 h-12 rounded-full" />
+      <main className="container mx-auto py-6 md:py-8 px-4 md:px-6">
+        <div className="mb-6 md:mb-8">
+          <img src={profilePic} alt="Profile Photo" className="w-10 h-10 md:w-12 md:h-12 rounded-full" />
         </div>
 
-        <div className='flex gap-8 mb-8'>
+        {/* Stats Cards - Responsive Grid */}
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 md:mb-8'>
           <div className="bg-white p-4 rounded-lg shadow-sm">
-            <h3 className="text-sm font-medium text-gray-500">Remaining Balance</h3>
-            <p className="text-2xl font-bold text-event-primary">800 <span className="text-lg">COIN</span></p>
+            <h3 className="text-sm font-medium text-gray-500">Package Purchased</h3>
+            <p className="text-xl md:text-2xl font-bold text-yellow-500">Gold <span className="text-base md:text-lg">Package</span></p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow-sm">
             <h3 className="text-sm font-medium text-gray-500">Attended Webinars</h3>
-            <p className="text-2xl font-bold text-event-primary">12</p>
+            <p className="text-xl md:text-2xl font-bold text-event-primary">12</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow-sm">
             <h3 className="text-sm font-medium text-gray-500">Certificates Earned</h3>
-            <p className="text-2xl font-bold text-event-primary">5</p>
+            <p className="text-xl md:text-2xl font-bold text-event-primary">5</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow-sm">
             <h3 className="text-sm font-medium text-gray-500">Valid Until</h3>
-            <p className="text-2xl font-bold text-event-primary">Jan 2026</p>
+            <p className="text-xl md:text-2xl font-bold text-event-primary">Jan 2026</p>
           </div>
         </div>
 
         {/* Tabs */}
         <Tabs defaultValue="upcoming" className="w-full">
-          <TabsList className="bg-gray-100 mb-6">
-            <TabsTrigger value="upcoming">Upcoming Webinars</TabsTrigger>
-            <TabsTrigger value="registered">Your Registrations</TabsTrigger>
-            <TabsTrigger value="history">Past Webinars</TabsTrigger>
-            <TabsTrigger value="topics">Topics</TabsTrigger> {/* ✅ New tab */}
+          <TabsList className="bg-gray-100 mb-6 w-full flex-wrap h-auto p-1">
+            <TabsTrigger value="upcoming" className="text-xs sm:text-sm flex-1 min-w-0">Upcoming</TabsTrigger>
+            <TabsTrigger value="registered" className="text-xs sm:text-sm flex-1 min-w-0">Registered</TabsTrigger>
+            <TabsTrigger value="history" className="text-xs sm:text-sm flex-1 min-w-0">History</TabsTrigger>
+            <TabsTrigger value="topics" className="text-xs sm:text-sm flex-1 min-w-0">Topics</TabsTrigger>
           </TabsList>
 
           <TabsContent value="upcoming">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {upcomingEvents.map(event => <EventCard key={event.id} {...event} />)}
             </div>
           </TabsContent>
 
           <TabsContent value="registered">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {registeredEvents.map(event => <EventCard key={event.id} {...event} />)}
             </div>
           </TabsContent>
 
           <TabsContent value="history">
             <div className="text-center py-10">
-              <p className="text-gray-500">Your attended webinar history will appear here.</p>
+              <p className="text-gray-500 text-sm md:text-base px-4">Your attended webinar history will appear here.</p>
             </div>
           </TabsContent>
 
           <TabsContent value="topics">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {topics.map((topic, index) => (
                 <TopicCard key={index} {...topic} />
               ))}
@@ -252,12 +217,20 @@ const Dashboard = () => {
           </TabsContent>
         </Tabs>
 
-        {/* Buttons */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-          <Button variant="outline" className="border-event-primary text-event-primary hover:bg-event-accent">My Coins</Button>
-          <Button variant="outline" className="border-event-primary text-event-primary hover:bg-event-accent">Events & Workshops</Button>
-          <Button variant="outline" className="border-event-primary text-event-primary hover:bg-event-accent">Club News</Button>
-          <Button variant="outline" className="border-event-primary text-event-primary hover:bg-event-accent">Support Helpdesk</Button>
+        {/* Action Buttons - Responsive Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mt-6 md:mt-8">
+          <Button variant="outline" className="border-event-primary text-event-primary hover:bg-event-accent text-xs sm:text-sm py-2 md:py-3">
+            My Coins
+          </Button>
+          <Button variant="outline" className="border-event-primary text-event-primary hover:bg-event-accent text-xs sm:text-sm py-2 md:py-3">
+            Events & Workshops
+          </Button>
+          <Button variant="outline" className="border-event-primary text-event-primary hover:bg-event-accent text-xs sm:text-sm py-2 md:py-3">
+            Club News
+          </Button>
+          <Button variant="outline" className="border-event-primary text-event-primary hover:bg-event-accent text-xs sm:text-sm py-2 md:py-3">
+            Support Helpdesk
+          </Button>
         </div>
       </main>
     </div>
