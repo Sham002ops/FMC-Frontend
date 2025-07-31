@@ -46,7 +46,7 @@ const topics = [
 
 export default function UpcomingWebinars() {
   return (
-    <div id='webinars' className="w-full py-16 bg-white text-center">
+    <div id='webinars' className="w-full py-16 bg-gray-50 text-center">
       <h2 className="text-3xl font-extrabold text-gray-900 mb-2">Upcoming Webinars</h2>
       <p className="text-gray-600 mb-12 p-2 text-lg">Explore our upcoming webinars and expand your knowledge across various fields</p>
 
@@ -57,6 +57,7 @@ export default function UpcomingWebinars() {
           grabCursor
           centeredSlides
           slidesPerView="auto"
+          initialSlide={2}
           coverflowEffect={{
             rotate: 0,
             stretch: 0,
@@ -72,25 +73,25 @@ export default function UpcomingWebinars() {
               className="w-[300px] sm:w-[350px] lg:w-[400px] group transition-all duration-300"
             >
               <div className="overflow-hidden rounded-2xl shadow-lg relative group-hover:shadow-xl transition-all duration-300">
-                <div className="relative">
-                  <img
-                    src={topic.image}
-                    alt={topic.title}
-                    className="w-full h-60 object-cover group-hover:scale-[1.03] transition-all duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-                  <span className={`absolute top-4 left-4 px-3 py-1 text-sm text-white rounded-full ${topic.color} shadow backdrop-blur-sm`}>
-                    {topic.title}
-                  </span>
-                </div>
+          <div className="relative">
+            <img
+              src={topic.image}
+              alt={topic.title}
+              className="w-full h-60 object-cover group-hover:scale-[1.03] transition-all duration-300"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+            <span className={`absolute top-4 left-4 px-3 py-1 text-sm text-white rounded-full ${topic.color} shadow backdrop-blur-sm`}>
+              {topic.title}
+            </span>
+          </div>
 
-                <div className="bg-white px-5 py-4 text-left">
-                  <h3 className="text-lg font-bold text-gray-800">{topic.title}</h3>
-                  <p className="text-gray-500 text-sm mt-1">{topic.description}</p>
-                  <button className="mt-4 border border-violet-700 text-violet-700 px-4 py-2 rounded-lg hover:bg-violet-700 hover:text-white transition duration-200">
-                    Register Now
-                  </button>
-                </div>
+          <div className="bg-white px-5 py-4 text-left">
+            <h3 className="text-lg font-bold text-gray-800">{topic.title}</h3>
+            <p className="text-gray-500 text-sm mt-1">{topic.description}</p>
+            <button className="mt-4 border border-violet-700 text-violet-700 px-4 py-2 rounded-lg hover:bg-violet-700 hover:text-white transition duration-200">
+              Register Now
+            </button>
+          </div>
               </div>
             </SwiperSlide>
           ))}

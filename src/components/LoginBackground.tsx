@@ -21,7 +21,7 @@ const LoginBackground = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden gradient-bg">
+    <div className="fixed inset-0 -z-10 overflow-hidden bg-gradient-to-r from-blue-900 to-green-500">
       {circles.map((circle, index) => (
         <div
           key={index}

@@ -28,7 +28,7 @@ const testimonials = [
 
 const TestimonialsSection: React.FC = () => {
   return (
-    <section id="testimonials" className="py-24 bg-white">
+    <section id="testimonials" className="py-24 bg-gray-50">
       <div className="max-w-6xl mx-auto px-6 text-center">
         <h2 className="text-3xl font-bold mb-14">What Users Say</h2>
         <div className="grid md:grid-cols-3 gap-8">

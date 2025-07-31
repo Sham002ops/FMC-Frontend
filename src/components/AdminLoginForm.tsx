@@ -109,7 +109,7 @@ const AdminLoginForm = () => {
               <p className="text-sm text-red-600 text-center">{errorMsg}</p>
             )}
 
-            <Button type="submit" className="w-full bg-violet-600 hover:bg-event-dark">
+            <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600">
                {isLoading ? <Processing/> : <>Admin Login</>}
             </Button>
           </div>

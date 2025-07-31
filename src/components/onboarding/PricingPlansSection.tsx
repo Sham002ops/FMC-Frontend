@@ -52,7 +52,7 @@ const plans: Plan[] = [
 
 const PricingPlansSection: React.FC = () => {
   return (
-    <section id='packages' className="py-20 bg-white">
+    <section id='packages' className="py-20 bg-gray-50">
       <div className="max-w-6xl mx-auto px-6 text-center">
         <h2 className="text-3xl font-bold mb-4">Pricing Plans</h2>
         <p className="text-gray-600 mb-12">
@@ -76,7 +76,7 @@ const PricingPlansSection: React.FC = () => {
                   </li>
                 ))}
               </ul>
-              <Button variant={plan.highlighted ? "default" : "outline"} className="w-full border-2 hover:bg-violet-700 hover:text-white border-violet-700">
+              <Button variant={plan.highlighted ? "default" : "outline"} className="w-full border-2 hover:bg-blue-700 hover:text-white border-blue-700">
                 Get Started
               </Button>
             </div>

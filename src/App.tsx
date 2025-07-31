@@ -14,6 +14,7 @@ import LandingPage from "./pages/LandingPage";
 import Login1 from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import Unauthorized from "./pages/Unauthorized";
+import Psudopage from "./pages/Psudopage";
 
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/login" element={<Login1/>} />
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/Psudopage" element={<Psudopage/>} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/landing-page" element={<LandingPage />} />

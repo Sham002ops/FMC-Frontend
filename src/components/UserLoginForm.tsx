@@ -108,7 +108,7 @@ const UserLoginForm = () => {
               <p className="text-sm text-red-600 text-center">{errorMsg}</p>
             )}
 
-            <Button type="submit" className="w-full bg-violet-700 hover:bg-violet-900">
+            <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600">
               Sign In {isLoading ? <Processing/> : <></>}
             </Button>
           </div>

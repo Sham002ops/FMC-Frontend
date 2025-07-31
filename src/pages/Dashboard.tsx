@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Logo from '@/components/Logo';
@@ -6,6 +6,7 @@ import EventCard from '@/components/EventCard';
 import { useClerk, useUser } from '@clerk/clerk-react';
 import { Processing } from '@/components/ui/icons/Processing';
 import { useState } from 'react';
+import AutoSlider from '@/components/onboarding/ImageSlider';
 
 // ✅ Add this simple TopicCard component
 interface TopicCardProps {
@@ -92,7 +93,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-event-gradient text-white">
+      <header className=" bg-gradient-to-r from-blue-600 to-green-500 text-white">
         <div className="container mx-auto py-4 px-4 md:px-6">
           <div className="flex justify-between items-center">
             <Logo size="small" />
@@ -157,9 +158,54 @@ const Dashboard = () => {
 
       {/* Main */}
       <main className="container mx-auto py-6 md:py-8 px-4 md:px-6">
-        <div className="mb-6 md:mb-8">
-          <img src={profilePic} alt="Profile Photo" className="w-10 h-10 md:w-12 md:h-12 rounded-full" />
-        </div>
+        <section className="bg-gradient-to-br ">
+              <div className="max-w-8xl flex mx-auto px-1 gap-6 lg:flex-row ">
+        
+        
+                <div className=" w-[600px] px-5  justify-center mt-10 ">
+                  <h1 className="text-2xl font-extrabold leading-tight text-gray-900 mb-6">
+                    Hello {username}!<br />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-green-400">
+                     Find Seminars-Near You
+                    </span>
+                  </h1>
+                
+                
+                  <p className="text-gray-600 flex-1 justify-end   max-w-2xl mb-4  text-left">
+                    Connect with industry leaders, learn new skills, and expand your knowledge through
+                    interactive webinars and seminars on topics like biotechnology, career development, health and wellness, digital marketing, and more.
+                  </p>
+        
+        
+                    <div>
+                      <div className="flex items-center flex-wrap gap-4">
+                        <a
+                          href="#packages"
+                          className="text-lg text-gray-800 hover:text-blue-500 transition-colors font-medium"
+                        >
+                          Explore Packages
+                        </a>
+                        <Link to="/register">
+                          <Button className="bg-gradient-to-br from-blue-400 to-blue-700 text-white px-6 py-3 rounded-full hover:bg-blue-800 hover:shadow-blue-600 hover:shadow-md hover:scale-110 transition">
+                            Join Now
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+        
+                {/* //explore package component  */}
+                
+        
+              
+                <div className="flex-1 relative mt-32">
+                  <div className='flex justify-center   items-center'>
+                    <AutoSlider topics={topics} interval={3500} />        
+                  </div>
+                </div>
+                
+              </div>
+            </section>
 
         {/* Stats Cards - Responsive Grid */}
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 md:mb-8'>

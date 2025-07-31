@@ -77,7 +77,7 @@ const Login1 = () => {
               variant="ghost"
               className={cn(
                 "rounded-full px-6 transition-all",
-                activeTab === 'admin' ? "bg-white text-primary shadow-md" : "text-white hover:bg-white/10"
+                activeTab === 'admin' ? "bg-white text-blue-500 shadow-md" : "text-white hover:bg-white/10"
               )}
               onClick={() => handleTabChange('admin')}
             >

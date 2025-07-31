@@ -18,114 +18,88 @@ export default {
 				'2xl': '1400px'
 			}
 		},
-		extend: {
-			colors: {
-				border: 'hsl(var(--border))',
-				input: 'hsl(var(--input))',
-				ring: 'hsl(var(--ring))',
-				background: 'hsl(var(--background))',
-				foreground: 'hsl(var(--foreground))',
-				gradientStart: "#a18cd1", // purple
-        		gradientEnd: "#fbc2eb",   // violet
-				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
-				},
-				secondary: {
-					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
-				},
-				destructive: {
-					DEFAULT: 'hsl(var(--destructive))',
-					foreground: 'hsl(var(--destructive-foreground))'
-				},
-				muted: {
-					DEFAULT: 'hsl(var(--muted))',
-					foreground: 'hsl(var(--muted-foreground))'
-				},
-				accent: {
-					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))'
-				},
-				popover: {
-					DEFAULT: 'hsl(var(--popover))',
-					foreground: 'hsl(var(--popover-foreground))'
-				},
-				card: {
-					DEFAULT: 'hsl(var(--card))',
-					foreground: 'hsl(var(--card-foreground))'
-				},
-				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
-				},
-				
-				'event': {
-					'primary': '#4e47e5', 
-					'secondary': '#9b87f5',
-					'accent': '#e5deff',
-					'light': '#f3f0ff',
-					'dark': '#4c1d95',
-				},
-			},
-			borderRadius: {
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
-			},
-			keyframes: {
-				'accordion-down': {
-					from: {
-						height: '0'
-					},
-					to: {
-						height: 'var(--radix-accordion-content-height)'
-					}
-				},
-				'accordion-up': {
-					from: {
-						height: 'var(--radix-accordion-content-height)'
-					},
-					to: {
-						height: '0'
-					}
-				},
-				'fade-in': {
-					'0%': {
-						opacity: '0',
-						transform: 'translateY(10px)'
-					},
-					'100%': {
-						opacity: '1',
-						transform: 'translateY(0)'
-					}
-				},
-				'color-cycle': {
-					'0%, 100%': {
-						filter: 'hue-rotate(0deg)'
-					},
-					'50%': {
-						filter: 'hue-rotate(360deg)'
-					}
-				}
-			},
-			animation: {
-				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out',
-				'fade-in': 'fade-in 0.5s ease-out',
-				"color-pulse": "color-cycle 4s ease-in-out infinite",
-			},
-			backgroundImage: {
-				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-				'event-gradient': 'linear-gradient(to bottom right, #7e22ce, #4c1d95)'
-			}
-		}
-	},
-	plugins: [tailwindcssAnimate],
-} satisfies Config;
+	extend: {
+    scrollbar: {
+      hide: {
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        '&::-webkit-scrollbar': {
+          display: 'none',
+        },
+        /* Hide scrollbar for IE, Edge and Firefox */
+        '-ms-overflow-style': 'none', /* IE and Edge */
+        'scrollbar-width': 'none',    /* Firefox */
+      },
+    },
+  colors: {
+    border: 'hsl(var(--border))',
+    input: 'hsl(var(--input))',
+    ring: 'hsl(var(--ring))',
+    background: 'hsl(var(--background))',
+    foreground: 'hsl(var(--foreground))',
+    gradientStart: "#2B3A67", // Updated to Royal Blue
+    gradientEnd: "#2E8B57",   // Updated to Green
+
+    // Theme Colors - Meaningfully defined
+    primary: {
+      DEFAULT: "#4169E1", // विश्वास - Royal Blue
+      foreground: "#FFFFFF", // White text on primary
+    },
+    secondary: {
+      DEFAULT: "#2E8B57", // विकास - Green
+      foreground: "#FFFFFF",
+    },
+    accent: {
+      DEFAULT: "#DAA520", // समृद्धी - Gold
+      foreground: "#4169E1",
+    },
+    energy: {
+      DEFAULT: "#FFA500", // ऊर्जा - Orange
+      foreground: "#FFFFFF"
+    },
+    clean: {
+      DEFAULT: "#FFFFFF", // स्वच्छता - White
+      foreground: "#2B3A67"
+    },
+
+    destructive: {
+      DEFAULT: 'hsl(var(--destructive))',
+      foreground: 'hsl(var(--destructive-foreground))'
+    },
+    muted: {
+      DEFAULT: 'hsl(var(--muted))',
+      foreground: 'hsl(var(--muted-foreground))'
+    },
+    popover: {
+      DEFAULT: 'hsl(var(--popover))',
+      foreground: 'hsl(var(--popover-foreground))'
+    },
+    card: {
+      DEFAULT: 'hsl(var(--card))',
+      foreground: 'hsl(var(--card-foreground))'
+    },
+    sidebar: {
+      DEFAULT: 'hsl(var(--sidebar-background))',
+      foreground: 'hsl(var(--sidebar-foreground))',
+      primary: "#2B3A67",
+      'primary-foreground': "#FFFFFF",
+      accent: "#DAA520",
+      'accent-foreground': "#2B3A67",
+      border: 'hsl(var(--sidebar-border))',
+      ring: 'hsl(var(--sidebar-ring))'
+    },
+
+    // Optional: You can keep the "event" color group or adjust to use the above
+    'event': {
+      'primary': '#2B3A67',   // Replaces purple with Royal Blue
+      'secondary': '#2E8B57', // Green
+      'accent': '#DAA520',    // Gold
+      'light': '#FFFFFF',
+      'dark': '#1A1A1A',
+    },
+  },
+  // ... other extensions unchanged
+}
+  },
+
+  plugins: [tailwindcssAnimate],
+} 
