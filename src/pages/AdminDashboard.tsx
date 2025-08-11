@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Logo from '@/components/Logo';
 import EventCard from '@/components/EventCard';
-import { useClerk, useUser } from '@clerk/clerk-react';
 import { Processing } from '@/components/ui/icons/Processing';
 import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from "uuid";
@@ -12,7 +11,12 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form } from '@/components/ui/form';
-import { json } from 'stream/consumers';
+import { useAuth } from '@/hooks/useAuth';
+import axios from 'axios';
+import Sidebar from '@/components/Sidebar';
+import RegisterExecutive from '@/components/RegisterExecutive';
+const BackendUrl = import.meta.env.VITE_API_URL
+
 
 interface TopicCardProps {
   title: string;
@@ -33,14 +37,20 @@ const TopicCard = ({ title, image, description, color }: TopicCardProps) => (
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { signOut } = useClerk();
   const [menuOpen, setMenuOpen] = useState(false);
   const [openModel, setOpenModal] = useState(false);
   const [openAdminModel, setOpenAdminModel] = useState(false);
+  const [openExecutiveModel, setOpenExecutiveModel] = useState(false);
   const [thumbnail, setThumbnail] = useState(null);
   const [topic1, setTopic1] = useState("");
   const [registrationLink, setRegistrationLink] = useState("");
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false)
+  const [user, setUser] = useState(null)
+  const [username, setUsername] = useState(null)
+  const [sidebarModel, setSidebarModel] = useState(false)
+  
+
   const [form, setForm] = useState({
       firstName: '',
       lastName: '',
@@ -50,25 +60,49 @@ const AdminDashboard = () => {
       isAdmin: false,
     });
 
-  const { isLoaded, user } = useUser();
+  // const { user, loading} = useAuth()
 
   useEffect(() => {
-    if (isLoaded && user && user.unsafeMetadata?.role !== "admin") {
-      navigate("/unauthorized");
+    const fetchUserDetails = async () =>{
+      try{
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        const res = await axios.get(`${BackendUrl}/auth/verifyToken`, {
+          headers: {
+            Authorization: `Bearer${token}`,
+          },
+        });
+        setUser(res.data.user);
+        setUsername(res.data.user.name)
+         const role = res.data.user.role
+         console.log(" at dashboard role : ", role);
+         if ( role !== "ADMIN") {
+            navigate("/unauthorized");
+          }
+      }catch(err){
+       console.log("Error fetching user details:", err);
+       setUser(null)
+       
+      } finally{
+        setLoading(false);
+      }
     }
-  }, [isLoaded, user, navigate]);
+    fetchUserDetails()
+  },[]);
 
-  if (!isLoaded || !user) {
+
+ 
+
+  if (loading) {
     return <div className="justify-center items-center flex min-h-screen text-center"><Processing /></div>;
   }
 
-  const username = typeof user.unsafeMetadata?.firstName === 'string' ? user.unsafeMetadata.firstName : "Guest";
-  console.log("user: ", user);
+  // console.log("user: ", user);
   
-  const profilePic = user.imageUrl;
+  // const profilePic = user.imageUrl;
 
   const handleSignout = async () => {
-    await signOut();
+    
     navigate("/login");
   };
 
@@ -118,8 +152,13 @@ const AdminDashboard = () => {
     },
   ];
 
-console.log("role : ", user.unsafeMetadata?.role);
-
+const handleSidebar =()=> {
+  if(!sidebarModel){
+    setSidebarModel(true)
+  }else{
+    setSidebarModel(false)
+  }
+}
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -137,10 +176,21 @@ console.log("role : ", user.unsafeMetadata?.role);
     console.log("Webinar Created:", { topic1, thumbnail, link });
   };
 
+  if(user != null){
+    const username = user.name
+  }
+
+
+  
+
   return (
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar */}
+       <div className=' transition-transform '><Sidebar  /></div>
+    <div className="">  
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-event-gradient text-white relative">
+      <header className="bg-gradient-to-r fixed w-full from-blue-700 to-green-400 text-white  ">
         <div className="container mx-auto py-4 px-4 md:px-6">
           <div className="flex justify-between items-center">
             <Logo size="small" />
@@ -169,7 +219,7 @@ console.log("role : ", user.unsafeMetadata?.role);
                             {username || "DemoUser"}
                           </h3>
                           <p className="text-sm text-gray-500">
-                            <span className='text-violet-700'>• {String(user.unsafeMetadata?.role).toUpperCase()}</span> • Joined Jan 2025
+                            <span className='text-violet-700'>• {String(user? user?.role: 'loading...').toUpperCase()}</span> • Joined Jan 2025
                           </p>
                         </div>
                       </div>
@@ -199,11 +249,13 @@ console.log("role : ", user.unsafeMetadata?.role);
           </div>
         </div>
       </header>
-
+      {/* main content */}
+      <div className={`flex-1 min-h-screen ${sidebarModel? 'ml-64': 'ml-20'} pt-20 p-6 md:ml-20 transition-all duration-300 `}>
+      {/* <button className=' z-20 absolute transition-transform top-20 left-1 rounded-md w-10 h-10 pb-1 text-2xl  border-2 ' onClick={()=>handleSidebar()}>=</button> */}
       {/* Create Webinar Modal */}
       {openModel && (
         <div className='fixed inset-0 backdrop-blur-md z-50 flex items-center justify-center p-4'>
-          <div className="bg-violet-200 border-2 border-violet-900 rounded-md w-full max-w-lg max-h-[90vh] overflow-y-auto">
+          <div className="bg-violet-200 border-2 border-blue-500 rounded-md w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">Create Webinar</h1>
@@ -269,46 +321,32 @@ console.log("role : ", user.unsafeMetadata?.role);
       )}
 
       {/* Register Admin Modal */}
-      {openAdminModel && (
-        <div className='fixed inset-0 backdrop-blur-md z-50 flex items-center justify-center p-4'>
-          <div className="bg-violet-200 border-2 border-violet-900 rounded-md w-full max-w-lg">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold">Register New Admin</h1>
-                <button 
-                  className='cursor-pointer hover:text-red-600 text-xl text-slate-700' 
-                  onClick={() => setOpenAdminModel(false)}
-                >
-                  ×
-                </button>
-              </div>
-              Under Development
-              {/* Add your admin registration form here */}
-            </div>
-          </div>
-        </div>
-      )}
+      {openExecutiveModel && <div><RegisterExecutive setOpenExecutiveModel={setOpenExecutiveModel} /></div>}
 
       {/* Main Content */}
       <main className="container mx-auto py-6 px-4 md:px-6">
         {/* Profile and Action Buttons */}
         <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
          <div className=' flex  items-center gap-4'>
-           <img src={profilePic} alt="Profile Photo" className="w-12 h-12 rounded-full" />
-            <div className=' text-event-primary font-bold text-2xl '>{(username).toUpperCase()}
+           {/* <img src={} alt="Profile Photo" className="w-12 h-12 rounded-full" /> */}
+            <div className=' text-event-primary font-bold text-2xl '>{username ? username.toUpperCase() : 'Loading...'}
             </div>
          </div>
-        <span className='text-gray-400 md:left-[90px] text-sm absolute top-32 left-[80px]'>{String(user.unsafeMetadata?.role)}</span>
-
           <div className='flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto'>
             <button  
-              className='bg-violet-100 px-4 py-2 rounded-sm hover:bg-violet-900 hover:text-white text-violet-800 border-2 border-violet-800 text-sm sm:text-base' 
+              className='bg-violet-100 px-4 py-2 rounded-lg hover:bg-blue-500 hover:text-white text-blue-600 border-2 border-blue-600 text-sm sm:text-base' 
               onClick={() => setOpenAdminModel(true)}
             >
               Register Admin
             </button>
             <button  
-              className='bg-violet-800 px-4 py-2 rounded-sm hover:bg-violet-900 text-white text-sm sm:text-base' 
+              className='bg-violet-100 px-4 py-2 rounded-lg hover:bg-orange-500 hover:text-white text-orange-600 border-2 border-orange-500 text-sm sm:text-base' 
+              onClick={() => setOpenExecutiveModel(true)}
+            >
+              Register Executive
+            </button>
+            <button  
+              className='bg-green-400 px-4 py-2 rounded-lg hover:bg-violet-900 text-white text-sm sm:text-base' 
               onClick={() => setOpenModal(true)}
             >
               Create Webinar
@@ -394,6 +432,9 @@ console.log("role : ", user.unsafeMetadata?.role);
           <Button variant="outline" className="border-event-primary text-event-primary hover:bg-event-accent">Support Helpdesk</Button>
         </div>
       </main>
+      </div>
+    </div>
+    </div>
     </div>
   );
 };

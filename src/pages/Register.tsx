@@ -1,5 +1,4 @@
-import React, { useState } from 'react'; 
-import { useSignUp } from '@clerk/clerk-react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +10,6 @@ import { Processing } from '@/components/ui/icons/Processing';
 
 const Register = () => {
   const navigate = useNavigate();
-  const { isLoaded, signUp, setActive } = useSignUp();
 
   const [form, setForm] = useState({
     firstName: '',
@@ -22,10 +20,9 @@ const Register = () => {
     isAdmin: false,
   });
 
-  const [verificationCode, setVerificationCode] = useState('');
-  const [showVerificationModal, setShowVerificationModal] = useState(false);
-  const [verificationError, setVerificationError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [showVerificationModal, setShowVerificationModal] = useState(false); // optional if email verification needed
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.id]: e.target.value });
@@ -37,55 +34,33 @@ const Register = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLoaded || !form.termsAgreed) return;
+    if (!form.termsAgreed) return;
+
     setIsLoading(true);
+    setErrorMsg('');
 
     try {
-      await signUp.create({
-        emailAddress: form.email,
-        password: form.password,
-      });
-
-      await signUp.update({
-        unsafeMetadata: {
-          firstName: form.firstName,
-          lastName: form.lastName,
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `${form.firstName} ${form.lastName}`,
+          email: form.email,
+          password: form.password,
           role: form.isAdmin ? 'admin' : 'user',
-        },
+          // optionally: executiveId: 'someExecutiveId'
+        }),
       });
 
-      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
-      setShowVerificationModal(true);
-    } catch (err) {
-      const message = err?.errors?.[0]?.message || err?.message || "Something went wrong.";
-      console.error("Signup error:", message);
-      alert(message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      const result = await res.json();
 
-  const handleVerify = async () => {
-    if (!isLoaded) return;
-    setIsLoading(true);
+      if (!res.ok) throw new Error(result.error || 'Registration failed');
 
-    try {
-      const attempt = await signUp.attemptEmailAddressVerification({
-        code: verificationCode,
-      });
-
-      if (attempt.status === 'complete') {
-        await setActive({ session: attempt.createdSessionId });
-        if (form.isAdmin) {
-          navigate('/admin-dashboard');
-        } else {
-          navigate('/dashboard');
-        }
-      } else {
-        setVerificationError("Verification failed. Try again.");
-      }
-    } catch (err) {
-      setVerificationError(err.errors?.[0]?.message || "Invalid code.");
+      // ✅ Registration successful
+      setShowVerificationModal(true); // or redirect
+      navigate(form.isAdmin ? '/admin-dashboard' : '/dashboard');
+    } catch (err: any) {
+      setErrorMsg(err.message);
     } finally {
       setIsLoading(false);
     }
@@ -95,10 +70,10 @@ const Register = () => {
     <div className="min-h-screen bg-gradient-to-r from-blue-900 to-green-500 py-10 flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-6">
-         <div className=' flex justify-center items-center'>
-           <Logo size="medium"  className=''/>
-         </div>
-                    <h1 className="text-2xl font-bold text-white mt-6">Create Your Account</h1>
+          <div className='flex justify-center items-center'>
+            <Logo size="medium" />
+          </div>
+          <h1 className="text-2xl font-bold text-white mt-6">Create Your Account</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 shadow-lg">
@@ -139,6 +114,8 @@ const Register = () => {
               </Label>
             </div>
 
+            {errorMsg && <p className="text-sm text-red-600 text-center">{errorMsg}</p>}
+
             <Button type="submit" className="w-full bg-primary hover:bg-event-dark">
               {isLoading ? <Processing /> : <>Create Account</>}
             </Button>
@@ -155,22 +132,11 @@ const Register = () => {
       <Dialog open={showVerificationModal} onOpenChange={setShowVerificationModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Email Verification</DialogTitle>
-            <p className="text-sm">We've sent a code to {form.email}. Enter it below to verify your account.</p>
+            <DialogTitle>Account Created</DialogTitle>
+            <p className="text-sm">Your account has been successfully created.</p>
           </DialogHeader>
-
-          <Input
-            placeholder="Enter verification code"
-            value={verificationCode}
-            onChange={(e) => setVerificationCode(e.target.value)}
-          />
-
-          {verificationError && (
-            <p className="text-sm text-red-500 mt-2">{verificationError}</p>
-          )}
-
-          <Button onClick={handleVerify} className="w-full mt-4 bg-event-primary hover:bg-event-dark">
-            {isLoading ? <Processing /> : <>Verify Email</>}
+          <Button onClick={() => navigate('/login')} className="w-full mt-4 bg-event-primary hover:bg-event-dark">
+            Go to Login
           </Button>
         </DialogContent>
       </Dialog>

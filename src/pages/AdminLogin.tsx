@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useSignIn } from '@clerk/clerk-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,7 +7,6 @@ import Logo from '@/components/Logo';
 import { Processing } from '@/components/ui/icons/Processing';
 
 const AdminLogin = () => {
-  const { signIn, setActive, isLoaded } = useSignIn();
   const navigate = useNavigate();
 
   const [adminId, setAdminId] = useState('');
@@ -18,23 +16,39 @@ const AdminLogin = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLoaded) return;
     setIsLoading(true);
+    setErrorMsg('');
 
     try {
-      const result = await signIn!.create({
-        identifier: adminId,
-        password,
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+        method: 'POST',
+        credentials: 'include', // ⚠️ Important for cookies
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: adminId,
+          password: password
+        })
       });
 
-      if (result.status === 'complete') {
-        await setActive!({ session: result.createdSessionId });
-        navigate('/admin-dashboard');
-      } else {
-        console.log(result);
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error?.message || 'Login failed');
       }
-    } catch (err) {
-      setErrorMsg(err.errors?.[0]?.message || 'Admin login failed');
+
+      // Optionally: verify token after login
+      const verify = await fetch(`${import.meta.env.VITE_API_URL}/auth/verify-token`, {
+        credentials: 'include',
+      });
+
+      if (!verify.ok) {
+        throw new Error('Login token could not be verified');
+      }
+
+      navigate('/admin-dashboard');
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Something went wrong');
     } finally {
       setIsLoading(false);
     }
@@ -44,7 +58,7 @@ const AdminLogin = () => {
     <div className="min-h-screen bg-event-gradient flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-6">
-          <Logo size="md" />
+          <Logo size="medium" />
           <h1 className="text-2xl font-bold text-white mt-6">Admin Login</h1>
           <p className="text-white/80 mt-2">Secure access for platform administrators</p>
         </div>
@@ -52,11 +66,11 @@ const AdminLogin = () => {
         <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 shadow-lg">
           <div className="space-y-4">
             <div>
-              <Label htmlFor="adminId">Admin ID</Label>
+              <Label htmlFor="adminId">Admin Email</Label>
               <Input 
                 id="adminId" 
                 type="text" 
-                placeholder="Your admin ID"
+                placeholder="admin@example.com"
                 value={adminId}
                 onChange={(e) => setAdminId(e.target.value)}
                 required

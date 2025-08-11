@@ -3,10 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Logo from '@/components/Logo';
 import EventCard from '@/components/EventCard';
-import { useClerk, useUser } from '@clerk/clerk-react';
 import { Processing } from '@/components/ui/icons/Processing';
 import { useState } from 'react';
 import AutoSlider from '@/components/onboarding/ImageSlider';
+import axios from 'axios';
+import { useAuth } from '@/hooks/useAuth';
+const BackendUrl = import.meta.env.VITE_API_URL
+
 
 // ✅ Add this simple TopicCard component
 interface TopicCardProps {
@@ -28,21 +31,51 @@ const TopicCard = ({ title, image, description, color }: TopicCardProps) => (
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { signOut } = useClerk();
+  const { user, loading} = useAuth()
+  console.log(" user:", user);
+  
+  
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const { isLoaded, user } = useUser();
-  if (!isLoaded || !user) {
-    return <div className="justify-center items-center flex p-72 text-center"><Processing /></div>;
-  }
+  if (loading) return <div>Loading...</div>;
 
-  const username = typeof user.unsafeMetadata?.firstName === 'string' ? user.unsafeMetadata.firstName : "Guest";
+  const role = user?.role
+  console.log(" at dashboard role : ", role);
+
+  const username = user?.name
+  
   const profilePic = user.imageUrl;
 
-  const handleSignout = async () => {
-    await signOut();
-    navigate("/login");
-  };
+const handleSignout = async () => {
+        try {
+        const response = await axios.post(`${BackendUrl}/auth/logout`,
+          {
+            headers: {
+                "Authorization" : `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+        const data = response.data 
+        console.log("Successfully Logged out", { response: response.data});
+      console.log("Backend URL:", BackendUrl);
+  
+        if (response.status === 200) {
+
+          navigate("/landing-page");
+        } else {
+          console.log(" status", response.status);
+          
+         alert("Logout failed. Please try again.");
+        }
+      } catch (err) {
+        alert(
+          err.response?.data?.error || "Login failed. Please check your credentials."
+        );
+      
+     
+    };
+  }
+
+
 
   const upcomingEvents = [
     { id: 1, title: 'AI for Beginners', image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=400&auto=format&fit=crop", price: 'Elite', PlayNow: "Join", date: 'May 15, 2025' },
@@ -125,7 +158,7 @@ const Dashboard = () => {
                             {username || "DemoUser"}
                           </h3>
                           <p className="text-xs md:text-sm text-gray-500">
-                            <span className='text-violet-700'>• {String(user.unsafeMetadata?.role).toUpperCase()}</span> • Joined Jan 2025
+                            <span className='text-violet-700'>• {String(role).toUpperCase()}</span> • Joined Jan 2025
                           </p>
                         </div>
                       </div>

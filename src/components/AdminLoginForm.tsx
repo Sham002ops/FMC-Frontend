@@ -3,46 +3,67 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Facebook, Github, Linkedin } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useSignIn } from "@clerk/clerk-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Processing } from "./ui/icons/Processing";
 import { Label } from "./ui/label";
+import axios from "axios";
+const BackendUrl = import.meta.env.VITE_API_URL
+
 
 const AdminLoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-     const { signIn, setActive, isLoaded } = useSignIn();
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLoaded) return;
     setIsLoading(true);
+    setErrorMsg('');
+    
+    
+    
 
     try {
-      const result = await signIn!.create({
-        identifier: email,
-        password,
-      });
-      console.log("result", result);
-      
-      if (result.status === 'complete') {
-        await setActive!({ session: result.createdSessionId });
-        navigate('/admin-dashboard');
+      const response = await axios.post(
+        `${BackendUrl}/auth/login`,
+        { email, password }
+        
+      );
+      const jwt = response.data.token
+        
+        if(response.data.token !== undefined){
+          localStorage.setItem("token", jwt);
+          localStorage.setItem("loggedIn", "true");
+          navigate("/dashboard")
+        }else{
+          alert(response.data.message)
+        }
+
+        const user = response.data.user
+        if (user.role !== "ADMIN") {
+          navigate("/unauthorized");
+        }
+
+      if (response.status === 200 && response.data.user) {
+        toast({
+          title: "Login successful!",
+          description: `Welcome back, ${response.data.user.name}!`,
+        });
+        navigate("/admin-dashboard");
       } else {
-        console.log(result);
+        setErrorMsg("Login failed. Please try again.");
       }
     } catch (err) {
-      setErrorMsg(err.errors?.[0]?.message || 'Login failed');
-    }
-    finally{
-      setIsLoading(false)
+      setErrorMsg(
+        err.response?.data?.error || "Login failed. Please check your credentials."
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
-
 
 //   const handleSubmit = (e: React.FormEvent) => {
 //     e.preventDefault();
