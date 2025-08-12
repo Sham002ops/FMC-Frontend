@@ -16,6 +16,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Unauthorized from "./pages/Unauthorized";
 import Psudopage from "./pages/Psudopage";
 import AllUsers from "./pages/AllUsers";
+import ExexutiveDashboard from "./pages/exeDashboard";
 
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/register" element={<Register />} />
           <Route path="/Psudopage" element={<Psudopage/>} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/exexutive-dashboard" element={<ExexutiveDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/landing-page" element={<LandingPage />} />
           <Route path="/unauthorized" element={<Unauthorized />} />

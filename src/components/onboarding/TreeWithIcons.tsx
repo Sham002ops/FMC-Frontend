@@ -34,7 +34,7 @@ export default function TreeWithIcons() {
   return (
     <section
       ref={sectionRef}
-      className="snap-start h-screen relative overflow-hidden bg-gray-50"
+      className="snap-start h-screen  overflow-hidden bg-gray-50"
     >
       <h1 className="text-6xl font-bold text-center pb-4 mt-20 bg-gradient-to-r from-green-300 to-green-700 bg-clip-text text-transparent">Our Tree of Knowledge</h1>
       <div className="relative flex border border-gray-50 justify-center items-center -mt-28 h-full">
@@ -101,7 +101,7 @@ export default function TreeWithIcons() {
           <div className="w-[84px] h-[84px] bg-gradient-to-r from-green-300 to-lime-400 flex justify-center items-center rounded-full hover:shadow-md cursor-pointer hover:scale-125 transition-transform hover:shadow-green-500">
             <img src="/icons/biotech.svg" className="w-10 h-10 mx-auto" />
           </div>
-          <p className="text-purple-600 text-sm mt-2">Science for Life</p>
+          {/* <p className="text-purple-600 text-sm mt-2">Science for Life</p> */}
         </motion.div>
 
         {/* Education */}
@@ -114,12 +114,12 @@ export default function TreeWithIcons() {
           <div className="w-[83px] h-[83px] bg-gradient-to-r from-blue-300 to-yellow-400 flex justify-center items-center rounded-full hover:shadow-md cursor-pointer hover:scale-125 transition-transform hover:shadow-yellow-400">
             <img src="/icons/education.svg" className="w-10 h-10 mx-auto" />
           </div>
-          <p className="text-blue-600 text-sm mt-2">Learn. Lead. Transform.</p>
+          {/* <p className="text-blue-600 text-sm mt-2">Learn. Lead. Transform.</p> */}
         </motion.div>
 
         {/* Biotech */}
         <motion.div
-          className="z-20 absolute top-[225px] right-[612.5px] text-center"
+          className="z-20 absolute top-[225px] right-[640.5px] text-center"
           initial={{ opacity: 0, scale: 0.8 }}
             animate={showBranches ? { opacity: 1, scale: 1 } : {}}
           transition={{ delay: 2.3 }}
@@ -127,12 +127,12 @@ export default function TreeWithIcons() {
           <div className="w-[83px] h-[83px] rounded-full hover:border-3 hover:border-yellow-500 hover:shadow-md cursor-pointer hover:scale-125 transition-transform hover:shadow-orange-500 bg-white">
             <img src="/icons/yoga.svg" className="w-[83px] h-[83px] mx-auto" />
           </div>
-          <p className="text-green-700 text-sm mt-2">Balance Inner Self</p>
+          {/* <p className="text-green-700 text-sm mt-2">Balance Inner Self</p> */}
         </motion.div>
 
         {/* Power */}
         <motion.div
-          className="z-20 absolute top-[469px] right-[283px] text-center"
+          className="z-20 absolute top-[469px] right-[343px] text-center"
           initial={{ opacity: 0, scale: 0.8 }}
             animate={showBranches ? { opacity: 1, scale: 1 } : {}}
           transition={{ delay: 2 }}
@@ -140,22 +140,22 @@ export default function TreeWithIcons() {
           <div className="w-[84px] h-[84px] flex justify-center items-center rounded-full hover:shadow-md cursor-pointer hover:scale-125 transition-transform hover:shadow-red-400">
             <img src="/icons/power.svg" className="w-[84px] h-[84px] mx-auto" />
           </div>
-          <p className="text-yellow-600 text-sm mt-2">Empowering Tomorrow</p>
+          {/* <p className="text-yellow-600 text-sm mt-2">Empowering Tomorrow</p> */}
         </motion.div>
 
         {/* Wealth */}
         <motion.div
-          className="z-20 absolute top-[335px] right-[384.5px] text-center"
+          className="z-20 absolute top-[335px] right-[474.5px] text-center"
           initial={{ opacity: 0, scale: 0.8 }}
             animate={showBranches ? { opacity: 1, scale: 1 } : {}}
           transition={{ delay: 2.3 }}
         >
-          <div className="w-[83px] h-[83px] bg-gradient-to-r from-blue-300 to-blue-700 flex justify-center items-center rounded-full hover:shadow-md cursor-pointer hover:scale-125 transition-transform hover:shadow-blue-500"
+          <div className=" w-[83px] h-[83px] bg-gradient-to-r from-blue-300 to-blue-700 flex justify-center items-center rounded-full hover:shadow-md cursor-pointer hover:scale-125 transition-transform hover:shadow-blue-500"
             onMouseEnter={() => setShowInfo(true)}
             onMouseLeave={() => setShowInfo(false)}>
             <img src="/icons/wealth.svg" className="w-36 h-14 mx-auto" />
           </div>
-          <p className="text-orange-600 text-sm mt-2">Prosperity Through Purpose</p>
+          {/* <p className="text-orange-600 text-sm mt-2">Prosperity Through Purpose</p> */}
         </motion.div>
       </div>
     </section>

@@ -4,16 +4,18 @@ import { cn } from "@/lib/utils";
 import UserLoginForm from "@/components/UserLoginForm";
 import AdminLoginForm from "@/components/AdminLoginForm";
 import LoginBackground from "@/components/LoginBackground";
-import Logo from "@/components/Logo";
+// import Logo from "@/components/Logo";
+import ExecutiveLoginForm from "@/components/exeLogin";
+import logo from '../assets/FMC2.png'
 
 
 const Login1 = () => {
-  const [activeTab, setActiveTab] = useState<'user' | 'admin'>('user');
+  const [activeTab, setActiveTab] = useState<'user' | 'admin' | 'executive'>('user');
   const [sliding, setSliding] = useState(false);
   const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(null);
   const [animating, setAnimating] = useState(false);
 
-  const handleTabChange = (tab: 'user' | 'admin') => {
+  const handleTabChange = (tab: 'user' | 'admin' | 'executive') => {
     if (tab === activeTab || animating) return;
     
     setSliding(true);
@@ -39,13 +41,13 @@ const Login1 = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center p-4 md:p-8 overflow-hidden">
+    <div className="min-h-screen flex justify-center items-center p-2 md:p-3  overflow-hidden">
       <LoginBackground />
       
       <div className="w-full max-w-md relative z-10">
-        <div className="text-center mb-4">
-          <div className="flex justify-center mb-4">
-            <Logo size="medium" className="animate-fade-in" />
+        <div className="text-center mb-2">
+          <div className="flex justify-center mb-1">
+            <img className=" w-20 h-20 rounded-full" src={logo} alt="logo" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-1 flex justify-center">
             {[
@@ -60,9 +62,9 @@ const Login1 = () => {
               </span>
             ))}
           </h1>
-          <p className="text-white/80 mb-8 animate-fade-in">Login to your account</p>
+          <p className="text-white/80 mb-4 animate-fade-in">Login to your account</p>
           
-          <div className="bg-white/20 rounded-full p-1 backdrop-blur-sm inline-flex mb-6">
+          <div className="bg-white/20 rounded-full p-1 backdrop-blur-sm inline-flex mb-4">
             <Button
               variant="ghost"
               className={cn(
@@ -82,6 +84,16 @@ const Login1 = () => {
               onClick={() => handleTabChange('admin')}
             >
               Admin
+            </Button>
+            <Button
+              variant="ghost"
+              className={cn(
+                "rounded-full px-6 transition-all",
+                activeTab === 'executive' ? "bg-white text-blue-500 shadow-md" : "text-white hover:bg-white/10"
+              )}
+              onClick={() => handleTabChange('executive')}
+            >
+              Executive
             </Button>
           </div>
         </div>
@@ -107,6 +119,16 @@ const Login1 = () => {
             style={{ visibility: (activeTab === 'admin' || sliding) ? 'visible' : 'hidden' }}
           >
             <AdminLoginForm />
+          </div>
+          <div
+            className={cn(
+              "absolute w-full rounded-2xl bg-white login-card overflow-hidden transition-all duration-500 ease-in-out",
+              sliding && activeTab === 'executive' ? 'animate-slide-out-left' : 
+              !sliding && activeTab === 'executive' ? 'animate-slide-in-right' : 'opacity-0 -translate-x-full'
+            )}
+            style={{ visibility: (activeTab === 'executive' || sliding) ? 'visible' : 'hidden' }}
+          >
+            <ExecutiveLoginForm />
           </div>
         </div>
       </div>

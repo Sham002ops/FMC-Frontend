@@ -37,7 +37,7 @@ const AdminLoginForm = () => {
         if(response.data.token !== undefined){
           localStorage.setItem("token", jwt);
           localStorage.setItem("loggedIn", "true");
-          navigate("/dashboard")
+          navigate("/admin-dashboard")
         }else{
           alert(response.data.message)
         }

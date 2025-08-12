@@ -40,12 +40,12 @@ const Navbar: React.FC = () => {
 
         {/* Buttons */}
         <div className="hidden md:flex items-center gap-5">
-          <Link to="/login" className="text-white hover:text-orange-400 transition">
+          {/* <Link to="/login" className="text-white hover:text-orange-400 transition">
             Login
-          </Link>
-          <Link to="/register">
+          </Link> */}
+          <Link to="/login">
             <Button className="rounded-full px-6 font-semibold border hover:scale-105 border-orange-400 shadow-sm shadow-orange-400 bg-white text-orange-500 hover:bg-gradient-to-r from-orange-400 to-orange-600 hover:text-white transition hover:shadow-orange-500  hover:border-orange-400">
-              Join Now
+              LogIn Now
             </Button>
           </Link>
           {/* <div

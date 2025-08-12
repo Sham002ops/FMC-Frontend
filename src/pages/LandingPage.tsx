@@ -38,10 +38,10 @@ const LandingPage: React.FC = () => {
       <section className="snap-start pb-20 h-screen">
         <TreeWithIcons />
       </section>
-      <section className="snap-start h-screen">
+      <section className="snap-start pt-10 h-screen">
         <UpcomingWebinarsSection />
       </section>
-      <section className="snap-start h-screen">
+      <section className="snap-start pt-10 h-screen">
         <HowItWorksSection />
       </section>
       <section className="snap-start h-screen">

@@ -14,7 +14,8 @@ import { Form } from '@/components/ui/form';
 import { useAuth } from '@/hooks/useAuth';
 import axios from 'axios';
 import Sidebar from '@/components/Sidebar';
-import RegisterExecutive from '@/components/RegisterExecutive';
+import RegisterExecutive from '@/components/adminComponents/RegisterExecutive';
+import RegAdmin from '@/components/adminComponents/RegAdmin';
 const BackendUrl = import.meta.env.VITE_API_URL
 
 
@@ -320,8 +321,10 @@ const handleSidebar =()=> {
         </div>
       )}
 
-      {/* Register Admin Modal */}
+      {/* Register Executive Modal */}
       {openExecutiveModel && <div><RegisterExecutive setOpenExecutiveModel={setOpenExecutiveModel} /></div>}
+      {/* Register Admin Modal */}
+      {openAdminModel && <div><RegAdmin setOpenAdminModel={setOpenAdminModel} /></div>}
 
       {/* Main Content */}
       <main className="container mx-auto py-6 px-4 md:px-6">
@@ -346,7 +349,7 @@ const handleSidebar =()=> {
               Register Executive
             </button>
             <button  
-              className='bg-green-400 px-4 py-2 rounded-lg hover:bg-violet-900 text-white text-sm sm:text-base' 
+              className='bg-green-400 px-4 py-2 rounded-lg hover:bg-green-600 text-white text-sm sm:text-base' 
               onClick={() => setOpenModal(true)}
             >
               Create Webinar
