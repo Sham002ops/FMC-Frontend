@@ -8,7 +8,7 @@ import { Processing } from "./ui/icons/Processing";
 import { Label } from "./ui/label";
 import axios from "axios";
 import { log } from "console";
-const BackendUrl = import.meta.env.VITE_API_URL
+import { BackendUrl } from "@/Config";
 
 const UserLoginForm = () => {
   const [email, setEmail] = useState("");
@@ -44,7 +44,7 @@ const UserLoginForm = () => {
       } else {
         setErrorMsg("Login failed. Please try again.");
       }
-    } catch (err: any) {
+    } catch (err) {
       setErrorMsg(
         err.response?.data?.error || "Login failed. Please check your credentials."
       );

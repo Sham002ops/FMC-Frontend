@@ -2,7 +2,6 @@ import React from "react";
 import { ShieldOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-const BackendUrl = import.meta.env.VITE_API_URL
 
 
 const Unauthorized: React.FC = () => {

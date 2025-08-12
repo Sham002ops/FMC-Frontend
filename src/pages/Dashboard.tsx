@@ -8,7 +8,7 @@ import { useState } from 'react';
 import AutoSlider from '@/components/onboarding/ImageSlider';
 import axios from 'axios';
 import { useAuth } from '@/hooks/useAuth';
-const BackendUrl = import.meta.env.VITE_API_URL
+import { BackendUrl } from '@/Config';
 
 
 // ✅ Add this simple TopicCard component

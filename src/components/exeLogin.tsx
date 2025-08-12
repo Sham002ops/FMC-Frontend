@@ -8,7 +8,7 @@ import { Processing } from "./ui/icons/Processing";
 import { Label } from "./ui/label";
 import axios from "axios";
 import { log } from "console";
-const BackendUrl = import.meta.env.VITE_API_URL
+import { BackendUrl } from "@/Config";
 
 const ExecutiveLoginForm = () => {
   const [email, setEmail] = useState("");

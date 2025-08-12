@@ -7,7 +7,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { Processing } from "./ui/icons/Processing";
 import { Label } from "./ui/label";
 import axios from "axios";
-const BackendUrl = import.meta.env.VITE_API_URL
+import { BackendUrl } from "@/Config";
+
 
 
 const AdminLoginForm = () => {

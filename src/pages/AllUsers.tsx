@@ -1,8 +1,8 @@
 import Sidebar from '@/components/Sidebar';
 import { Processing } from '@/components/ui/icons/Processing';
+import { BackendUrl } from '@/Config';
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-const BackendUrl = import.meta.env.VITE_API_URL
 
 
 const AllUsers = () => {

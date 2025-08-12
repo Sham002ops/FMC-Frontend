@@ -16,7 +16,7 @@ import axios from 'axios';
 import Sidebar from '@/components/Sidebar';
 import RegisterExecutive from '@/components/adminComponents/RegisterExecutive';
 import RegAdmin from '@/components/adminComponents/RegAdmin';
-const BackendUrl = import.meta.env.VITE_API_URL
+import { BackendUrl } from '@/Config';
 
 
 interface TopicCardProps {

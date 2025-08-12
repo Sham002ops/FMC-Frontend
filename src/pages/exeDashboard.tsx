@@ -7,8 +7,8 @@ import { Processing } from '@/components/ui/icons/Processing';
 import { useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '@/hooks/useAuth';
+import { BackendUrl } from '@/Config';
 
-const BackendUrl = import.meta.env.VITE_API_URL;
 
 interface TopicCardProps {
   title: string;
