@@ -1,18 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
-import { useClerk } from "@clerk/clerk-react";
 import { Menu, X } from "lucide-react";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
-  const { signOut } = useClerk();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const handleSignout = async () => {
-    await signOut();
-    navigate("/login");
-  };
+  
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 backdrop-blur bg-gradient-to-r from-blue-600 to-green-500 shadow-md">
@@ -94,7 +89,7 @@ const Navbar: React.FC = () => {
                 Join Now
               </Button>
             </Link>
-            <button
+            {/* <button
               onClick={handleSignout}
               className="w-full flex items-center justify-center gap-2 text-sm text-white hover:text-red-400"
             >
@@ -112,7 +107,7 @@ const Navbar: React.FC = () => {
                 <circle cx="12" cy="7" r="4" />
               </svg>
               Logout
-            </button>
+            </button> */}
           </div>
         </div>
       )}
