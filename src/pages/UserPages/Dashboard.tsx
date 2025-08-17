@@ -80,7 +80,7 @@ const UserDashboard = () => {
             },[]);
   
 
-  if (loading) return <div>Loading...</div>
+  if (loading) return <div className="flex justify-center items-center pt-[300px]"><Processing /></div>
 
   const handleSignout = async () => {
     try {
