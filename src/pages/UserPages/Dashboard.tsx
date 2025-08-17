@@ -4,8 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Logo from '@/components/Logo';
 import EventCard from '@/components/EventCard';
 import { Processing } from '@/components/ui/icons/Processing';
-import { useState } from 'react';
-import AutoSlider from '@/components/onboarding/ImageSlider';
+import { useEffect, useState } from 'react';
+import AutoSlider from '@/components/onboarding/AutoSliderDesktop';
 import axios from 'axios';
 import { useAuth } from '@/hooks/useAuth';
 import { BackendUrl } from '@/Config';
@@ -31,20 +31,46 @@ const TopicCard = ({ title, image, description, color }: TopicCardProps) => (
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user, loading} = useAuth()
-  console.log(" user:", user);
+  const [loading, setLoading] = useState(false)
+  const [user, setUser] = useState(null)
+  const [username, setUsername] = useState(null)
   
+  
+    useEffect(() => {
+      const fetchUserDetails = async () =>{
+        try{
+          setLoading(true);
+          const token = localStorage.getItem('token');
+          const res = await axios.get(`${BackendUrl}/auth/verifyToken`, {
+            headers: {
+              Authorization: `Bearer${token}`,
+            },
+          });
+          setUser(res.data.user);
+          setUsername(res.data.user.name)
+           const role = res.data.user.role
+           console.log(" at dashboard role : ", role);
+           if ( role !== "ADMIN") {
+              navigate("/unauthorized");
+            }
+        }catch(err){
+         console.log("Error fetching user details:", err);
+         setUser(null)
+         
+        } finally{
+          setLoading(false);
+        }
+      }
+      fetchUserDetails()
+    },[]);
   
   const [menuOpen, setMenuOpen] = useState(false);
 
   if (loading) return <div>Loading...</div>;
 
-  const role = user?.role
-  console.log(" at dashboard role : ", role);
 
-  const username = user?.name
+ 
   
-  const profilePic = user.imageUrl;
 
 const handleSignout = async () => {
         try {
@@ -158,7 +184,7 @@ const handleSignout = async () => {
                             {username || "DemoUser"}
                           </h3>
                           <p className="text-xs md:text-sm text-gray-500">
-                            <span className='text-violet-700'>• {String(role).toUpperCase()}</span> • Joined Jan 2025
+                            <span className='text-violet-700'>• {String(user.role).toUpperCase()}</span> • Joined Jan 2025
                           </p>
                         </div>
                       </div>

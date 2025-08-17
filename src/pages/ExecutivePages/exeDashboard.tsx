@@ -4,9 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Logo from '@/components/Logo';
 import EventCard from '@/components/EventCard';
 import { Processing } from '@/components/ui/icons/Processing';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from '@/hooks/useAuth';
 import { BackendUrl } from '@/Config';
 
 
@@ -29,14 +28,46 @@ const TopicCard = ({ title, image, description, color }: TopicCardProps) => (
 
 const ExecutiveDashboard = () => {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const [loading, setLoading] = useState(false)
+  const [executive, setExecutive] = useState(null)
+  const [username, setUsername] = useState(null)  
   const [menuOpen, setMenuOpen] = useState(false);
+
+    useEffect(() => {
+      const fetchExecutiveDetails = async () =>{
+        try{
+          setLoading(true);
+          const token = localStorage.getItem('token');
+          console.log("token : ", token);
+          
+          const res = await axios.get(`${BackendUrl}/auth/verifyToken`, {
+            headers: {
+              Authorization: `Bearer${token}`,
+            },
+          });
+          console.log("res: ", res);
+          
+          setExecutive(res.data.user);
+          setUsername(res.data.user.name)
+          const role = res.data.user.role
+          console.log(" at dashboard role : ", role);
+          if ( role !== "EXECUTIVE") {
+              navigate("/unauthorized");
+            }
+        }catch(err){
+        console.log("Error fetching user details:", err);
+        setExecutive(null)
+        
+        } finally{
+          setLoading(false);
+        }
+      }
+      fetchExecutiveDetails()
+    },[]);
 
   if (loading) return <div>Loading...</div>;
 
-  const role = user?.role;
-  const username = user?.name || "Executive";
-
+  
   const handleSignout = async () => {
     try {
       const response = await axios.post(`${BackendUrl}/auth/logout`, {}, {
@@ -72,6 +103,10 @@ const ExecutiveDashboard = () => {
     { title: "Recruitment Tips", image: "https://source.unsplash.com/400x200/?recruitment", description: "Best practices for recruiting active members", color: "bg-blue-500" },
   ];
 
+
+
+  
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -81,7 +116,8 @@ const ExecutiveDashboard = () => {
           <div className="relative">
             <button
               className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center"
-              onClick={() => setMenuOpen(!menuOpen)}
+              onClick={() => handleSignout()}
+              // onClick={() => setMenuOpen(!menuOpen)}
             >
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <circle cx="12" cy="8" r="4" />
@@ -97,7 +133,7 @@ const ExecutiveDashboard = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-800">{username}</h3>
-                      <p className="text-sm text-gray-500"><span className="text-violet-700">• {String(role).toUpperCase()}</span></p>
+                      <p className="text-sm text-gray-500"><span className="text-violet-700">• {String(executive.role).toUpperCase()}</span></p>
                     </div>
                   </div>
                   <ul className="space-y-2 text-gray-700 text-sm">

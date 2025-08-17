@@ -6,46 +6,61 @@ import { Check } from "lucide-react";
 interface Plan {
   name: string;
   price: string;
+  validity: string;
   features: string[];
   highlighted?: boolean;
 }
 
 const plans: Plan[] = [
   {
-    name: "Elite",
-    price: "₹1999",
+    name: "Infa",
+    price: "₹12,000 / year (20 years)",
+    validity: "50 Years",
     features: [
-      "2  Webinar/week",
-      "Access to Community",
-      "Limited Support",
-      "Topics covered : ",
-      "Yoga, Career development, health and wellness",
+      "Education",
+      "Health",
+      "Wealth",
     ],
   },
   {
     name: "Gold",
-    price: "₹4999",
+    price: "₹1,20,000 / lifetime",
+    validity: "50 Years",
     highlighted: true,
     features: [
-      "5 Webinars/week",
-      "Priority Support",
-      "Webinar Replays",
-      "Topics covered : ",
-      "Basic + digital marketing, Biotechnology,",
-      "Access to Community",
+      "Education",
+      "Health",
+      "Wealth",
+      "Power",
+      "AI",
+      "Entertainment",
     ],
   },
   {
-    name: "Premium",
-    price: "₹9999",
+    name: "Gold+",
+    price: "₹5,00,000 / lifetime",
+    validity: "50 Years",
     features: [
-      "All Upcoming Webinars",
-      "1-on-1 Mentoring",
-      "Topics covered : ",
-      "Elite +  AI, ML, product demonstrations",
-      "Recorded Sessions",
-      "All Plus Features",
-
+      "Gold features",
+      "Extra premium events & mentorship",
+    ],
+  },
+  {
+    name: "Elite",
+    price: "₹10,00,000 / lifetime",
+    validity: "50 Years",
+    features: [
+      "Gold+ features",
+      "Exclusive access to leadership programs",
+    ],
+  },
+  {
+    name: "Supreme",
+    price: "₹1,00,00,000 / lifetime",
+    validity: "50 Years",
+    features: [
+      "Elite features",
+      "Private consultations & custom programs",
     ],
   },
 ];
@@ -53,30 +68,36 @@ const plans: Plan[] = [
 const PricingPlansSection: React.FC = () => {
   return (
     <section id='packages' className="py-20 bg-gray-50">
-      <div className="max-w-6xl mx-auto px-6 text-center">
-        <h2 className="text-3xl font-bold mb-4">Pricing Plans</h2>
-        <p className="text-gray-600 mb-12">
-          Choose a plan that fits your learning goals. Upgrade anytime.
+      <div className="max-w-7xl mx-auto px-4 text-center">
+        <h2 className="text-3xl md:text-4xl font-bold mb-4">Pricing Plans</h2>
+        <p className="text-gray-600 mb-12 text-sm md:text-base">
+          Choose a plan that fits your learning and lifestyle goals. Upgrade anytime.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`border rounded-2xl p-6 shadow-sm ${
-                plan.highlighted ? "border-primary shadow-md" : "border-gray-200"
+              className={`border rounded-2xl p-6 shadow-sm flex flex-col justify-between ${
+                plan.highlighted ? "border-blue-600 shadow-lg" : "border-gray-200"
               }`}
             >
-              <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
-              <p className="text-3xl font-bold text-primary mb-4">{plan.price}</p>
-              <ul className="text-left space-y-2 mb-6">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-2 text-gray-700">
-                    <Check className="w-4 h-4 text-green-500" /> {feature}
-                  </li>
-                ))}
-              </ul>
-              <Button variant={plan.highlighted ? "default" : "outline"} className="w-full border-2 hover:bg-blue-700 hover:text-white border-blue-700">
+              <div>
+                <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
+                <p className="text-2xl md:text-3xl font-bold text-blue-700 mb-2">{plan.price}</p>
+                <p className="text-sm text-gray-500 mb-4">Validity: {plan.validity}</p>
+                <ul className="text-left space-y-2 mb-6">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-2 text-gray-700 text-sm md:text-base">
+                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" /> {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <Button
+                variant={plan.highlighted ? "default" : "outline"}
+                className="w-full border-2 hover:bg-blue-700 hover:text-white border-blue-700"
+              >
                 Get Started
               </Button>
             </div>

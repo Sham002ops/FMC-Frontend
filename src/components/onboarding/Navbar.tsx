@@ -75,20 +75,21 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden px-6 py-4 bg-purple-900/90 backdrop-blur-sm">
+        <div className="md:hidden px-6 py-4 bg-gradient-to-r from-blue-600 to-green-500 backdrop-blur-sm">
           <nav className="flex flex-col gap-4 text-white text-sm font-medium">
             <a href="#how-it-works" className="hover:text-orange-400">How It Works</a>
             <a href="#packages" className="hover:text-orange-400">Packages</a>
             <a href="#webinars" className="hover:text-orange-400">Webinars</a>
             <a href="#testimonials" className="hover:text-orange-400">Testimonials</a>
           </nav>
-          <div className="mt-4 flex flex-col gap-3 border-t border-white/20 pt-4">
-            <Link to="/login" className="text-white hover:text-orange-400">Login</Link>
-            <Link to="/register">
-              <Button className="w-full rounded-full bg-white text-purple-700 hover:bg-purple-600 hover:text-white transition">
-                Join Now
-              </Button>
+          <div className="mt-4 flex flex-col gap-3   justify-center  border-t border-white/20 pt-4">
+            <Link to="/login" className=" flex justify-center hover:text-orange-400">
+              <button className=" relative  bg-white group border-2  hover:bg-blue-700 hover:text-white text-blue-700   overflow-hidden cursor-pointer  rounded-full ">
+                  <div className=" absolute inset-0 px-10 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out "></div>
+                  <span className=" flex justify-center  border-blue-500 border-2 items-center rounded-full gap-2  px-10 py-2  relative text-blue-500 font-bold group-hover:text-white transition-colors duration-300">Log In</span>
+              </button>
             </Link>
+            
             {/* <button
               onClick={handleSignout}
               className="w-full flex items-center justify-center gap-2 text-sm text-white hover:text-red-400"
