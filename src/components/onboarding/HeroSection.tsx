@@ -65,11 +65,11 @@ const HeroSection: React.FC = () => {
           </p>
 
           <div className="flex  items-center gap-4">
-            <Link to="/register">
+            {/* <Link to="/register">
               <Button className="bg-gradient-to-br from-blue-400 to-blue-700 text-white px-6 py-3 rounded-full hover:bg-blue-800 hover:shadow-blue-600 hover:shadow-md hover:scale-110 transition">
                 Join Now
               </Button>
-            </Link>
+            </Link> */}
             <Link to="/login">
               <button className=" relative bg-white group border-2  hover:bg-blue-700 hover:text-white text-blue-700   overflow-hidden cursor-pointer  rounded-full ">
                   <div className=" absolute inset-0 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out "></div>
@@ -103,11 +103,16 @@ const HeroSection: React.FC = () => {
           </p>
 
           <div className="flex  sm:flex-row items-center justify-center gap-4">
-            <Link to="/register">
+            {/* <Link to="/register">
               <Button className="bg-gradient-to-br from-blue-400 to-blue-700 text-white px-6 py-3 rounded-full hover:bg-blue-800 hover:shadow-blue-600 hover:shadow-md hover:scale-110 transition">
                 Join Now
               </Button>
-            </Link>
+            </Link> */}
+            <div>
+               <Button className="bg-gradient-to-br from-blue-400 to-blue-700 text-white px-4 py-1 rounded-full hover:bg-blue-800 hover:shadow-blue-600 hover:shadow-md hover:scale-110 transition">
+                <a href="#packages" className="hover:text-white text-lg ">Explore Packages</a>
+              </Button>
+            </div>
             <Link to="/login">
                <button className=" relative bg-white group border-2  hover:bg-blue-700 hover:text-white text-blue-700   overflow-hidden cursor-pointer  rounded-full ">
                   <div className=" absolute inset-0 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out "></div>
