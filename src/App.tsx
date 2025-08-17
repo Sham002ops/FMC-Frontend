@@ -26,7 +26,7 @@ import Notifications from "./pages/AdminPages/Notification";
 
 
 const queryClient = new QueryClient();
-const isLoggedIn = localStorage.getItem("loggedIn");
+  const isLoggedIn = localStorage.getItem("loggedIn") === "true";
      
 
 const App = () => (
@@ -36,7 +36,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={isLoggedIn == "true" ? <Dashboard  />: <LandingPage/>}/>
+          <Route path="/" element={isLoggedIn  ? <Dashboard  /> :<LandingPage/>}/>
           {/* Admin Routes */}
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/register" element={<Register />} />

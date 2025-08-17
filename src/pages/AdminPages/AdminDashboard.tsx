@@ -103,7 +103,16 @@ const AdminDashboard = () => {
   }
 
   const handleSignout = async () => {
-    navigate("/login");
+     try {
+      await axios.post(`${BackendUrl}/auth/logout`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      localStorage.removeItem("token");
+      navigate("/landing-page");
+    } catch (err) {
+      console.error("Logout error:", err);
+      navigate("/landing-page");
+    }
   };
 
   const upcomingEvents = [
@@ -273,7 +282,7 @@ const AdminDashboard = () => {
                   Register Admin
                 </button>
                 <button  
-                  className='bg-violet-100 px-3 sm:px-4 py-2 rounded-lg hover:bg-orange-500 hover:text-white text-orange-600 border-2 border-orange-500 text-xs sm:text-sm lg:text-base transition-colors' 
+                  className='bg-violet-100 px-3 sm:px-2 py-2 rounded-lg hover:bg-orange-500 hover:text-white text-orange-600 border-2 border-orange-500 text-xs sm:text-sm lg:text-base transition-colors' 
                   onClick={() => setOpenExecutiveModel(true)}
                 >
                   Register Executive

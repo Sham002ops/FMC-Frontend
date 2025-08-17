@@ -27,8 +27,11 @@ export default function TreeWithIcons() {
       ref={sectionRef}
       className="hidden md:block snap-start h-screen overflow-hidden bg-gray-50"
     >
-      <h1 className="text-6xl font-bold text-center pb-4 mt-20 bg-gradient-to-r from-green-300 to-green-700 bg-clip-text text-transparent">
-        Our Tree of Knowledge
+      <h1 className="text-6xl font-bold text-center  mt-20 bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent">
+        The Five Pillars of Progress: 
+      </h1>
+      <h1 className="text-2xl font-bold text-center   text-slate-700 ">
+        A Journey Through Yoga, Education, Biotech, Power, and Wealth 
       </h1>
 
       <div className="relative flex border border-gray-50 justify-center items-center -mt-28 h-full">

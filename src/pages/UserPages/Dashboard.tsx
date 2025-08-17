@@ -45,6 +45,12 @@ const UserDashboard = () => {
                 try{
                   setLoading(true);
                   const token = localStorage.getItem('token');
+
+                  if(!token){
+                    console.log("Token not present");
+                    navigate("/landing-page")
+                    
+                  }
                   const res = await axios.get(`${BackendUrl}/auth/verifyToken`, {
                     headers: {
                       Authorization: `Bearer ${token}`,
@@ -56,7 +62,14 @@ const UserDashboard = () => {
                   setUsername(res.data.user.name)
                   const role = res.data.user.role
                   console.log(" at dashboard role : ", role);
-                  if ( role !== "USER") {
+                 
+                  if ( role !== "USER" && role == "ADMIN") {
+                      navigate("/admin-dashboard");
+                    }
+                  if ( role !== "USER" && role !== "ADMIN" && role == "EXECUTIVE") {
+                      navigate("/exexutive-dashboard");
+                    }
+                  if ( role !== "USER" && role !== "ADMIN" && role !== "EXECUTIVE") {
                       navigate("/unauthorized");
                     }
 
@@ -157,7 +170,9 @@ const UserDashboard = () => {
             <div className="flex items-center gap-3">
               <div className=' flex justify-between gap-4 items-center'>
                  <img src={FMC} alt="Logo" className=' w-10 h-10 rounded-full ' />
-                <div className="text-lg font-bold  lg:block">FMC</div>
+                  <div className='block lg:hidden'>
+                      <div className="text-lg font-bold  ">FMC</div>
+                  </div>
               </div>
               <div className="hidden sm:block">
                 <div className="text-lg font-bold">FINITE MARSHALL CLUB</div>
@@ -259,11 +274,11 @@ const UserDashboard = () => {
         {/* Hero Section with Greeting */}
        {/* Hero Section with Greeting & Notification Slider */}
           <section className="text-center lg:text-left">
-            <div className="mb-6">
-              <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-2">
+            <div className="mb-6 ">
+              <h1 className="text-2xl flex justify-start md:text-4xl font-bold text-gray-900 mb-2">
                 Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {username}! 👋
               </h1>
-              <p className="text-md text-gray-600">
+              <p className="text-md text-left  text-gray-600">
                 Ready to expand your knowledge today? Check out your upcoming webinars below.
               </p>
             </div>

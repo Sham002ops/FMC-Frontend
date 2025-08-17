@@ -70,17 +70,16 @@ const ExecutiveDashboard = () => {
   
   const handleSignout = async () => {
     try {
-      const response = await axios.post(`${BackendUrl}/auth/logout`, {}, {
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
+       try {
+      await axios.post(`${BackendUrl}/auth/logout`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
       });
-
-      if (response.status === 200) {
-        navigate("/landing-page");
-      } else {
-        alert("Logout failed. Please try again.");
-      }
+      localStorage.removeItem("token");
+      navigate("/landing-page");
+    } catch (err) {
+      console.error("Logout error:", err);
+      localStorage.removeItem("token");
+    }
     } catch (err) {
       alert(err.response?.data?.error || "Logout failed.");
     }
