@@ -32,6 +32,15 @@ const UserLoginForm = () => {
         { email, password }
         
       );
+      
+
+       const jwt = response.data.token
+        
+        if(response.data.token !== undefined){
+          localStorage.setItem("token", jwt);
+          localStorage.setItem("loggedIn", "true");
+
+        }
       console.log("Submitting login form", { email, password });
     console.log("Backend URL:", BackendUrl);
 
