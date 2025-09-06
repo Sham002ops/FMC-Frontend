@@ -25,20 +25,20 @@ const ExecutiveMobileSidebar: React.FC = () => {
   const navItems = [
     { label: "Dashboard", path: "/exexutive-dashboard", Icon: Home },
     { label: "My Referrals", path: "/executive/referrals", Icon: Users },
-    { label: "Recruit Users", path: "/executive/recruit", Icon: UserPlus },
-    { label: "Hosted Webinars", path: "/executive/webinars", Icon: Calendar },
-    { label: "Performance", path: "/executive/performance", Icon: TrendingUp },
-    { label: "Commissions", path: "/executive/commissions", Icon: DollarSign },
-    { label: "Analytics", path: "/executive/analytics", Icon: BarChart3 },
-    { label: "Training", path: "/executive/training", Icon: Award },
-    { label: "Support", path: "/executive/support", Icon: MessageSquare },
+    // { label: "Recruit Users", path: "/executive/recruit", Icon: UserPlus },
+    // { label: "Hosted Webinars", path: "/executive/webinars", Icon: Calendar },
+    // { label: "Performance", path: "/executive/performance", Icon: TrendingUp },
+    // { label: "Commissions", path: "/executive/commissions", Icon: DollarSign },
+    // { label: "Analytics", path: "/executive/analytics", Icon: BarChart3 },
+    // { label: "Training", path: "/executive/training", Icon: Award },
+    // { label: "Support", path: "/executive/support", Icon: MessageSquare },
   ];
 
   return (
     <div className="relative">
       {/* Floating Hamburger Button */}
       <button
-        className="lg:hidden absolute top-16 left-2 z-50 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-2 rounded-lg shadow-lg hover:from-indigo-700 hover:to-purple-700 transition-all"
+        className="lg:hidden absolute top-20 left-2 z-50 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-2 rounded-lg shadow-lg hover:from-indigo-700 hover:to-purple-700 transition-all"
         onClick={() => setCollapsed(!collapsed)}
         aria-label="Toggle sidebar"
       >
@@ -55,12 +55,12 @@ const ExecutiveMobileSidebar: React.FC = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 
+        className={`fixed top-0 left-0 h-full bg-gradient-to-br from-slate-900  to-slate-700 
                     text-white shadow-xl transition-all duration-300 z-40
                     ${collapsed ? "w-0 overflow-hidden" : "w-72"} flex flex-col lg:hidden`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 pt-32 border-b border-purple-700/50">
+        <div className="flex items-center justify-between p-6 pt-32 border-b border-emerald-500/50">
           <div
             className="text-2xl font-bold cursor-pointer bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent"
             onClick={() => {
@@ -95,8 +95,8 @@ const ExecutiveMobileSidebar: React.FC = () => {
                 <li
                   key={label}
                   className={`cursor-pointer px-4 py-4 flex items-center gap-4 text-lg rounded-xl transition-all duration-200
-                              hover:bg-purple-800/50 hover:transform hover:scale-105
-                              ${isActive ? "bg-gradient-to-r from-purple-700 to-indigo-700 font-semibold shadow-lg" : ""}`}
+                              hover:bg-emerald-800/50 hover:transform hover:scale-105
+                              ${isActive ? "bg-gradient-to-r from-emerald-500 to-indigo-700 font-semibold shadow-lg" : ""}`}
                   onClick={() => {
                     navigate(path);
                     setCollapsed(true);

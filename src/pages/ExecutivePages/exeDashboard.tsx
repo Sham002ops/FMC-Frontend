@@ -310,33 +310,51 @@ const ExecutiveDashboard = () => {
       {/* Main Content */}
       <main className="container mx-auto lg:pl-28 py-6 px-4">
         {/* Welcome Section */}
-        <div className='flex justify-between items-center'>
-          <div className="mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mt-4">
+          {/* Left: title + subtitle */}
+          <div className="min-w-0">
+            <h1
+              className="
+                font-bold text-gray-900 mb-1
+                text-xl xs:text-2xl sm:text-2xl md:text-3xl
+                leading-snug
+              "
+            >
               Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {username}! 👋
             </h1>
-            <p className="text-gray-600">Here's your performance overview and recent activities.</p>
+
+            <p className="text-gray-600 text-sm sm:text-base">
+              Here's your performance overview and recent activities.
+            </p>
+
             {dataLoading && (
-              <p className="text-blue-600 text-sm flex items-center gap-2">
+              <p className="text-blue-600 text-xs sm:text-sm flex items-center gap-2 mt-1">
                 <Processing />
                 Refreshing data...
               </p>
             )}
           </div>
+
+          {/* Right: action (example Register button placeholder) */}
+          <div className="w-full sm:w-auto pt-1">
+              <div className='-mt-8'>
+                <button 
+                      onClick={() => setOpenUserModel(true)}
+                      className="relative bg-white group hover:bg-teal-700  hover:text-white text-teal-700 overflow-hidden md:w-36 sm:w-36 cursor-pointer rounded-lg"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-tr from-teal-600 to-teal-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
+                      <span className="flex justify-center border-teal-500 border-2 items-center rounded-lg gap-2 px-4 py-2 relative text-teal-500 font-bold group-hover:text-white transition-colors duration-300">
+                        Register User
+                      </span>
+                  </button>
+              </div>
+          </div>
+
+
           
           {openUserModel && <RegUser setOpenUserModel={setOpenUserModel} />}
 
-          <div className='-mt-8'>
-            <button 
-              onClick={() => setOpenUserModel(true)}
-              className="relative bg-white group hover:bg-green-700 hover:text-white text-green-700 overflow-hidden cursor-pointer rounded-lg"
-            >
-              <div className="absolute inset-0 bg-gradient-to-tr from-green-600 to-green-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
-              <span className="flex justify-center border-green-500 border-2 items-center rounded-lg gap-2 px-4 py-2 relative text-green-500 font-bold group-hover:text-white transition-colors duration-300">
-                Register User
-              </span>
-            </button>
-          </div>
+        
         </div>
 
         {/* Real-time Stats Cards */}
