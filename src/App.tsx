@@ -23,6 +23,7 @@ import AllWebinars from "./pages/AdminPages/AllWebinar";
 import AdminSettings from "./pages/AdminPages/Settings";
 import Audit from "./pages/AdminPages/Audit";
 import Notifications from "./pages/AdminPages/Notification";
+import AllRefUsers from "./pages/ExecutivePages/AllRefUsers";
 
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
 
           {/* Executive Routes */}
           <Route path="/exexutive-dashboard" element={<ExexutiveDashboard />} />
+          <Route path="/executive/referrals" element={<AllRefUsers />} />
 
           {/* User Routes */}
           <Route path="/dashboard" element={<Dashboard />} />

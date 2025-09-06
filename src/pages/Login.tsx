@@ -50,17 +50,7 @@ const Login1 = () => {
             <img className=" w-20 h-20 rounded-full" src={logo} alt="logo" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-1 flex justify-center">
-            {[
-              "F", "i", "n", "i", "t", "e", " ", "M", "a", "r", "s", "h", "a", "l", "l", " ", "C", "l", "u", "b"
-            ].map((char, idx) => (
-              <span
-                key={idx}
-                className="wave-group logo-letter inline-block animate-wave"
-                style={{ animationDelay: `${idx * 0.04}s` }}
-              >
-                {char === " " ? "\u00A0" : char}
-              </span>
-            ))}
+            Finite Marshall Club
           </h1>
           <p className="text-white/80 mb-4 animate-fade-in">Login to your account</p>
           

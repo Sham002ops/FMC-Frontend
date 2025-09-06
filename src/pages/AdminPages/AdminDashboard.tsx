@@ -18,6 +18,7 @@ import RegAdmin from '@/components/adminComponents/RegAdmin';
 import { BackendUrl } from '@/Config';
 import MobileSidebar from '@/components/onboarding/mobileSidebar';
 import CreateWebinar from '@/components/adminComponents/CreateWebinar';
+import RegUser from '@/components/adminComponents/RegUser';
 
 interface TopicCardProps {
   title: string;
@@ -43,6 +44,7 @@ const AdminDashboard = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openModel, setOpenModal] = useState(false);
   const [openAdminModel, setOpenAdminModel] = useState(false);
+  const [openUserModel, setOpenUserModel] = useState(false);
   const [openWebinarModel, setOpenWebinarModel] = useState(false);
   const [openExecutiveModel, setOpenExecutiveModel] = useState(false);
   const [thumbnail, setThumbnail] = useState(null);
@@ -265,6 +267,8 @@ const AdminDashboard = () => {
             
             {/* Register Admin Modal */}
             {openAdminModel && <RegAdmin setOpenAdminModel={setOpenAdminModel} />}
+            {/* Register User Modal */}
+            {openUserModel && <RegUser setOpenUserModel={setOpenUserModel} />}
 
             {/* Profile and Action Buttons */}
             <div className="mb-6 sm:mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
@@ -275,24 +279,34 @@ const AdminDashboard = () => {
               </div>
               
               <div className='flex flex-col sm:flex-row gap-2 sm:gap-3 lg:gap-4 w-full lg:w-auto'>
-                <button  
-                  className='bg-violet-100 px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-500 hover:text-white text-blue-600 border-2 border-blue-600 text-xs sm:text-sm lg:text-base transition-colors' 
-                  onClick={() => setOpenAdminModel(true)}
-                >
-                  Register Admin
+                <button 
+                      onClick={() => setOpenUserModel(true)}
+                      className=" relative bg-white group   hover:bg-teal-700 hover:text-white text-teal-700   overflow-hidden cursor-pointer  rounded-lg ">
+                  <div className=" absolute inset-0 bg-gradient-to-tr from-teal-600 to-teal-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out "></div>
+                  <span className=" flex justify-center border-teal-500 border-2 items-center rounded-lg gap-2  px-4 py-2  relative text-teal-500 font-bold group-hover:text-white transition-colors duration-300">Register User</span>
                 </button>
-                <button  
-                  className='bg-violet-100 px-3 sm:px-2 py-2 rounded-lg hover:bg-orange-500 hover:text-white text-orange-600 border-2 border-orange-500 text-xs sm:text-sm lg:text-base transition-colors' 
-                  onClick={() => setOpenExecutiveModel(true)}
-                >
-                  Register Executive
+
+                <button 
+                      onClick={() => setOpenAdminModel(true)}
+                      className=" relative bg-white group   hover:bg-blue-700 hover:text-white text-blue-700   overflow-hidden cursor-pointer  rounded-lg ">
+                  <div className=" absolute inset-0 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out "></div>
+                  <span className=" flex justify-center border-blue-500 border-2 items-center rounded-lg gap-2  px-4 py-2  relative text-blue-500 font-bold group-hover:text-white transition-colors duration-300">Register Admin</span>
                 </button>
-                <button  
-                  className='bg-green-400 px-3 sm:px-4 py-2 rounded-lg hover:bg-green-600 text-white text-xs sm:text-sm lg:text-base transition-colors' 
-                  onClick={() => setOpenWebinarModel(true)}
-                >
-                  Create Webinar
+
+                <button 
+                      onClick={() => setOpenExecutiveModel(true)}
+                      className=" relative bg-white group   hover:bg-orange-700 hover:text-white text-orange-700   overflow-hidden cursor-pointer  rounded-lg ">
+                  <div className=" absolute inset-0 bg-gradient-to-tr from-orange-600 to-orange-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out "></div>
+                  <span className=" flex justify-center border-orange-500 border-2 items-center rounded-lg gap-2  px-4 py-2  relative text-orange-500 font-bold group-hover:text-white transition-colors duration-300">Register Executive</span>
                 </button>
+
+                <button 
+                      onClick={() => setOpenWebinarModel(true)}
+                      className=" relative bg-white group   hover:bg-green-700 hover:text-white text-green-700   overflow-hidden cursor-pointer  rounded-lg ">
+                  <div className=" absolute inset-0 bg-gradient-to-tr from-green-600 to-green-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out "></div>
+                  <span className=" flex justify-center border-green-500 border-2 items-center rounded-lg gap-2  px-4 py-2  relative text-green-500 font-bold group-hover:text-white transition-colors duration-300">Create Webinar</span>
+                </button>
+               
               </div>
             </div>
 
