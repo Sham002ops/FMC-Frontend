@@ -1,7 +1,33 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --font-urbanist: 'Urbanist', sans-serif;
+}
+
+/* globals.css or LoadingScreen.module.css */
+.loading-row {
+  display: flex;
+  /* --n and --rect-w set inline from React (or set here) */
+}
+
+.rect-slice {
+  width: var(--rect-w);   /* IMPORTANT: use the same value you pass to --rect-w */
+  height: 800px;
+  background-image: linear-gradient(to right, #2563eb, #22c55e);
+  background-repeat: no-repeat;
+  /* Make the gradient span the full virtual width (n * rect width) */
+  background-size: calc(var(--n) * var(--rect-w)) 100%;
+  /* Shift the background for each slice */
+  background-position: calc(var(--i) * var(--rect-w) * -1) 0;
+  /* optional visuals */
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
 
 @layer base {
   :root {

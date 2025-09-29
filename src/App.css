@@ -5,6 +5,14 @@
   text-align: center;
 }
 
+/* globals.css or LoadingScreen.module.css */
+.loading-row {
+  display: flex;
+  /* --n and --rect-w set inline from React (or set here) */
+}
+
+
+
 .logo {
   height: 6em;
   padding: 1.5em;
