@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Heart, ShoppingCart, Filter, Search, X } from 'lucide-react';
+import { BackendUrl } from '@/Config';
 
 interface Product {
   id: string;
@@ -15,7 +16,8 @@ interface Product {
   isActive: boolean;
 }
 
-const API_BASE_URL = 'http://localhost:4000';
+console.log("BackendUrl : ", BackendUrl);
+
 
 const DisplayAllProducts: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -46,7 +48,7 @@ const DisplayAllProducts: React.FC = () => {
         params.append('featured', 'true');
       }
 
-      const response = await axios.get(`${API_BASE_URL}/goods/products?${params.toString()}`);
+      const response = await axios.get(`${BackendUrl}/goods/products?${params.toString()}`);
       setProducts(response.data.products);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to fetch products');
@@ -343,7 +345,7 @@ const RequestProductModal: React.FC<RequestProductModalProps> = ({
       }
 
       await axios.post(
-        `${API_BASE_URL}/goods/products/request`,
+        `${BackendUrl}/goods/products/request`,
         {
           productId: product.id,
           quantity,
