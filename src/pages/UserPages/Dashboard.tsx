@@ -12,6 +12,9 @@ import LoyaltyCard from '@/components/userComponents/LoyaltyCard';
 import { NotificationSliderDesktop } from '@/components/userComponents/NotificationSliderDesktop';
 import { NotificationSliderMobile } from '@/components/userComponents/NotificationSliderMobile';
 import LoyaltyCardMobile from '@/components/userComponents/LoyaltyCardMobile';
+import DisplayAllProducts from '@/components/Products/DisplayAllProducts';
+import LoadingScreen from '@/components/LoadingScreen.tsx/LoadingScreen';
+import ProductDetails from '@/components/Products/ProductDetails';
 
 interface TopicCardProps {
   title: string;
@@ -35,6 +38,7 @@ const TopicCard = ({ title, image, description, color }: TopicCardProps) => (
 const UserDashboard = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [showLoader, setShowLoader] = useState(true);
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState(null);
   const [webinars, setWebinars] = useState([]);
@@ -93,8 +97,8 @@ const UserDashboard = () => {
             },[]);
   
 
-  if (loading) return <div className="flex justify-center items-center pt-[300px]"><Processing /></div>
-
+  // if (loading) return <div className="flex justify-center items-center pt-[300px]"><Processing /></div>
+  
   const handleSignout = async () => {
     try {
       await axios.post(`${BackendUrl}/auth/logout`, {}, {
@@ -108,13 +112,13 @@ const UserDashboard = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <Processing />
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-screen bg-gray-50">
+  //       <Processing />
+  //     </div>
+  //   );
+  // }
 
   const upcomingEvents = [
     { id: 1, title: 'AI for Beginners', image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=400&auto=format&fit=crop", price: 'Elite', PlayNow: "Join", date: 'May 15, 2025' },
@@ -160,6 +164,10 @@ const UserDashboard = () => {
       color: "bg-pink-500",
     },
   ];
+
+  const handleNav = (path:string) =>{
+  navigate(`/${path}`)
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -232,7 +240,7 @@ const UserDashboard = () => {
                       <div className="border-t border-gray-200 my-4" />
                       
                       <ul className="space-y-2 text-sm">
-                        <li><a href="#" className="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors">
+                        <li><a onClick={() => handleNav("dashboard")} href="" className="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors">
                           <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m7 7 5 5 5-5" />
@@ -424,6 +432,11 @@ const UserDashboard = () => {
           </Tabs>
         </section>
 
+        <div>
+          <DisplayAllProducts />
+        </div>
+      
+
         {/* Quick Actions */}
         <section>
           <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
@@ -465,6 +478,13 @@ const UserDashboard = () => {
               </div>
             </Button>
           </div>
+            {/* LoadingScreen sits on top and unmounts when done */}
+                  {showLoader && (
+                    <LoadingScreen
+                      isLoading={loading}
+                      onFinish={() => setShowLoader(false)}
+                    />
+                  )}
         </section>
       </main>
     </div>

@@ -51,7 +51,7 @@ const CreateWebinar: React.FC<CreateWebinarProps> = ({
       setWebinar(response.data);
       setSuccess(true);
       if (refreshWebinars) refreshWebinars();
-    } catch (err: any) {
+    } catch (err) {
       setError(
         err.response?.data?.error || "Something went wrong. Please try again."
       );
