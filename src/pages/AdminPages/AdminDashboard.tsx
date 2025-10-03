@@ -45,6 +45,7 @@ const AdminDashboard = () => {
   const [openModel, setOpenModal] = useState(false);
   const [openAdminModel, setOpenAdminModel] = useState(false);
   const [openUserModel, setOpenUserModel] = useState(false);
+  const [openNotificationModel, setOpenNotificationModel] = useState(false);
   const [openWebinarModel, setOpenWebinarModel] = useState(false);
   const [openExecutiveModel, setOpenExecutiveModel] = useState(false);
   const [thumbnail, setThumbnail] = useState(null);
@@ -269,6 +270,8 @@ const AdminDashboard = () => {
             {openAdminModel && <RegAdmin setOpenAdminModel={setOpenAdminModel} />}
             {/* Register User Modal */}
             {openUserModel && <RegUser setOpenUserModel={setOpenUserModel} />}
+            {/* Notification  Modal */}
+            {/* {openNotificationModel && <NotificationModal setOpenNotificationModel={setOpenNotificationModel} />} */}
 
             {/* Profile and Action Buttons */}
             <div className="mb-6 sm:mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">

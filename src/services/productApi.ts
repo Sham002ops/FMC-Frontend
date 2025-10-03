@@ -1,9 +1,9 @@
 // ==================== API SERVICE ====================
 // src/services/productApi.ts
-
+import { BackendUrl } from '@/Config';
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_BASE_URL = BackendUrl|| 'http://localhost:4000';
 
 export interface Product {
   id: string;

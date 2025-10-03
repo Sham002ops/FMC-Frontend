@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   Settings2,
+  ShoppingCart,
 } from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -26,6 +27,7 @@ const MobileSidebar: React.FC = () => {
     { label: "Overview", path: "/admin-dashboard", Icon: Home },
     { label: "Users", path: "/admin/all-users", Icon: Users },
     { label: "Executives", path: "/admin/executives", Icon: UserCheck },
+    { label: "Orders", path: "/admin/orders", Icon: ShoppingCart },
     { label: "Packages", path: "/admin/packages", Icon: Box },
     { label: "Webinars", path: "/admin/webinars", Icon: Calendar },
     { label: "Notifications", path: "/admin/notifications", Icon: Bell },

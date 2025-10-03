@@ -49,6 +49,8 @@ const DisplayAllProducts: React.FC = () => {
       }
 
       const response = await axios.get(`${BackendUrl}/goods/products?${params.toString()}`);
+      console.log("response", response);
+      
       setProducts(response.data.products);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to fetch products');
@@ -337,7 +339,7 @@ const RequestProductModal: React.FC<RequestProductModalProps> = ({
     setError(null);
 
     try {
-      const token = localStorage.getItem('userToken');
+      const token = localStorage.getItem('token');
       if (!token) {
         setError('Please login to request products');
         setLoading(false);

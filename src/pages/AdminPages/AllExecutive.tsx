@@ -9,7 +9,7 @@ import ExecutivesTable from '@/components/adminComponents/ExecutivesTable';
 
 const AllExecutive: React.FC = () => {
   const [loading, setLoading] = useState(false);
-  const [allExecutives, setAllExecutives] = useState<any[]>([]);
+  const [allExecutives, setAllExecutives] = useState<[]>([]);
 
   useEffect(() => {
     const fetchExecutives = async () => {

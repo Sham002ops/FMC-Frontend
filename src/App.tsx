@@ -25,6 +25,7 @@ import AdminSettings from "./pages/AdminPages/Settings";
 import Audit from "./pages/AdminPages/Audit";
 import Notifications from "./pages/AdminPages/Notification";
 import AllRefUsers from "./pages/ExecutivePages/AllRefUsers";
+import ProductOrderManagement from "./pages/AdminPages/AllOrders";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +66,7 @@ const App = () => {
             <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
             <Route path="/admin/audit-log" element={<ProtectedRoute><Audit /></ProtectedRoute>} />
             <Route path="/admin/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+            <Route path="/admin/orders" element={<ProductOrderManagement />} />
             
             {/* Executive Routes */}
             <Route path="/exexutive-dashboard" element={<ProtectedRoute><ExexutiveDashboard /></ProtectedRoute>} />
