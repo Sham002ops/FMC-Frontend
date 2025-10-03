@@ -19,6 +19,8 @@ import { BackendUrl } from '@/Config';
 import MobileSidebar from '@/components/onboarding/mobileSidebar';
 import CreateWebinar from '@/components/adminComponents/CreateWebinar';
 import RegUser from '@/components/adminComponents/RegUser';
+import { Briefcase, Shield, UserPlus, Video } from 'lucide-react';
+import AdminDashboardStats from '@/components/adminComponents/AdminDashboardStats';
 
 interface TopicCardProps {
   title: string;
@@ -257,7 +259,7 @@ const AdminDashboard = () => {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 p-3 sm:p-4 lg:p-6 lg:ml-20 overflow-x-hidden">
+        <main className="flex-1 bg-slate-300 p-3 sm:p-4 lg:p-6 lg:ml-20 overflow-x-hidden">
           <div className="max-w-full mx-auto">
             
             {/* Create Webinar Modal */}
@@ -273,6 +275,7 @@ const AdminDashboard = () => {
             {/* Notification  Modal */}
             {/* {openNotificationModel && <NotificationModal setOpenNotificationModel={setOpenNotificationModel} />} */}
 
+
             {/* Profile and Action Buttons */}
             <div className="mb-6 sm:mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
               <div className='flex items-center gap-3 sm:gap-4'>
@@ -280,69 +283,60 @@ const AdminDashboard = () => {
                   {username ? username.toUpperCase() : 'Loading...'}
                 </div>
               </div>
+            
+            <div className='flex flex-row gap-2 w-full justify-center'>
+              <button
+                onClick={() => setOpenUserModel(true)}
+                className="relative bg-white group hover:bg-teal-700 hover:text-white text-teal-700 overflow-hidden cursor-pointer rounded-lg w-20 max-w-[80px]"
+                title="Register User"
+                aria-label="Register User">
+                <div className="absolute inset-0 bg-gradient-to-tr from-teal-600 to-teal-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
+                <span className="flex flex-col justify-center border-teal-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-teal-500 font-bold group-hover:text-white transition-colors duration-300">
+                  <UserPlus className="w-5 h-5" />
+                  <span className="text-[9px] leading-tight">User</span>
+                </span>
+              </button>
               
-              <div className='flex flex-col sm:flex-row gap-2 sm:gap-3 lg:gap-4 w-full lg:w-auto'>
-                <button 
-                      onClick={() => setOpenUserModel(true)}
-                      className=" relative bg-white group   hover:bg-teal-700 hover:text-white text-teal-700   overflow-hidden cursor-pointer  rounded-lg ">
-                  <div className=" absolute inset-0 bg-gradient-to-tr from-teal-600 to-teal-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out "></div>
-                  <span className=" flex justify-center border-teal-500 border-2 items-center rounded-lg gap-2  px-4 py-2  relative text-teal-500 font-bold group-hover:text-white transition-colors duration-300">Register User</span>
-                </button>
-
-                <button 
-                      onClick={() => setOpenAdminModel(true)}
-                      className=" relative bg-white group   hover:bg-blue-700 hover:text-white text-blue-700   overflow-hidden cursor-pointer  rounded-lg ">
-                  <div className=" absolute inset-0 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out "></div>
-                  <span className=" flex justify-center border-blue-500 border-2 items-center rounded-lg gap-2  px-4 py-2  relative text-blue-500 font-bold group-hover:text-white transition-colors duration-300">Register Admin</span>
-                </button>
-
-                <button 
-                      onClick={() => setOpenExecutiveModel(true)}
-                      className=" relative bg-white group   hover:bg-orange-700 hover:text-white text-orange-700   overflow-hidden cursor-pointer  rounded-lg ">
-                  <div className=" absolute inset-0 bg-gradient-to-tr from-orange-600 to-orange-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out "></div>
-                  <span className=" flex justify-center border-orange-500 border-2 items-center rounded-lg gap-2  px-4 py-2  relative text-orange-500 font-bold group-hover:text-white transition-colors duration-300">Register Executive</span>
-                </button>
-
-                <button 
-                      onClick={() => setOpenWebinarModel(true)}
-                      className=" relative bg-white group   hover:bg-green-700 hover:text-white text-green-700   overflow-hidden cursor-pointer  rounded-lg ">
-                  <div className=" absolute inset-0 bg-gradient-to-tr from-green-600 to-green-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out "></div>
-                  <span className=" flex justify-center border-green-500 border-2 items-center rounded-lg gap-2  px-4 py-2  relative text-green-500 font-bold group-hover:text-white transition-colors duration-300">Create Webinar</span>
-                </button>
-               
-              </div>
+              <button
+                onClick={() => setOpenAdminModel(true)}
+                className="relative bg-white group hover:bg-blue-700 hover:text-white text-blue-700 overflow-hidden cursor-pointer rounded-lg w-20 max-w-[80px]"
+                title="Register Admin"
+                aria-label="Register Admin">
+                <div className="absolute inset-0 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
+                <span className="flex flex-col justify-center border-blue-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-blue-500 font-bold group-hover:text-white transition-colors duration-300">
+                  <Shield className="w-5 h-5" />
+                  <span className="text-[9px] leading-tight">Admin</span>
+                </span>
+              </button>
+              
+              <button
+                onClick={() => setOpenExecutiveModel(true)}
+                className="relative bg-white group hover:bg-orange-700 hover:text-white text-orange-700 overflow-hidden cursor-pointer rounded-lg w-20 max-w-[80px]"
+                title="Register Executive"
+                aria-label="Register Executive">
+                <div className="absolute inset-0 bg-gradient-to-tr from-orange-600 to-orange-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
+                <span className="flex flex-col justify-center border-orange-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-orange-500 font-bold group-hover:text-white transition-colors duration-300">
+                  <Briefcase className="w-5 h-5" />
+                  <span className="text-[9px] leading-tight">Executive</span>
+                </span>
+              </button>
+              
+              <button
+                onClick={() => setOpenWebinarModel(true)}
+                className="relative bg-white group hover:bg-green-700 hover:text-white text-green-700 overflow-hidden cursor-pointer rounded-lg w-20 max-w-[80px]"
+                title="Create Webinar"
+                aria-label="Create Webinar">
+                <div className="absolute inset-0 bg-gradient-to-tr from-green-600 to-green-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
+                <span className="flex flex-col justify-center border-green-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-green-500 font-bold group-hover:text-white transition-colors duration-300">
+                  <Video className="w-5 h-5" />
+                  <span className="text-[9px] leading-tight">Webinar</span>
+                </span>
+              </button>
+            </div>
             </div>
 
-            {/* Stats Cards - First Row */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6'>
-              <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm">
-                <h3 className="text-xs sm:text-sm font-medium text-gray-500">Total Users</h3>
-                <p className="text-xl sm:text-2xl font-bold text-event-primary">138</p>
-              </div>
-              <div className="bg-white border-2 border-event-primary p-3 sm:p-4 rounded-lg shadow-sm">
-                <h3 className="text-xs sm:text-sm font-medium text-gray-500">Elite Package Users</h3>
-                <p className="text-xl sm:text-2xl font-bold text-event-primary">67</p>
-              </div>
-              <div className="bg-white p-3 sm:p-4 border-2 border-yellow-500 rounded-lg shadow-sm">
-                <h3 className="text-xs sm:text-sm font-medium text-gray-500">Gold Package Users</h3>
-                <p className="text-xl sm:text-2xl font-bold text-yellow-500">42</p>
-              </div>
-              <div className="bg-white border-2 border-slate-400 p-3 sm:p-4 rounded-lg shadow-sm">
-                <h3 className="text-xs sm:text-sm font-medium text-gray-500">Platinum Package Users</h3>
-                <p className="text-xl sm:text-2xl font-bold text-slate-400">29</p>
-              </div>
-            </div>
-
-            {/* Stats Cards - Second Row */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8'>
-              <div className="bg-white p-3 sm:p-4 border-2 rounded-lg shadow-sm">
-                <h3 className="text-xs sm:text-sm font-medium text-gray-500">Total Executives</h3>
-                <p className="text-xl sm:text-2xl font-bold text-event-primary">33</p>
-              </div>
-              <div className="bg-white p-3 sm:p-4 border-2 border-red-500 rounded-lg shadow-sm">
-                <h3 className="text-xs sm:text-sm font-medium text-gray-500">Banned Users</h3>
-                <p className="text-xl sm:text-2xl font-bold text-red-500">3</p>
-              </div>
+            <div className="flex-1 overflow-auto p-2 sm:p-4 md:p-8">
+              <AdminDashboardStats/>
             </div>
 
             {/* Tabs */}
