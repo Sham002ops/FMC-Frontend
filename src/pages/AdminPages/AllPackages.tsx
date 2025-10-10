@@ -28,7 +28,10 @@ const AllPackages: React.FC = () => {
             Authorization: `Bearer ${token}`
           }
         });
-        setAllPackages(response.data);
+        const payload = Array.isArray(response.data?.packages) ? response.data.packages
+               : Array.isArray(response.data) ? response.data
+               : [];
+        setAllPackages(payload);
       } catch (error) {
         console.error("Error fetching packages:", error);
         setAllPackages([]);
@@ -46,6 +49,13 @@ const AllPackages: React.FC = () => {
       </div>
     );
   }
+
+  const toYears = (days: number, precision = 2) => {
+      if (!Number.isFinite(days)) return '—';
+      const years = days / 365.25; // average with leap years
+      return years.toFixed(precision);
+    };
+
 
   return (
     <div className="min-h-screen flex bg-gray-100">
@@ -88,13 +98,13 @@ const AllPackages: React.FC = () => {
                           Package Name
                         </th>
                         <th className="px-6 py-4 text-left font-semibold text-gray-600 uppercase tracking-wide">
-                          Price (Coins)
+                          Price 
                         </th>
                         <th className="px-6 py-4 text-left font-semibold text-gray-600 uppercase tracking-wide">
                           Features
                         </th>
                         <th className="px-6 py-4 text-left font-semibold text-gray-600 uppercase tracking-wide">
-                          Validity (Days)
+                          Validity (Years)
                         </th>
                       </tr>
                     </thead>
@@ -106,7 +116,7 @@ const AllPackages: React.FC = () => {
                           <td className="px-6 py-3 whitespace-normal max-w-xs break-words">
                             {Array.isArray(pkg.features) ? pkg.features.join(", ") : pkg.features}
                           </td>
-                          <td className="px-6 py-3 whitespace-nowrap">{pkg.validityDays}</td>
+                          <td className="px-6 py-3 whitespace-nowrap">{toYears(pkg.validityDays)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -126,7 +136,7 @@ const AllPackages: React.FC = () => {
                       <strong>Features:</strong> {Array.isArray(pkg.features) ? pkg.features.join(", ") : pkg.features}
                     </p>
                     <p className="text-gray-600 text-sm">
-                      <strong>Validity (Days):</strong> {pkg.validityDays}
+                      <strong>Validity (Years):</strong> {toYears(pkg.validityDays)}
                     </p>
                   </div>
                 ))}

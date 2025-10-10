@@ -21,6 +21,8 @@ import CreateWebinar from '@/components/adminComponents/CreateWebinar';
 import RegUser from '@/components/adminComponents/RegUser';
 import { Briefcase, Shield, UserPlus, Video } from 'lucide-react';
 import AdminDashboardStats from '@/components/adminComponents/AdminDashboardStats';
+import { formatDistanceToNowStrict, parseISO } from 'date-fns';
+import CreatePackage from '@/components/adminComponents/CreatePackage';
 
 interface TopicCardProps {
   title: string;
@@ -49,6 +51,7 @@ const AdminDashboard = () => {
   const [openUserModel, setOpenUserModel] = useState(false);
   const [openNotificationModel, setOpenNotificationModel] = useState(false);
   const [openWebinarModel, setOpenWebinarModel] = useState(false);
+  const [openPackageModel, setOpenPackageModel] = useState(false);
   const [openExecutiveModel, setOpenExecutiveModel] = useState(false);
   const [thumbnail, setThumbnail] = useState(null);
   const [topic1, setTopic1] = useState("");
@@ -103,9 +106,27 @@ const AdminDashboard = () => {
   fetchUserDetails();
 }, []);
 
+  const startOfToday = () => {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+const isUpcomingOrToday = (iso: string | Date) => {
+  const when = new Date(iso);
+  if (!Number.isFinite(when.getTime())) return false;
+  return when >= startOfToday();
+};
+const upcomingWebinars = Array.isArray(webinars)
+  ? webinars.filter(w => isUpcomingOrToday(w.date))
+  : [];
+
   if (loading) {
     return <div className="justify-center items-center flex min-h-screen text-center"><Processing /></div>;
   }
+
+  const lastLoginText = user?.lastLogin
+  ? formatDistanceToNowStrict(parseISO(user.lastLogin), { addSuffix: true })
+  : 'Unknown';
 
   const handleSignout = async () => {
      try {
@@ -119,6 +140,11 @@ const AdminDashboard = () => {
       navigate("/landing-page");
     }
   };
+
+  const fullThumb = (path?: string) => {
+  if (!path) return '/placeholder-image.png';
+  return path.startsWith('http') ? path : `${BackendUrl}${path.startsWith('/') ? path : `/${path}`}`;
+};
 
   const upcomingEvents = [
     { id: 1, title: 'AI for Beginners', image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=400&auto=format&fit=crop", price: 'Elite', PlayNow: "Join", date: 'May 15, 2025' },
@@ -185,7 +211,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex w-full min-h-screen bg-gray-50">
       {/* Sidebar */}
       <div className="transition-transform duration-300">
         {/* Desktop Sidebar */}
@@ -200,7 +226,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Main Content Container - KEY FIX: Added proper left margins */}
-      <div className="flex-1 flex flex-col min-h-screen ml-0  transition-all duration-300">
+      <div className="flex-1 w-full flex flex-col min-h-screen ml-0  transition-all duration-300">
         {/* Header */}
         <header className="bg-gradient-to-r from-blue-700 to-green-400 text-white shadow-lg z-40 w-full">
           <div className="mx-auto py-3 sm:py-4 px-3 sm:px-6">
@@ -265,6 +291,9 @@ const AdminDashboard = () => {
             {/* Create Webinar Modal */}
             {openWebinarModel && (<CreateWebinar setOpenWebinarModel={setOpenWebinarModel}/>)}
 
+            {/* Create Package Modal */}
+            {openPackageModel && (<CreatePackage setOpenPackageModel={setOpenPackageModel}/>)}
+
             {/* Register Executive Modal */}
             {openExecutiveModel && <RegisterExecutive setOpenExecutiveModel={setOpenExecutiveModel} />}
             
@@ -277,63 +306,154 @@ const AdminDashboard = () => {
 
 
             {/* Profile and Action Buttons */}
-            <div className="mb-6 sm:mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-              <div className='flex items-center gap-3 sm:gap-4'>
-                <div className='text-event-primary pl-10 font-bold text-xl sm:text-2xl break-words'>
-                  {username ? username.toUpperCase() : 'Loading...'}
+            <div className=" w-full mb-6 sm:mb-8 flex flex-col lg:flex-row justify-between lg:justify-center gap-4 lg:gap-40  items-start lg:items-center">
+              <div className='flex lg:h-[135px] items-center ml-12 lg-ml-0 pl-5 gap-4 sm:gap-6 bg-white  rounded-lg shadow-sm p-4 border-l-4 border-event-primary'>
+                {/* Avatar */}
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-blue-600 to-green-500 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold shadow-md flex-shrink-0">
+                  {username ? username.charAt(0).toUpperCase() : 'A'}
+                </div>
+
+                {/* Info Panel */}
+                <div className='flex flex-col gap-1'>
+                  {/* Top Row: Name & Role Badge */}
+                  <div className='flex items-center gap-2 flex-wrap'>
+                    <h2 className='text-gray-800 font-bold text-xl sm:text-2xl lg:text-3xl truncate max-w-[180px] sm:max-w-[240px]'>
+                      {user?.name ? user.name : 'Loading...'}
+                    </h2>
+                    <span className='px-2 py-0.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-semibold rounded-full shadow-sm'>
+                      {user?.role ? user.role.toUpperCase() : "ADMIN"}
+                    </span>
+                  </div>
+
+                  {/* Email */}
+                  <div className='flex items-center gap-2 text-xs sm:text-sm text-gray-500'>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12H8m8 0l-4-4m4 4l-4 4" />
+                    </svg>
+                    <span className='truncate max-w-[140px] sm:max-w-[180px]'>{user?.email || "\u2013"}</span>
+                  </div>
+
+                  {/* Coins */}
+                  <div className='flex items-center gap-2 text-xs sm:text-sm text-yellow-700 font-semibold'>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="9" />
+                      <text x="12" y="16" textAnchor="middle" fontSize="10" fontWeight="bold" fill="gold">₹</text>
+                    </svg>
+                    <span>Coins:&nbsp;{user?.coins?.toLocaleString() ?? "\u2013"}</span>
+                  </div>
                 </div>
               </div>
-            
-            <div className='flex flex-row gap-2 w-full justify-center'>
-              <button
-                onClick={() => setOpenUserModel(true)}
-                className="relative bg-white group hover:bg-teal-700 hover:text-white text-teal-700 overflow-hidden cursor-pointer rounded-lg w-20 max-w-[80px]"
-                title="Register User"
-                aria-label="Register User">
-                <div className="absolute inset-0 bg-gradient-to-tr from-teal-600 to-teal-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
-                <span className="flex flex-col justify-center border-teal-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-teal-500 font-bold group-hover:text-white transition-colors duration-300">
-                  <UserPlus className="w-5 h-5" />
-                  <span className="text-[9px] leading-tight">User</span>
-                </span>
-              </button>
-              
-              <button
-                onClick={() => setOpenAdminModel(true)}
-                className="relative bg-white group hover:bg-blue-700 hover:text-white text-blue-700 overflow-hidden cursor-pointer rounded-lg w-20 max-w-[80px]"
-                title="Register Admin"
-                aria-label="Register Admin">
-                <div className="absolute inset-0 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
-                <span className="flex flex-col justify-center border-blue-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-blue-500 font-bold group-hover:text-white transition-colors duration-300">
-                  <Shield className="w-5 h-5" />
-                  <span className="text-[9px] leading-tight">Admin</span>
-                </span>
-              </button>
-              
-              <button
-                onClick={() => setOpenExecutiveModel(true)}
-                className="relative bg-white group hover:bg-orange-700 hover:text-white text-orange-700 overflow-hidden cursor-pointer rounded-lg w-20 max-w-[80px]"
-                title="Register Executive"
-                aria-label="Register Executive">
-                <div className="absolute inset-0 bg-gradient-to-tr from-orange-600 to-orange-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
-                <span className="flex flex-col justify-center border-orange-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-orange-500 font-bold group-hover:text-white transition-colors duration-300">
-                  <Briefcase className="w-5 h-5" />
-                  <span className="text-[9px] leading-tight">Executive</span>
-                </span>
-              </button>
-              
-              <button
-                onClick={() => setOpenWebinarModel(true)}
-                className="relative bg-white group hover:bg-green-700 hover:text-white text-green-700 overflow-hidden cursor-pointer rounded-lg w-20 max-w-[80px]"
-                title="Create Webinar"
-                aria-label="Create Webinar">
-                <div className="absolute inset-0 bg-gradient-to-tr from-green-600 to-green-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
-                <span className="flex flex-col justify-center border-green-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-green-500 font-bold group-hover:text-white transition-colors duration-300">
-                  <Video className="w-5 h-5" />
-                  <span className="text-[9px] leading-tight">Webinar</span>
-                </span>
-              </button>
-            </div>
-            </div>
+
+
+                  {/* Mobile View - Compact Icon Buttons */}
+                  <div className='flex sm:hidden flex-row gap-2 w-full justify-center'>
+                    <button
+                      onClick={() => setOpenUserModel(true)}
+                      className="relative bg-white group hover:bg-teal-700 hover:text-white text-teal-700 overflow-hidden cursor-pointer rounded-lg w-20 max-w-[80px]"
+                      title="Register User"
+                      aria-label="Register User">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-teal-600 to-teal-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
+                      <span className="flex flex-col justify-center border-teal-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-teal-500 font-bold group-hover:text-white transition-colors duration-300">
+                        <UserPlus className="w-5 h-5" />
+                        <span className="text-[9px] leading-tight">User</span>
+                      </span>
+                    </button>
+                    
+                    <button
+                      onClick={() => setOpenAdminModel(true)}
+                      className="relative bg-white group hover:bg-blue-700 hover:text-white text-blue-700 overflow-hidden cursor-pointer rounded-lg w-20 max-w-[80px]"
+                      title="Register Admin"
+                      aria-label="Register Admin">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
+                      <span className="flex flex-col justify-center border-blue-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-blue-500 font-bold group-hover:text-white transition-colors duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user-star-icon lucide-user-star"><path d="M16.051 12.616a1 1 0 0 1 1.909.024l.737 1.452a1 1 0 0 0 .737.535l1.634.256a1 1 0 0 1 .588 1.806l-1.172 1.168a1 1 0 0 0-.282.866l.259 1.613a1 1 0 0 1-1.541 1.134l-1.465-.75a1 1 0 0 0-.912 0l-1.465.75a1 1 0 0 1-1.539-1.133l.258-1.613a1 1 0 0 0-.282-.866l-1.156-1.153a1 1 0 0 1 .572-1.822l1.633-.256a1 1 0 0 0 .737-.535z"/><path d="M8 15H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/></svg>
+                        <span className="text-[9px] leading-tight">Admin</span>
+                      </span>
+                    </button>
+                    
+                    <button
+                      onClick={() => setOpenExecutiveModel(true)}
+                      className="relative bg-white group hover:bg-orange-700 hover:text-white text-orange-700 overflow-hidden cursor-pointer rounded-lg w-20 max-w-[80px]"
+                      title="Register Executive"
+                      aria-label="Register Executive">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-orange-600 to-orange-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
+                      <span className="flex flex-col justify-center border-orange-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-orange-500 font-bold group-hover:text-white transition-colors duration-300">
+                        <Briefcase className="w-5 h-5" />
+                        <span className="text-[9px] leading-tight">Executive</span>
+                      </span>
+                    </button>
+                    
+                    <button
+                      onClick={() => setOpenWebinarModel(true)}
+                      className="relative bg-white group hover:bg-green-700 hover:text-white text-green-700 overflow-hidden cursor-pointer rounded-lg w-20 max-w-[80px]"
+                      title="Create Webinar"
+                      aria-label="Create Webinar">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-green-600 to-green-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
+                      <span className="flex flex-col justify-center border-green-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-green-500 font-bold group-hover:text-white transition-colors duration-300">
+                        <Video className="w-5 h-5" />
+                        <span className="text-[9px] leading-tight">Webinar</span>
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* Tablet & Desktop View - Full Text Buttons */}
+                  <div className='hidden sm:flex flex-row gap-2 sm:gap-3 lg:flex-wrap lg:gap-4 w-full sm:w-auto lg:w-[700px]'>
+                    <button  
+                      className="relative w-52  bg-gradient-to-tr from-indigo-500 to-purple-500 group  text-white text-lg font-bold overflow-hidden cursor-pointer rounded-lg">
+                      <span>Quick Admin Tasks</span>
+                    </button>
+                    <button 
+                      onClick={() => setOpenUserModel(true)}
+                      className="relative w-52  bg-white group hover:bg-teal-700 hover:text-white text-teal-700 overflow-hidden cursor-pointer rounded-lg">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-teal-600 to-teal-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
+                      <span className="flex justify-center  border-teal-500 border-2 items-center rounded-lg gap-2 px-4 py-4 relative text-teal-500 font-bold group-hover:text-white transition-colors duration-300">
+                        <UserPlus className="w-5 h-5" />
+                        <span>Register User</span>
+                      </span>
+                    </button>
+                    
+                    <button 
+                      onClick={() => setOpenAdminModel(true)}
+                      className="relative w-52 bg-white group hover:bg-blue-700 hover:text-white text-blue-700 overflow-hidden cursor-pointer rounded-lg">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
+                      <span className="flex justify-center border-blue-500 border-2 items-center rounded-lg gap-2 px-4 py-4 relative text-blue-500 font-bold group-hover:text-white transition-colors duration-300">
+                        <Shield className="w-5 h-5" />
+                        <span>Register Admin</span>
+                      </span>
+                    </button>
+                    
+                    <button 
+                      onClick={() => setOpenExecutiveModel(true)}
+                      className="relative w-52 bg-white group hover:bg-orange-700 hover:text-white text-orange-700 overflow-hidden cursor-pointer rounded-lg">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-orange-600 to-orange-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
+                      <span className="flex justify-center border-orange-500 border-2 items-center rounded-lg gap-2 px-4 py-4 relative text-orange-500 font-bold group-hover:text-white transition-colors duration-300">
+                        <Briefcase className="w-5 h-5" />
+                        <span>Register Executive</span>
+                      </span>
+                    </button>
+                    
+                    <button 
+                      onClick={() => setOpenWebinarModel(true)}
+                      className="relative w-52 bg-white group hover:bg-green-700 hover:text-white text-green-700 overflow-hidden cursor-pointer rounded-lg">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-green-600 to-green-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
+                      <span className="flex justify-center  border-green-500 border-2 items-center rounded-lg gap-2 px-4 py-4 relative text-green-500 font-bold group-hover:text-white transition-colors duration-300">
+                        <Video className="w-5 h-5" />
+                        <span>Create Webinar</span>
+                      </span>
+                    </button>
+
+
+                    <button 
+                      onClick={() => setOpenPackageModel(true)}
+                      className="relative w-52 bg-white group hover:bg-green-700 hover:text-white text-green-700 overflow-hidden cursor-pointer rounded-lg">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-green-600 to-green-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
+                      <span className="flex justify-center border-green-500 border-2 items-center rounded-lg gap-2 px-4 py-4 relative text-green-500 font-bold group-hover:text-white transition-colors duration-300">
+                        <Video className="w-5 h-5" />
+                        <span>Create Packages</span>
+                      </span>
+                    </button>
+                  </div>
+                </div>
 
             <div className="flex-1 overflow-auto p-2 sm:p-4 md:p-8">
               <AdminDashboardStats/>
@@ -346,81 +466,37 @@ const AdminDashboard = () => {
                   <TabsTrigger value="upcoming" className="flex-1 text-xs sm:text-sm px-2 sm:px-4">
                     Upcoming Webinars
                   </TabsTrigger>
-                  <TabsTrigger value="registered" className="flex-1 text-xs sm:text-sm px-2 sm:px-4">
-                    Your Registrations
-                  </TabsTrigger>
-                  <TabsTrigger value="history" className="flex-1 text-xs sm:text-sm px-2 sm:px-4">
-                    Past Webinars
-                  </TabsTrigger>
-                  <TabsTrigger value="topics" className="flex-1 text-xs sm:text-sm px-2 sm:px-4">
-                    Topics
-                  </TabsTrigger>
+                  
                 </TabsList>
               </div>
-
               <TabsContent value="upcoming">
-                          {fetchLoading ? (
-                            <div className="flex justify-center items-center py-10"><Processing /></div>
-                          ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-                              {webinars.length === 0 ? (
-                                <div className="text-gray-500 text-center col-span-full py-8">
-                                  No webinars found.
-                                </div>
-                              ) : (
-                                webinars.map(webinar => (
-                                  <EventCard
-                                    key={webinar.id}
-                                    title={webinar.title}
-                                    image={webinar.thumbnail}
-                                    price={webinar.packageId} // or show package name if you join it
-                                    PlayNow="Join"
-                                    date={new Date(webinar.date).toLocaleDateString()} // adjust date format as needed
-                                    zoomLink={webinar.zoomLink}
-                                  />
-                                ))
-                              )}
-                            </div>
-                          )}
-                        </TabsContent>
+  {fetchLoading ? (
+    <div className="flex justify-center items-center py-10"><Processing /></div>
+  ) : (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+      {upcomingWebinars.length === 0 ? (
+        <div className="text-gray-500 text-center col-span-full py-8">
+          No upcoming webinars found.
+        </div>
+      ) : (
+        upcomingWebinars.map((webinar) => (
+          <EventCard
+            key={webinar.id}
+            title={webinar.title}
+            image={fullThumb(webinar.thumbnail)}
+            price={webinar.package?.name || webinar.packageId}
+            PlayNow="Join"
+            date={new Date(webinar.date).toLocaleDateString()}
+            zoomLink={webinar.zoomLink}
+          />
+        ))
+      )}
+    </div>
+  )}
+</TabsContent>
 
-
-              <TabsContent value="registered">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-                  {registeredEvents.map(event => <EventCard key={event.id} {...event} />)}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="history">
-                <div className="text-center py-8 sm:py-10">
-                  <p className="text-gray-500 text-sm sm:text-base">Your attended webinar history will appear here.</p>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="topics">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-                  {topics.map((topic, index) => (
-                    <TopicCard key={index} {...topic} />
-                  ))}
-                </div>
-              </TabsContent>
+              
             </Tabs>
-
-            {/* Action Buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
-              <Button variant="outline" className="border-event-primary text-event-primary hover:bg-event-accent text-sm sm:text-base">
-                My Coins
-              </Button>
-              <Button variant="outline" className="border-event-primary text-event-primary hover:bg-event-accent text-sm sm:text-base">
-                Events & Workshops
-              </Button>
-              <Button variant="outline" className="border-event-primary text-event-primary hover:bg-event-accent text-sm sm:text-base">
-                Club News
-              </Button>
-              <Button variant="outline" className="border-event-primary text-event-primary hover:bg-event-accent text-sm sm:text-base">
-                Support Helpdesk
-              </Button>
-            </div>
           </div>
         </main>
       </div>
