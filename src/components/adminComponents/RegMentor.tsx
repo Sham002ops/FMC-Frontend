@@ -3,8 +3,8 @@ import axios from "axios";
 import { Send } from "lucide-react";
 import React, { useState } from "react";
 
-interface RegUserProps {
-  setOpenUserModel: React.Dispatch<React.SetStateAction<boolean>>;
+interface RegMentorProps {
+  setOpenMentorModel: React.Dispatch<React.SetStateAction<boolean>>;
   refreshUser?: () => void;
 }
 
@@ -15,8 +15,8 @@ interface UserResponse {
   password?: string;
 }
 
-const RegUser: React.FC<RegUserProps> = ({
-  setOpenUserModel,
+const RegMentor: React.FC<RegMentorProps> = ({
+  setOpenMentorModel,
   refreshUser,
 }) => {
   const [name, setName] = useState("");
@@ -42,8 +42,8 @@ const RegUser: React.FC<RegUserProps> = ({
         return;
       }
       const response = await axios.post(
-        `${BackendUrl}/executive/register-user`,
-        { name, email, password, executiveRefode, packageName },
+        `${BackendUrl}/admin/reg-mentor`,
+        { name, email, password , role: 'MENTOR' },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -65,19 +65,19 @@ const RegUser: React.FC<RegUserProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30 p-2">
       <div className="relative w-full max-w-md md:max-w-xl xl:max-w-2xl overflow-hidden h-auto bg-gray-100 rounded-2xl shadow-xl flex flex-col items-center justify-center">
         {/* Gradient Decorations - hidden on mobile */}
-        <div className="hidden sm:block absolute top-0 -left-12 w-40 h-20 bg-gradient-to-tr from-teal-500 to-teal-700 rounded-full opacity-80" />
-        <div className="hidden sm:block absolute bottom-0 -right-12 w-40 h-20 bg-gradient-to-tr from-teal-500 to-teal-700 rounded-full opacity-80" />
+        <div className="hidden sm:block absolute top-0 -left-12 w-40 h-20 bg-gradient-to-tr from-purple-500 to-indigo-700 rounded-full opacity-80" />
+        <div className="hidden sm:block absolute bottom-0 -right-12 w-40 h-20 bg-gradient-to-tr from-purple-500 to-indigo-700 rounded-full opacity-80" />
 
         {/* Header */}
         <button
           className="absolute top-4 right-6 text-3xl text-slate-700 hover:text-red-600 font-bold"
           aria-label="Close modal"
-          onClick={() => setOpenUserModel(false)}
+          onClick={() => setOpenMentorModel(false)}
         >
           ×
         </button>
         <div className="mt-10 mb-4 text-center">
-          <div className="bg-clip-text text-transparent font-bold bg-gradient-to-tr from-teal-900 to-teal-500 text-xl md:text-3xl">
+          <div className="bg-clip-text text-transparent font-bold bg-gradient-to-tr from-indigo-500 to-purple-500 group text-xl md:text-3xl">
             FINITE MARSHALL CLUB
           </div>
         </div>
@@ -93,7 +93,7 @@ const RegUser: React.FC<RegUserProps> = ({
                 placeholder="Full Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
                 required
               />
               <input
@@ -101,7 +101,7 @@ const RegUser: React.FC<RegUserProps> = ({
                 placeholder="Email Address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
                 required
               />
               <input
@@ -109,29 +109,14 @@ const RegUser: React.FC<RegUserProps> = ({
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
                 required
               />
-              <input
-                type="packageName"
-                placeholder="Package Name"
-                value={packageName}
-                onChange={(e) => setPackageName(e.target.value)}
-                className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                
-              />
-              <input
-                type="Referralcode"
-                placeholder="Referralcode Optional"
-                value={executiveRefode}
-                onChange={(e) => setExecutiveRefode(e.target.value)}
-                className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                
-              />
+            
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition disabled:opacity-60"
+                className="bg-gradient-to-tr from-indigo-500 to-purple-500 group hover:scale-105 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition disabled:opacity-60"
               >
                 {loading ? "Registering..." : " Register User"}
               </button>
@@ -139,7 +124,7 @@ const RegUser: React.FC<RegUserProps> = ({
           </div>
         ) : (
           <div className="w-full px-4 pt-10 pb-8 max-w-sm mx-auto text-center">
-            <h1 className="text-2xl font-bold mb-6 text-teal-800">User Registered Successfully 🎉</h1>
+            <h1 className="text-2xl font-bold mb-6 text-purple-800">Mentor Registered Successfully 🎉</h1>
             {UserData && (
               <div className="space-y-2 mb-6 text-left">
                 <p>
@@ -154,8 +139,8 @@ const RegUser: React.FC<RegUserProps> = ({
               </div>
             )}
             <button
-              className="relative bg-gradient-to-tr from-teal-600 to-teal-400 border-none overflow-hidden cursor-pointer rounded-md px-6 py-2 flex justify-center items-center gap-2 text-white hover:scale-105 transition"
-              onClick={() => setOpenUserModel(false)}
+              className="relative bg-gradient-to-tr from-indigo-500 to-purple-500  border-none overflow-hidden cursor-pointer rounded-md px-6 py-2 flex justify-center items-center gap-2 text-white hover:scale-105 transition"
+              onClick={() => setOpenMentorModel(false)}
             >
               Mail Credentials <Send size={20} />
             </button>
@@ -167,4 +152,4 @@ const RegUser: React.FC<RegUserProps> = ({
   );
 };
 
-export default RegUser;
+export default RegMentor;

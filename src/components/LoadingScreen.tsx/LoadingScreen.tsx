@@ -56,7 +56,7 @@ useEffect(() => {
         },
       });
 
-      tl.to(rectRefs.current, { y: -1050, duration: 1, stagger: 0.15 });
+      tl.to(rectRefs.current, { y: -1050, duration: 0.5, stagger: 0.15 });
       gsap.set(logoRef.current, { y: -60, opacity: 0 });
 
       // Stop looping animation
@@ -109,7 +109,7 @@ useEffect(() => {
             dominantBaseline="middle"
             textAnchor="middle"
             fontFamily="'Raleway', sans-serif"
-            fontSize="60"
+            fontSize="80"
             fill="none"
             stroke="url(#grad3)"
             strokeWidth="2"

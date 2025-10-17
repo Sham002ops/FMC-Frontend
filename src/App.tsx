@@ -26,6 +26,12 @@ import Audit from "./pages/AdminPages/Audit";
 import Notifications from "./pages/AdminPages/Notification";
 import AllRefUsers from "./pages/ExecutivePages/AllRefUsers";
 import ProductOrderManagement from "./pages/AdminPages/AllOrders";
+import AnalyticsPage from "./pages/AdminPages/AnalyticsPage";
+import AllWebinarsWm from "./pages/WebinarManegerPages/MyWebinars";
+import MentorDashboard from "./pages/WebinarManegerPages/MentorDashboard";
+import MyWebinars from "./pages/WebinarManegerPages/MyWebinars";
+import MentorCalendar from "./pages/WebinarManegerPages/MentorCalendar";
+import AllMentors from "./pages/AdminPages/Mentors";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +73,8 @@ const App = () => {
             <Route path="/admin/audit-log" element={<ProtectedRoute><Audit /></ProtectedRoute>} />
             <Route path="/admin/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
             <Route path="/admin/orders" element={<ProductOrderManagement />} />
+            <Route path="/admin-analysis" element={<AnalyticsPage />} />
+            <Route path="/admin-all-mentors" element={<AllMentors />} />
             
             {/* Executive Routes */}
             <Route path="/exexutive-dashboard" element={<ProtectedRoute><ExexutiveDashboard /></ProtectedRoute>} />
@@ -74,6 +82,11 @@ const App = () => {
             
             {/* User Routes */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+
+            {/* Webinar Manager Routes */}
+            <Route path="/Mentor-dashboard" element={<ProtectedRoute><MentorDashboard /></ProtectedRoute>} />
+            <Route path="/Mentor/my-webinars" element={<ProtectedRoute><MyWebinars /></ProtectedRoute>} />
+            <Route path="/Mentor/Calendar" element={<ProtectedRoute><MentorCalendar /></ProtectedRoute>} />
             
             {/* General Routes */}
             <Route path="/login" element={<Login1 />} />

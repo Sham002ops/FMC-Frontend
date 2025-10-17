@@ -9,6 +9,7 @@ import { Label } from "./ui/label";
 import axios from "axios";
 import { log } from "console";
 import { BackendUrl } from "@/Config";
+import BannedModal from "./BannedModal";
 
 const ExecutiveLoginForm = () => {
   const [email, setEmail] = useState("");
@@ -17,6 +18,8 @@ const ExecutiveLoginForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = useState('');
+  const [showBannedModal, setShowBannedModal] = useState(false);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +68,10 @@ const ExecutiveLoginForm = () => {
       setErrorMsg(
         err.response?.data?.error || "Login failed. Please check your credentials."
       );
+      if (err.response?.status === 403 && err.response?.data?.isBanned) {
+          setShowBannedModal(true); // ✅ Show modal
+          return;
+        }
     } finally {
       setIsLoading(false);
     }
@@ -144,6 +151,12 @@ const ExecutiveLoginForm = () => {
             Join Now
           </Link>
         </p>
+      </div>
+      <div>
+        <BannedModal 
+        isOpen={showBannedModal} 
+        onClose={() => setShowBannedModal(false)} 
+      />
       </div>
     </div>
   );

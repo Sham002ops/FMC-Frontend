@@ -7,15 +7,16 @@ import LoginBackground from "@/components/LoginBackground";
 // import Logo from "@/components/Logo";
 import ExecutiveLoginForm from "@/components/exeLogin";
 import logo from '../assets/FMC2.png'
+import MentorLoginForm from "@/components/MentorLoginForm";
 
 
 const Login1 = () => {
-  const [activeTab, setActiveTab] = useState<'user' | 'admin' | 'executive'>('user');
+  const [activeTab, setActiveTab] = useState<'user' | 'admin' | 'executive' | 'Mentor'>('user');
   const [sliding, setSliding] = useState(false);
   const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(null);
   const [animating, setAnimating] = useState(false);
 
-  const handleTabChange = (tab: 'user' | 'admin' | 'executive') => {
+  const handleTabChange = (tab: 'user' | 'admin' | 'executive' | 'Mentor') => {
     if (tab === activeTab || animating) return;
     
     setSliding(true);
@@ -58,7 +59,7 @@ const Login1 = () => {
             <Button
               variant="ghost"
               className={cn(
-                "rounded-full px-6 transition-all",
+                "rounded-full px-5 transition-all",
                 activeTab === 'user' ? "bg-white text-primary shadow-md" : "text-white hover:bg-white/10"
               )}
               onClick={() => handleTabChange('user')}
@@ -68,7 +69,7 @@ const Login1 = () => {
             <Button
               variant="ghost"
               className={cn(
-                "rounded-full px-6 transition-all",
+                "rounded-full px-5 transition-all",
                 activeTab === 'admin' ? "bg-white text-blue-500 shadow-md" : "text-white hover:bg-white/10"
               )}
               onClick={() => handleTabChange('admin')}
@@ -78,12 +79,22 @@ const Login1 = () => {
             <Button
               variant="ghost"
               className={cn(
-                "rounded-full px-6 transition-all",
+                "rounded-full px-5 transition-all",
                 activeTab === 'executive' ? "bg-white text-blue-500 shadow-md" : "text-white hover:bg-white/10"
               )}
               onClick={() => handleTabChange('executive')}
             >
               Executive
+            </Button>
+            <Button
+              variant="ghost"
+              className={cn(
+                "rounded-full px-5 transition-all",
+                activeTab === 'Mentor' ? "bg-white text-blue-500 shadow-md" : "text-white hover:bg-white/10"
+              )}
+              onClick={() => handleTabChange('Mentor')}
+            >
+              Mentor
             </Button>
           </div>
         </div>
@@ -92,7 +103,7 @@ const Login1 = () => {
           <div
             className={cn(
               "absolute w-full rounded-2xl bg-white login-card overflow-hidden transition-all duration-500 ease-in-out",
-              sliding && activeTab === 'user' ? 'animate-slide-out-right' : 
+              sliding && activeTab === 'user' ? 'animate-slide-out-left' : 
               !sliding && activeTab === 'user' ? 'animate-slide-in-left' : 'opacity-0 translate-x-full'
             )}
             style={{ visibility: (activeTab === 'user' || sliding) ? 'visible' : 'hidden' }}
@@ -119,6 +130,16 @@ const Login1 = () => {
             style={{ visibility: (activeTab === 'executive' || sliding) ? 'visible' : 'hidden' }}
           >
             <ExecutiveLoginForm />
+          </div>
+        <div
+            className={cn(
+              "absolute w-full rounded-2xl bg-white login-card overflow-hidden transition-all duration-500 ease-in-out",
+              sliding && activeTab === 'Mentor' ? 'animate-slide-out-left' : 
+              !sliding && activeTab === 'Mentor' ? 'animate-slide-in-left' : 'opacity-0 translate-x-full'
+            )}
+            style={{ visibility: (activeTab === 'Mentor' || sliding) ? 'visible' : 'hidden' }}
+          >
+            <MentorLoginForm />
           </div>
         </div>
       </div>

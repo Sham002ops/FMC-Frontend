@@ -8,6 +8,7 @@ import { Processing } from "./ui/icons/Processing";
 import { Label } from "./ui/label";
 import axios from "axios";
 import { BackendUrl } from "@/Config";
+import BannedModal from "./BannedModal";
 
 
 
@@ -18,6 +19,8 @@ const AdminLoginForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = useState('');
+  const [showBannedModal, setShowBannedModal] = useState(false);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +64,10 @@ const AdminLoginForm = () => {
       setErrorMsg(
         err.response?.data?.error || "Login failed. Please check your credentials."
       );
+      if (err.response?.status === 403 && err.response?.data?.isBanned) {
+          setShowBannedModal(true); // ✅ Show modal
+          return;
+        }
     } finally {
       setIsLoading(false);
     }
@@ -155,6 +162,10 @@ const AdminLoginForm = () => {
           <Linkedin className="h-5 w-5" />
         </Button>
       </div> */}
+      <BannedModal
+        isOpen={showBannedModal} 
+        onClose={() => setShowBannedModal(false)} 
+      />
       
       <div className="text-center mt-6">
                 <p className="text-slate-500">

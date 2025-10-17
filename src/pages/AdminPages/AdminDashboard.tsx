@@ -23,6 +23,7 @@ import { Briefcase, Shield, UserPlus, Video } from 'lucide-react';
 import AdminDashboardStats from '@/components/adminComponents/AdminDashboardStats';
 import { formatDistanceToNowStrict, parseISO } from 'date-fns';
 import CreatePackage from '@/components/adminComponents/CreatePackage';
+import RegMentor from '@/components/adminComponents/RegMentor';
 
 interface TopicCardProps {
   title: string;
@@ -51,6 +52,7 @@ const AdminDashboard = () => {
   const [openUserModel, setOpenUserModel] = useState(false);
   const [openNotificationModel, setOpenNotificationModel] = useState(false);
   const [openWebinarModel, setOpenWebinarModel] = useState(false);
+  const [openMentorModel, setOpenMentorModel] = useState(false);
   const [openPackageModel, setOpenPackageModel] = useState(false);
   const [openExecutiveModel, setOpenExecutiveModel] = useState(false);
   const [thumbnail, setThumbnail] = useState(null);
@@ -291,6 +293,9 @@ const upcomingWebinars = Array.isArray(webinars)
             {/* Create Webinar Modal */}
             {openWebinarModel && (<CreateWebinar setOpenWebinarModel={setOpenWebinarModel}/>)}
 
+            {/* Create Webinar Modal */}
+            {openMentorModel && (<RegMentor setOpenMentorModel={setOpenMentorModel}/>)}
+
             {/* Create Package Modal */}
             {openPackageModel && (<CreatePackage setOpenPackageModel={setOpenPackageModel}/>)}
 
@@ -354,7 +359,7 @@ const upcomingWebinars = Array.isArray(webinars)
                       aria-label="Register User">
                       <div className="absolute inset-0 bg-gradient-to-tr from-teal-600 to-teal-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
                       <span className="flex flex-col justify-center border-teal-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-teal-500 font-bold group-hover:text-white transition-colors duration-300">
-                        <UserPlus className="w-5 h-5" />
+                        <UserPlus className="w-5 h-6" />
                         <span className="text-[9px] leading-tight">User</span>
                       </span>
                     </button>
@@ -378,7 +383,7 @@ const upcomingWebinars = Array.isArray(webinars)
                       aria-label="Register Executive">
                       <div className="absolute inset-0 bg-gradient-to-tr from-orange-600 to-orange-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
                       <span className="flex flex-col justify-center border-orange-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-orange-500 font-bold group-hover:text-white transition-colors duration-300">
-                        <Briefcase className="w-5 h-5" />
+                        <Briefcase className="w-5 h-6" />
                         <span className="text-[9px] leading-tight">Executive</span>
                       </span>
                     </button>
@@ -390,17 +395,34 @@ const upcomingWebinars = Array.isArray(webinars)
                       aria-label="Create Webinar">
                       <div className="absolute inset-0 bg-gradient-to-tr from-green-600 to-green-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
                       <span className="flex flex-col justify-center border-green-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-green-500 font-bold group-hover:text-white transition-colors duration-300">
-                        <Video className="w-5 h-5" />
+                        <Video className="w-5 h-6" />
                         <span className="text-[9px] leading-tight">Webinar</span>
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => setOpenMentorModel(true)}
+                      className="relative bg-white group hover:bg-gradient-to-tr hover:from-indigo-500 hover:to-purple-500 group  hover:text-white text-purple-700 overflow-hidden cursor-pointer rounded-lg w-20 max-w-[80px]"
+                      title="Create Webinar"
+                      aria-label="Create Webinar">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500 to-purple-500 group  rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
+                      <span className="flex flex-col justify-center border-purple-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-purple-500 font-bold group-hover:text-white transition-colors duration-300">
+                        <Video className="w-5 h-6" />
+                        <span className="text-[9px] leading-tight">Mentor</span>
                       </span>
                     </button>
                   </div>
 
                   {/* Tablet & Desktop View - Full Text Buttons */}
                   <div className='hidden sm:flex flex-row gap-2 sm:gap-3 lg:flex-wrap lg:gap-4 w-full sm:w-auto lg:w-[700px]'>
-                    <button  
-                      className="relative w-52  bg-gradient-to-tr from-indigo-500 to-purple-500 group  text-white text-lg font-bold overflow-hidden cursor-pointer rounded-lg">
-                      <span>Quick Admin Tasks</span>
+                
+                    <button 
+                      onClick={() => setOpenMentorModel(true)}
+                      className="relative w-52  bg-white group  hover:text-white text-purple-700 overflow-hidden cursor-pointer rounded-lg">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500 to-purple-500 group -lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
+                      <span className="flex justify-center  border-purple-500 border-2 items-center rounded-lg gap-2 px-4 py-4 relative text-purple-500 font-bold group-hover:text-white transition-colors duration-300">
+                        <UserPlus className="w-5 h-5" />
+                        <span>Register Mentor</span>
+                      </span>
                     </button>
                     <button 
                       onClick={() => setOpenUserModel(true)}

@@ -11,7 +11,7 @@ import { log } from "console";
 import { BackendUrl } from "@/Config";
 import BannedModal from "./BannedModal";
 
-const UserLoginForm = () => {
+const MentorLoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -25,9 +25,10 @@ const UserLoginForm = () => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMsg('');
+    
+    
+    
 
-     
-      
     try {
       const response = await axios.post(
         `${BackendUrl}/auth/login`,
@@ -43,40 +44,36 @@ const UserLoginForm = () => {
           localStorage.setItem("loggedIn", "true");
 
         }
-     
+      // console.log("Submitting login form", { email, password });
 
       if (response.status === 200 && response.data.user) {
         toast({
           title: "Login successful!",
           description: `Welcome back, ${response.data.user.name}!`,
         });
-        navigate("/dashboard");
+        navigate("/Mentor-dashboard");
       } else {
         setErrorMsg("Login failed. Please try again.");
       }
     } catch (err) {
+      console.log("Response Data:", err.response?.data );
       setErrorMsg(
         err.response?.data?.error || "Login failed. Please check your credentials."
       );
-      if (err.response?.status === 403 && err.response?.data?.isBanned) {
-          setShowBannedModal(true); // ✅ Show modal
-          return;
-        }
+      if(err.response?.data?.isBanned){
+        console.log("User is banned: ", err.response?.data?.isBanned);
+        setShowBannedModal(!!err.response?.data?.isBanned);
+        
+      }
     } finally {
       setIsLoading(false);
     }
-   
-  
-
-    
-    
-
   };
 
   return (
     <div className="flex flex-col space-y-6 p-6">
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight">User Login</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Mentor Login</h2>
         <p className="text-sm text-muted-foreground">
           Access your personal account
         </p>
@@ -117,7 +114,7 @@ const UserLoginForm = () => {
           )}
 
           <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600">
-            Sign In {isLoading ? <Processing /> : <></>}
+            {isLoading ? <Processing /> : <> Sign In</>}
           </Button>
         </div>
       </form>
@@ -141,19 +138,14 @@ const UserLoginForm = () => {
       </div> */}
 
       <div className="text-center mt-6">
-        <p className="text-slate-500">
-          Don't have an account?{' '}
-          <Link to="/register" className="font-medium text-primary  hover:underline">
-            Join Now
-          </Link>
-        </p>
-      </div>
-      <BannedModal 
+       <BannedModal 
         isOpen={showBannedModal} 
         onClose={() => setShowBannedModal(false)} 
       />
+      </div>
+      
     </div>
   );
 };
 
-export default UserLoginForm;
+export default MentorLoginForm;

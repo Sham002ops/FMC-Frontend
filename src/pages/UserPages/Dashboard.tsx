@@ -7,166 +7,290 @@ import { Processing } from '@/components/ui/icons/Processing';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { BackendUrl } from '@/Config';
-import { NotificationSlider } from '@/components/userComponents/NotificationSlider';
-import LoyaltyCard from '@/components/userComponents/LoyaltyCard';
 import { NotificationSliderDesktop } from '@/components/userComponents/NotificationSliderDesktop';
 import { NotificationSliderMobile } from '@/components/userComponents/NotificationSliderMobile';
-import LoyaltyCardMobile from '@/components/userComponents/LoyaltyCardMobile';
+import LoyaltyCard from '@/components/userComponents/LoyaltyCard';
 import DisplayAllProducts from '@/components/Products/DisplayAllProducts';
 import LoadingScreen from '@/components/LoadingScreen.tsx/LoadingScreen';
-import ProductDetails from '@/components/Products/ProductDetails';
-
-interface TopicCardProps {
-  title: string;
-  image: string;
-  description: string;
-  color: string;
-}
-
-const TopicCard = ({ title, image, description, color }: TopicCardProps) => (
-  <div className="group rounded-xl overflow-hidden shadow-sm border border-gray-200 bg-white hover:shadow-lg transition-all duration-300">
-    <img src={image} alt={title} className="w-full h-36 object-cover group-hover:scale-105 transition-transform duration-300" />
-    <div className="p-4">
-      <h3 className={`text-lg font-semibold mb-2 ${color} text-white px-3 py-1 inline-block rounded-full text-sm`}>
-        {title}
-      </h3>
-      <p className="text-sm text-gray-700 mt-2">{description}</p>
-    </div>
-  </div>
-);
+import UserStatsCards from '@/components/userComponents/UserStatsCards';
+import UserProfileMenu from '@/components/userComponents/UserProfileMenu';
 
 const UserDashboard = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [showLoader, setShowLoader] = useState(true);
   const [user, setUser] = useState(null);
-  const [username, setUsername] = useState(null);
+  const [username, setUsername] = useState('User');
   const [webinars, setWebinars] = useState([]);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [registeredWebinars, setRegisteredWebinars] = useState([]);
+  const [error, setError] = useState<string | null>(null);
 
-        useEffect(() => {
-              const fetchUserDetails = async () =>{
-                try{
-                  setLoading(true);
-                  const token = localStorage.getItem('token');
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const token = localStorage.getItem('token');
 
-                  if(!token){
-                    console.log("Token not present");
-                    navigate("/landing-page")
-                    
-                  }
-                  const res = await axios.get(`${BackendUrl}/auth/verifyToken`, {
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                    },
-                  });
-                  setUser(res.data.user);
-                  console.log(" user data: ", res.data);
-                  
-                  setUsername(res.data.user.name)
-                  const role = res.data.user.role
-                  console.log(" at dashboard role : ", role);
-                 
-                  if ( role !== "USER" && role == "ADMIN") {
-                      navigate("/admin-dashboard");
-                    }
-                  if ( role !== "USER" && role !== "ADMIN" && role == "EXECUTIVE") {
-                      navigate("/exexutive-dashboard");
-                    }
-                  if ( role !== "USER" && role !== "ADMIN" && role !== "EXECUTIVE") {
-                      navigate("/unauthorized");
-                    }
+        if (!token) {
+          console.log("Token not present");
+          navigate("/landing-page");
+          return;
+        }
 
-                    // Fetch webinars
-                const webinarRes = await axios.get(`${BackendUrl}/webinar`, {
-                  headers: { Authorization: `Bearer ${token}` }
-                });
-                setWebinars(webinarRes.data);
-                console.log(" webinars: ", webinarRes.data);
-                
-                }catch(err){
-                console.log("Error fetching user details:", err);
-                setUser(null)
-                setWebinars([]);
-                
-                } finally{
-                  setLoading(false);
-                }
-              }
-              fetchUserDetails()
-            },[]);
-  
+        // ✅ Fetch user details
+        let userData = null;
+        try {
+          const res = await axios.get(`${BackendUrl}/auth/verifyToken`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          userData = res.data.user;
+          setUser(userData);
+          setUsername(userData?.name || 'User');
+          
+          const role = userData?.role;
+          
+          // Role-based redirects
+          if (role === "ADMIN") {
+            navigate("/admin-dashboard");
+            return;
+          }
+          if (role === "EXECUTIVE") {
+            navigate("/executive-dashboard");
+            return;
+          }
+          if (role === "Mentor") {
+            navigate("/Mentor-dashboard");
+            return;
+          }
+          if (role && role !== "USER") {
+            navigate("/unauthorized");
+            return;
+          }
+        } catch (userErr) {
+          console.error('Error verifying user:', userErr);
+          // If token invalid, redirect to login
+          if (axios.isAxiosError(userErr) && userErr.response?.status === 401) {
+            localStorage.removeItem('token');
+            navigate("/landing-page");
+            return;
+          }
+          throw userErr;
+        }
 
-  // if (loading) return <div className="flex justify-center items-center pt-[300px]"><Processing /></div>
-  
+        // ✅ Fetch webinars (non-critical, continue even if fails)
+        try {
+          const webinarRes = await axios.get(`${BackendUrl}/webinar`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setWebinars(Array.isArray(webinarRes.data) ? webinarRes.data : []);
+        } catch (webinarErr) {
+          console.error('Error fetching webinars:', webinarErr);
+          setWebinars([]);
+          // Don't throw - just continue with empty array
+        }
+
+        // ✅ Fetch registered webinars (non-critical, continue even if fails)
+        try {
+          const registeredRes = await axios.get(`${BackendUrl}/webinar/registered-webinars`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setRegisteredWebinars(Array.isArray(registeredRes.data) ? registeredRes.data : []);
+        } catch (regErr) {
+          console.error('Error fetching registered webinars:', regErr);
+          setRegisteredWebinars([]);
+          // Don't throw - just continue with empty array
+        }
+
+      } catch (err) {
+        console.error("Critical error fetching user details:", err);
+        setError("Failed to load dashboard. Please try refreshing the page.");
+        setUser(null);
+        setWebinars([]);
+        setRegisteredWebinars([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserDetails();
+  }, [navigate]);
+
   const handleSignout = async () => {
     try {
       await axios.post(`${BackendUrl}/auth/logout`, {}, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
       });
-      localStorage.removeItem("token");
-      navigate("/landing-page");
     } catch (err) {
       console.error("Logout error:", err);
+    } finally {
+      localStorage.removeItem("token");
       navigate("/landing-page");
     }
   };
 
-  // if (loading) {
-  //   return (
-  //     <div className="flex items-center justify-center min-h-screen bg-gray-50">
-  //       <Processing />
-  //     </div>
-  //   );
-  // }
+  // ✅ Safe webinar filtering with error handling
+  const getUpcomingWebinars = () => {
+    try {
+      if (!Array.isArray(webinars)) return [];
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
+      return webinars
+        .filter(webinar => {
+          try {
+            return webinar && new Date(webinar.date) >= startOfToday;
+          } catch {
+            return false;
+          }
+        })
+        .sort((a, b) => {
+          try {
+            return new Date(a.date).getTime() - new Date(b.date).getTime();
+          } catch {
+            return 0;
+          }
+        });
+    } catch (err) {
+      console.error('Error filtering upcoming webinars:', err);
+      return [];
+    }
+  };
 
-  const upcomingEvents = [
-    { id: 1, title: 'AI for Beginners', image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=400&auto=format&fit=crop", price: 'Elite', PlayNow: "Join", date: 'May 15, 2025' },
-    { id: 2, title: 'Stock Market Basics', image: "https://blog.shoonya.com/wp-content/uploads/2023/01/Basics-of-Stock-Market.jpg", price: 'Gold', PlayNow: "Join", date: 'May 20, 2025' },
-    { id: 3, title: 'Public Speaking Masterclass', image: "https://i.ytimg.com/vi/-osimXXsaQM/maxresdefault.jpg", price: 'Elite', PlayNow: "Join", date: 'May 25, 2025' },
-    { id: 4, title: 'Digital Marketing Trends', image: "https://neilpatel.com/wp-content/uploads/2024/01/11-A-2025-Digital-Marketing-Trends-Predictions-1.jpg", price: 'Platinum', PlayNow: "Join", date: 'June 5, 2025' },
-  ];
+  const getPastWebinars = () => {
+    try {
+      if (!Array.isArray(webinars)) return [];
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
+      return webinars
+        .filter(webinar => {
+          try {
+            return webinar && new Date(webinar.date) < startOfToday;
+          } catch {
+            return false;
+          }
+        })
+        .sort((a, b) => {
+          try {
+            return new Date(b.date).getTime() - new Date(a.date).getTime();
+          } catch {
+            return 0;
+          }
+        });
+    } catch (err) {
+      console.error('Error filtering past webinars:', err);
+      return [];
+    }
+  };
 
-  const registeredEvents = [
-    { id: 5, title: 'Introduction to Crypto', image: "https://d1csarkz8obe9u.cloudfront.net/posterpreviews/what-is-cryptocurrency-youtube-thumbnail-temp-design-template-733229d072c1e87fd25fad085e840654_screen.jpg?ts=1665037426", price: 'Elite', PlayNow: "Join", date: 'May 12, 2025' },
-    { id: 6, title: 'Personal Finance 101', image: "https://i.ytimg.com/vi/dMwGIEzYvzU/mqdefault.jpg", price: 'Gold', PlayNow: "Join", date: 'May 18, 2025' },
-  ];
+  const upcomingEvents = getUpcomingWebinars();
+  const pastEvents = getPastWebinars();
 
-  const topics = [
-    {
-      title: "Yoga & Meditation",
-      image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=400&auto=format&fit=crop",
-      description: "Discover techniques for mindfulness and physical wellness",
-      color: "bg-purple-500",
-    },
-    {
-      title: "Biotechnology",
-      image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=400&auto=format&fit=crop",
-      description: "Learn about the latest advances in biotechnology research",
-      color: "bg-blue-500",
-    },
-    {
-      title: "Mental Wellness",
-      image: "https://images.unsplash.com/photo-1507413245164-6160d8298b31?q=80&w=400&auto=format&fit=crop",
-      description: "Explore strategies for better mental health and wellbeing",
-      color: "bg-green-500",
-    },
-    {
-      title: "Ayurveda",
-      image: "https://rukminim3.flixcart.com/image/850/1000/xif0q/poster/p/i/l/small-poster-doctors-poster-natural-healing-ayurveda-wall-poster-original-imah38gyxxdnuhnk.jpeg?q=90&crop=false",
-      description: "Discover ancient healing practices for modern wellness",
-      color: "bg-amber-500",
-    },
-    {
-      title: "Artificial Intelligence",
-      image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=400&auto=format&fit=crop",
-      description: "Understand AI applications in modern life",
-      color: "bg-pink-500",
-    },
-  ];
+  const getFullThumbnailUrl = (thumbnailPath: string) => {
+    try {
+      if (!thumbnailPath) return '/placeholder-image.png';
+      
+      if (thumbnailPath.startsWith('http://') || thumbnailPath.startsWith('https://')) {
+        return thumbnailPath;
+      }
+      
+      const cleanPath = thumbnailPath.startsWith('/') ? thumbnailPath : `/${thumbnailPath}`;
+      return `${BackendUrl}${cleanPath}`;
+    } catch {
+      return '/placeholder-image.png';
+    }
+  };
 
-  const handleNav = (path:string) =>{
-  navigate(`/${path}`)
+  const handleRegisterAndJoin = async (webinarId: string, zoomLink: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        alert('Please login to register for webinars');
+        return;
+      }
+
+      await axios.post(
+        `${BackendUrl}/webinar/register`,
+        { webinarId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      if (zoomLink) {
+        window.open(zoomLink, '_blank');
+      }
+      
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.data?.error === 'Already registered for this webinar') {
+        if (zoomLink) {
+          window.open(zoomLink, '_blank');
+        }
+      } else {
+        console.error('Registration error:', err);
+        alert(axios.isAxiosError(err) ? err.response?.data?.error || 'Registration failed' : 'Registration failed');
+      }
+    }
+  };
+
+  const isRegistered = (webinarId: string) => {
+    try {
+      return Array.isArray(registeredWebinars) && registeredWebinars.some(w => w?.id === webinarId);
+    } catch {
+      return false;
+    }
+  };
+
+  const getRegisteredUpcoming = () => {
+    try {
+      if (!Array.isArray(registeredWebinars)) return [];
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
+      return registeredWebinars
+        .filter(webinar => {
+          try {
+            return webinar && new Date(webinar.date) >= startOfToday;
+          } catch {
+            return false;
+          }
+        })
+        .sort((a, b) => {
+          try {
+            return new Date(a.date).getTime() - new Date(b.date).getTime();
+          } catch {
+            return 0;
+          }
+        });
+    } catch (err) {
+      console.error('Error filtering registered webinars:', err);
+      return [];
+    }
+  };
+
+  const registeredEvents = getRegisteredUpcoming();
+
+  // ✅ Error state display
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Oops! Something went wrong</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <Button 
+            onClick={() => window.location.reload()} 
+            className="w-full bg-blue-600 hover:bg-blue-700"
+          >
+            Refresh Page
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -176,11 +300,11 @@ const UserDashboard = () => {
         <div className="container mx-auto py-4 px-4 md:px-6">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className=' flex justify-between gap-4 items-center'>
-                 <img src={FMC} alt="Logo" className=' w-10 h-10 rounded-full ' />
-                  <div className='block lg:hidden'>
-                      <div className="text-lg font-bold  ">FMC</div>
-                  </div>
+              <div className='flex justify-between gap-4 items-center'>
+                <img src={FMC} alt="Logo" className='w-10 h-10 rounded-full' />
+                <div className='block lg:hidden'>
+                  <div className="text-lg font-bold">FMC</div>
+                </div>
               </div>
               <div className="hidden sm:block">
                 <div className="text-lg font-bold">FINITE MARSHALL CLUB</div>
@@ -188,90 +312,7 @@ const UserDashboard = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              {/* Coins Display */}
-              <div className="hidden sm:flex items-center bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm">
-                <svg className="w-4 h-4 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
-                </svg>
-                <span className="font-semibold">1,250</span>
-                <span className="text-blue-200 ml-1 text-sm">coins</span>
-              </div>
-
-              {/* Profile Menu */}
-              <div className="relative">
-                <button
-                  className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white/50 transition-all"
-                  onClick={() => setMenuOpen(!menuOpen)}
-                >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-sm font-bold">
-                    {username?.charAt(0).toUpperCase() || 'U'}
-                  </div>
-                </button>
-                
-                {menuOpen && (
-                  <div className="absolute right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
-                    <div className="p-6">
-                      <div className="flex items-center space-x-4 mb-4">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-lg font-bold">
-                          {username?.charAt(0).toUpperCase() || 'U'}
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-800">
-                            Welcome, {username || "User"}
-                          </h3>
-                          <p className="text-sm text-gray-500">
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                              {String(user?.role || 'USER').toUpperCase()}
-                            </span>
-                            <span className="ml-2">• Joined Jan 2025</span>
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => setMenuOpen(false)}
-                          className="text-gray-400 hover:text-gray-600 transition-colors"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                      
-                      <div className="border-t border-gray-200 my-4" />
-                      
-                      <ul className="space-y-2 text-sm">
-                        <li><a onClick={() => handleNav("dashboard")} href="" className="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors">
-                          <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m7 7 5 5 5-5" />
-                          </svg>
-                          My Dashboard
-                        </a></li>
-                        <li><a href="#" className="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors">
-                          <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                          </svg>
-                          My Webinars
-                        </a></li>
-                        <li><a href="#" className="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors">
-                          <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          Settings
-                        </a></li>
-                      </ul>
-                      
-                      <button
-                        onClick={handleSignout}
-                        className="mt-6 w-full py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-lg hover:from-red-600 hover:to-pink-700 transition-all font-medium"
-                      >
-                        Sign Out
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <UserProfileMenu onSignout={handleSignout} />
             </div>
           </div>
         </div>
@@ -279,163 +320,292 @@ const UserDashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto py-6 px-4 md:px-6 space-y-8">
-        {/* Hero Section with Greeting */}
-       {/* Hero Section with Greeting & Notification Slider */}
-          <section className="text-center lg:text-left">
-            <div className="mb-6 ">
-              <h1 className="text-2xl flex justify-start md:text-4xl font-bold text-gray-900 mb-2">
-                Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {username}! 👋
-              </h1>
-              <p className="text-md text-left  text-gray-600">
-                Ready to expand your knowledge today? Check out your upcoming webinars below.
-              </p>
-            </div>
+        {/* Hero Section */}
+        <section className="text-center lg:text-left">
+          <div className="mb-6">
+            <h1 className="text-2xl flex justify-start md:text-4xl font-bold text-gray-900 mb-2">
+              Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {username}! 👋
+            </h1>
+            <p className="text-md text-left text-gray-600">
+              Ready to expand your knowledge today? Check out your upcoming webinars below.
+            </p>
+          </div>
 
-            {/* Desktop Layout with Loyalty Card + Notification Slider */}
-            <div className="hidden lg:flex gap-6 items-center justify-center">
-              {/* Loyalty Card */}
-              <LoyaltyCard coins={user?.coins || 1250} username={username || 'User'} />
-              
-              {/* Notification Slider */}
+          {/* Desktop Layout */}
+          <div className="hidden lg:flex gap-6 items-center justify-center">
+            <LoyaltyCard coins={user?.coins || 0} username={username} />
               <div className="flex-1 max-w-4xl">
-                <NotificationSliderDesktop webinars={webinars} />
+                <NotificationSliderDesktop 
+                  webinars={webinars} 
+                  userPackageId={user?.packageId}
+                  handleRegister={handleRegisterAndJoin} 
+                />
               </div>
-            </div>
+          </div>
 
-            {/* Mobile Layout - Only Notification Slider */}
-            <div className="block lg:hidden">
-              <NotificationSliderMobile webinars={webinars} />
-            </div>
-          </section>
-
-
-        {/* Stats Cards */}
-        <section>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-gradient-to-br from-yellow-400 to-orange-500 p-6 rounded-xl text-white shadow-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-medium opacity-90">Current Package</h3>
-                  <p className="text-2xl font-bold">Gold</p>
-                  <p className="text-xs opacity-75">Premium Access</p>
-                </div>
-                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Webinars Attended</h3>
-                  <p className="text-2xl font-bold text-blue-600">12</p>
-                  <p className="text-xs text-green-600">+3 this month</p>
-                </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Certificates</h3>
-                  <p className="text-2xl font-bold text-purple-600">5</p>
-                  <p className="text-xs text-gray-500">Earned</p>
-                </div>
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Valid Until</h3>
-                  <p className="text-2xl font-bold text-green-600">Jan 2026</p>
-                  <p className="text-xs text-green-600">11 months left</p>
-                </div>
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-              </div>
-            </div>            
-              {/* Loyalty Card - Only on mobile */}
-              <div className="block lg:hidden">
-                <LoyaltyCardMobile coins={user?.coins || 1250} />
-              </div>
+          {/* Mobile Layout */}
+          <div className="block lg:hidden">
+            <NotificationSliderMobile 
+              webinars={webinars} 
+              handleRegister={handleRegisterAndJoin} 
+            />
           </div>
         </section>
 
-        {/* Content Tabs */}
-        <section>
-          <Tabs defaultValue="upcoming" className="w-full">
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-6">
-              <TabsList className="bg-gray-100 w-full h-12">
-                <TabsTrigger value="upcoming" className="flex-1 data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                  Upcoming Webinars
-                </TabsTrigger>
-                <TabsTrigger value="registered" className="flex-1 data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                  My Registrations
-                </TabsTrigger>
-                <TabsTrigger value="history" className="flex-1 data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                  History
-                </TabsTrigger>
-                <TabsTrigger value="topics" className="flex-1 data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                  All Topics
-                </TabsTrigger>
-              </TabsList>
-            </div>
+        {/* Stats Cards */}
+        <UserStatsCards userCoins={user?.coins || 0} />
 
-            <TabsContent value="upcoming" className="mt-0">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {upcomingEvents.map(event => <EventCard key={event.id} {...event} />)}
-              </div>
-            </TabsContent>
+{/* Content Tabs */}
+<section>
+  <Tabs defaultValue="upcoming" className="w-full">
+    <TabsList className="bg-white rounded-lg shadow-sm p-1">
+      <TabsTrigger value="upcoming" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+        Upcoming ({upcomingEvents.length})
+      </TabsTrigger>
+      <TabsTrigger value="registered" className="data-[state=active]:bg-green-500 data-[state=active]:text-white">
+        Registered ({registeredEvents.length})
+      </TabsTrigger>
+      <TabsTrigger value="past" className="data-[state=active]:bg-gray-500 data-[state=active]:text-white">
+        Past ({pastEvents.length})
+      </TabsTrigger>
+    </TabsList>
 
-            <TabsContent value="registered" className="mt-0">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {registeredEvents.map(event => <EventCard key={event.id} {...event} />)}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="history" className="mt-0">
-              <div className="text-center py-16 bg-white rounded-xl border border-gray-100">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">No History Yet</h3>
-                <p className="text-gray-500">Your attended webinars will appear here after you join your first session.</p>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="topics" className="mt-0">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {topics.map((topic, index) => (
-                  <TopicCard key={index} {...topic} />
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
-        </section>
-
-        <div>
-          <DisplayAllProducts />
+    {/* Upcoming Tab */}
+    <TabsContent value="upcoming" className="mt-6">
+      {upcomingEvents.length === 0 ? (
+        <div className="text-center py-12 bg-white rounded-lg shadow">
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">No Upcoming Webinars</h3>
+          <p className="text-gray-500">Check back later for new webinars</p>
         </div>
-      
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {upcomingEvents.map(event => {
+            if (!event?.id) return null;
+            return (
+              <div key={event.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
+                <EventCard 
+                  title={event.title || 'Untitled'}
+                  image={getFullThumbnailUrl(event.thumbnail)}
+                  price={event.package?.name || 'Free'}
+                  PlayNow="Join"
+                  date={new Date(event.date).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                  })}
+                />
+                
+                <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                    <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="font-medium text-xs">
+                      {new Date(event.date).toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </span>
+                    <span className="mx-1">•</span>
+                    <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="font-medium text-xs">
+                      {new Date(event.date).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                      })}
+                    </span>
+                  </div>
+                  
+                  <button
+                    onClick={() => handleRegisterAndJoin(event.id, event.zoomLink)}
+                    className="block w-full py-3 text-center bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 text-white font-semibold rounded-lg shadow-md transition-all flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Register & Join
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </TabsContent>
+
+    {/* ✅ Registered Tab */}
+    <TabsContent value="registered" className="mt-6">
+      {registeredEvents.length === 0 ? (
+        <div className="text-center py-16 bg-white rounded-xl border border-gray-100">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">No Registered Webinars</h3>
+          <p className="text-gray-500">Register for upcoming webinars to see them here</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {registeredEvents.map(event => {
+            if (!event?.id) return null;
+            return (
+              <div key={event.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition border-2 border-green-200">
+                <div className="relative">
+                  <img 
+                    src={getFullThumbnailUrl(event.thumbnail)} 
+                    alt={event.title}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="absolute top-2 right-2 bg-green-600 text-white text-xs px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Registered
+                  </div>
+                </div>
+                
+                <div className="p-4">
+                  <h3 className="font-bold text-lg text-gray-800 mb-2 line-clamp-2">
+                    {event.title || 'Untitled'}
+                  </h3>
+                  
+                  <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                    <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-xs">
+                      {new Date(event.date).toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </span>
+                    <span className="mx-1">•</span>
+                    <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-xs">
+                      {new Date(event.date).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                      })}
+                    </span>
+                  </div>
+                  
+                  {event.package?.name && (
+                    <div className="inline-block px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full mb-3">
+                      {event.package.name}
+                    </div>
+                  )}
+                  
+                  <button
+                    onClick={() => event.zoomLink && window.open(event.zoomLink, '_blank')}
+                    className="w-full py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg transition-all font-medium flex items-center justify-center gap-2 text-sm"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Join Webinar
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </TabsContent>
+
+    {/* Past Tab */}
+    <TabsContent value="past" className="mt-6">
+      {pastEvents.length === 0 ? (
+        <div className="text-center py-16 bg-white rounded-xl border border-gray-100">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">No Past Webinars</h3>
+          <p className="text-gray-500">Your attended webinars will appear here</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {pastEvents.map(event => {
+            if (!event?.id) return null;
+            return (
+              <div key={event.id} className="bg-white rounded-xl shadow-md overflow-hidden opacity-90 hover:opacity-100 transition">
+                <div className="relative">
+                  <img 
+                    src={getFullThumbnailUrl(event.thumbnail)} 
+                    alt={event.title}
+                    className="w-full h-48 object-cover grayscale"
+                  />
+                  <div className="absolute top-2 right-2 bg-gray-800/80 text-white text-xs px-3 py-1 rounded-full">
+                    Completed
+                  </div>
+                </div>
+                
+                <div className="p-4">
+                  <h3 className="font-bold text-lg text-gray-800 mb-2 line-clamp-2">
+                    {event.title}
+                  </h3>
+                  
+                  <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-xs">
+                      {new Date(event.date).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </span>
+                    <span className="mx-1">•</span>
+                    <span className="text-xs">
+                      {new Date(event.date).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                      })}
+                    </span>
+                  </div>
+                  
+                  {event.package?.name && (
+                    <div className="inline-block px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full mb-3">
+                      {event.package.name}
+                    </div>
+                  )}
+                  
+                  <button
+                    disabled
+                    className="w-full py-2 bg-gray-200 text-gray-500 rounded-lg cursor-not-allowed text-sm font-medium"
+                  >
+                    Event Ended
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </TabsContent>
+  </Tabs>
+</section>
+
+
+        <DisplayAllProducts />
 
         {/* Quick Actions */}
         <section>
@@ -478,14 +648,14 @@ const UserDashboard = () => {
               </div>
             </Button>
           </div>
-            {/* LoadingScreen sits on top and unmounts when done */}
-                  {showLoader && (
-                    <LoadingScreen
-                      isLoading={loading}
-                      onFinish={() => setShowLoader(false)}
-                    />
-                  )}
         </section>
+
+        {showLoader && (
+          <LoadingScreen
+            isLoading={loading}
+            onFinish={() => setShowLoader(false)}
+          />
+        )}
       </main>
     </div>
   );

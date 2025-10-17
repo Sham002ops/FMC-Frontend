@@ -11,6 +11,9 @@ import {
   SquareArrowRight,
   LogOut,
   ShoppingCart,
+  ChartNoAxesCombined,
+  User2Icon,
+  UsersRound,
 } from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -25,8 +28,10 @@ const Sidebar: React.FC = () => {
   // Sidebar nav items
   const navItems = [
     { label: "Overview", path: "/admin-dashboard", Icon: Home },
+    { label: "Analysis", path: "/admin-analysis", Icon: ChartNoAxesCombined },
     { label: "Users", path: "/admin/all-users", Icon: Users },
     { label: "Executives", path: "/admin/executives", Icon: UserCheck },
+    { label: "Mentors", path: "/admin-all-mentors", Icon: UsersRound },
     { label: "Orders", path: "/admin/orders", Icon: ShoppingCart },
     { label: "Packages", path: "/admin/packages", Icon: Box },
     { label: "Webinars", path: "/admin/webinars", Icon: Calendar },
