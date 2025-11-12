@@ -492,30 +492,30 @@ const upcomingWebinars = Array.isArray(webinars)
                 </TabsList>
               </div>
               <TabsContent value="upcoming">
-  {fetchLoading ? (
-    <div className="flex justify-center items-center py-10"><Processing /></div>
-  ) : (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-      {upcomingWebinars.length === 0 ? (
-        <div className="text-gray-500 text-center col-span-full py-8">
-          No upcoming webinars found.
-        </div>
-      ) : (
-        upcomingWebinars.map((webinar) => (
-          <EventCard
-            key={webinar.id}
-            title={webinar.title}
-            image={fullThumb(webinar.thumbnail)}
-            price={webinar.package?.name || webinar.packageId}
-            PlayNow="Join"
-            date={new Date(webinar.date).toLocaleDateString()}
-            zoomLink={webinar.zoomLink}
-          />
-        ))
-      )}
-    </div>
-  )}
-</TabsContent>
+                {fetchLoading ? (
+                  <div className="flex justify-center items-center py-10"><Processing /></div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                    {upcomingWebinars.length === 0 ? (
+                      <div className="text-gray-500 text-center col-span-full py-8">
+                        No upcoming webinars found.
+                      </div>
+                    ) : (
+                      upcomingWebinars.map((webinar) => (
+                        <EventCard
+                          key={webinar.id}
+                          title={webinar.title}
+                          image={fullThumb(webinar.thumbnail)}
+                          price={webinar.package?.name || webinar.packageId}
+                          PlayNow="Join"
+                          date={new Date(webinar.date).toLocaleDateString()}
+                          zoomLink={webinar.zoomLink}
+                        />
+                      ))
+                    )}
+                  </div>
+                )}
+              </TabsContent>
 
               
             </Tabs>

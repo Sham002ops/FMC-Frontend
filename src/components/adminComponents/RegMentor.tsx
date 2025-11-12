@@ -85,7 +85,7 @@ const RegMentor: React.FC<RegMentorProps> = ({
         {/* Form & Success */}
         {!regSuccessfull ? (
           <div className="w-full px-4 pt-6 pb-10 max-w-sm mx-auto md:max-w-md">
-            <h1 className="text-xl md:text-2xl font-bold text-center mb-5">Register New User</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-center mb-5">Register New Mentor</h1>
             {error && <p className="text-red-600 mb-3 text-center">{error}</p>}
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <input
@@ -118,7 +118,7 @@ const RegMentor: React.FC<RegMentorProps> = ({
                 disabled={loading}
                 className="bg-gradient-to-tr from-indigo-500 to-purple-500 group hover:scale-105 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition disabled:opacity-60"
               >
-                {loading ? "Registering..." : " Register User"}
+                {loading ? "Registering..." : " Register Mentor"}
               </button>
             </form>
           </div>

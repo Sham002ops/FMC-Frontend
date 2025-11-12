@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Facebook, Github, Linkedin } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { Processing } from "./ui/icons/Processing";
 import { Label } from "./ui/label";
 import axios from "axios";
-import { log } from "console";
 import { BackendUrl } from "@/Config";
 import BannedModal from "./BannedModal";
 
@@ -17,54 +15,57 @@ const MentorLoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [errorMsg, setErrorMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState("");
   const [showBannedModal, setShowBannedModal] = useState(false);
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setErrorMsg('');
-    
-    
-    
+    setErrorMsg("");
 
     try {
-      const response = await axios.post(
-        `${BackendUrl}/auth/login`,
-        { email, password }
-        
-      );
-      
+      const response = await axios.post(`${BackendUrl}/auth/login`, {
+        email: email.trim().toLowerCase(),
+        password,
+      });
 
-       const jwt = response.data.token
-        
-        if(response.data.token !== undefined){
-          localStorage.setItem("token", jwt);
-          localStorage.setItem("loggedIn", "true");
+      const { token, user } = response.data;
 
-        }
-      // console.log("Submitting login form", { email, password });
-
-      if (response.status === 200 && response.data.user) {
-        toast({
-          title: "Login successful!",
-          description: `Welcome back, ${response.data.user.name}!`,
-        });
-        navigate("/Mentor-dashboard");
-      } else {
-        setErrorMsg("Login failed. Please try again.");
+      if (!token || !user) {
+        throw new Error("Invalid response from server");
       }
+
+      // Verify mentor role
+      if (user.role !== "MENTOR") {
+        setErrorMsg("Access denied. Mentor credentials required.");
+        localStorage.clear();
+        setTimeout(() => navigate("/unauthorized"), 1500);
+        return;
+      }
+
+      // Save to localStorage
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("loggedIn", "true");
+
+      toast({
+        title: "Login successful!",
+        description: `Welcome back, ${user.name}!`,
+      });
+
+      navigate("/Mentor-dashboard");
+
     } catch (err) {
-      console.log("Response Data:", err.response?.data );
+      if (err.response?.status === 403 && err.response?.data?.isBanned) {
+        setShowBannedModal(true);
+        return;
+      }
+
       setErrorMsg(
         err.response?.data?.error || "Login failed. Please check your credentials."
       );
-      if(err.response?.data?.isBanned){
-        console.log("User is banned: ", err.response?.data?.isBanned);
-        setShowBannedModal(!!err.response?.data?.isBanned);
-        
-      }
+
+      localStorage.clear();
     } finally {
       setIsLoading(false);
     }
@@ -75,9 +76,10 @@ const MentorLoginForm = () => {
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-bold tracking-tight">Mentor Login</h2>
         <p className="text-sm text-muted-foreground">
-          Access your personal account
+          Access your mentor account
         </p>
       </div>
+
       <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 shadow-lg">
         <div className="space-y-4">
           <div>
@@ -85,17 +87,22 @@ const MentorLoginForm = () => {
             <Input
               id="email"
               type="email"
-              placeholder="your@email.com"
+              placeholder="mentor@finitemarshallclub.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={isLoading}
               required
+              autoComplete="email"
             />
           </div>
 
           <div>
             <div className="flex justify-between items-center">
               <Label htmlFor="password">Password</Label>
-              <Link to="/forgot-password" className="text-sm text-event-primary hover:underline">
+              <Link
+                to="/forgot-password"
+                className="text-sm text-event-primary hover:underline"
+              >
                 Forgot password?
               </Link>
             </div>
@@ -105,45 +112,32 @@ const MentorLoginForm = () => {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
               required
+              autoComplete="current-password"
             />
           </div>
 
           {errorMsg && (
-            <p className="text-sm text-red-600 text-center">{errorMsg}</p>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-sm text-red-600 text-center">{errorMsg}</p>
+            </div>
           )}
 
-          <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600">
-            {isLoading ? <Processing /> : <> Sign In</>}
+          <Button
+            type="submit"
+            className="w-full bg-blue-500 hover:bg-blue-600"
+            disabled={isLoading}
+          >
+            {isLoading ? <Processing /> : "Sign In"}
           </Button>
         </div>
       </form>
 
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-      </div>
-
-      {/* <div className="flex justify-center space-x-4">
-        <Button variant="outline" size="icon" className="rounded-full">
-          <Facebook className="h-5 w-5" />
-        </Button>
-        <Button variant="outline" size="icon" className="rounded-full">
-          <Github className="h-5 w-5" />
-        </Button>
-        <Button variant="outline" size="icon" className="rounded-full">
-          <Linkedin className="h-5 w-5" />
-        </Button>
-      </div> */}
-
-      <div className="text-center mt-6">
-       <BannedModal 
-        isOpen={showBannedModal} 
-        onClose={() => setShowBannedModal(false)} 
+      <BannedModal
+        isOpen={showBannedModal}
+        onClose={() => setShowBannedModal(false)}
       />
-      </div>
-      
     </div>
   );
 };
