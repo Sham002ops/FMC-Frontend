@@ -4,11 +4,10 @@ import { cn } from "@/lib/utils";
 import UserLoginForm from "@/components/UserLoginForm";
 import AdminLoginForm from "@/components/AdminLoginForm";
 import LoginBackground from "@/components/LoginBackground";
-// import Logo from "@/components/Logo";
 import ExecutiveLoginForm from "@/components/exeLogin";
-import logo from '../assets/FMC2.png'
+import logo from '../assets/FMC2.png';
 import MentorLoginForm from "@/components/MentorLoginForm";
-
+import { Link } from "react-router-dom";
 
 const Login1 = () => {
   const [activeTab, setActiveTab] = useState<'user' | 'admin' | 'executive' | 'Mentor'>('user');
@@ -34,7 +33,6 @@ const Login1 = () => {
   };
 
   useEffect(() => {
-    // Add wave animation to logo when page loads
     const logoLetters = document.querySelectorAll('.logo-letter');
     logoLetters.forEach((letter, index) => {
       (letter as HTMLElement).style.setProperty('--index', `${index}`);
@@ -42,13 +40,13 @@ const Login1 = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex justify-center items-center p-2 md:p-3  overflow-hidden">
+    <div className="min-h-screen flex justify-center items-center p-2 md:p-3 overflow-hidden flex-col">
       <LoginBackground />
       
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-2">
           <div className="flex justify-center mb-1">
-            <img className=" w-20 h-20 rounded-full" src={logo} alt="logo" />
+            <img className="w-20 h-20 rounded-full" src={logo} alt="logo" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-1 flex justify-center">
             Finite Marshall Club
@@ -131,7 +129,7 @@ const Login1 = () => {
           >
             <ExecutiveLoginForm />
           </div>
-        <div
+          <div
             className={cn(
               "absolute w-full rounded-2xl bg-white login-card overflow-hidden transition-all duration-500 ease-in-out",
               sliding && activeTab === 'Mentor' ? 'animate-slide-out-left' : 
@@ -143,6 +141,18 @@ const Login1 = () => {
           </div>
         </div>
       </div>
+
+      {/* ✅ Added Terms and Policy notice */}
+      <p className="text-white text-xs -mt-5 lg:-mt-20 md:-mt-20 text-center max-w-sm z-10">
+        By logging in, you agree to our{" "}
+        <Link to="/terms" className="underline text-orange-300 hover:text-orange-400">
+          Terms of Service
+        </Link>{" "}
+        and{" "}
+        <Link to="/privacy-policy" className="underline text-orange-300 hover:text-orange-400">
+          Privacy Policy
+        </Link>.
+      </p>
     </div>
   );
 };

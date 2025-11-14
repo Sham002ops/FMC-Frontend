@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Menu, X } from "lucide-react";
 
-const Navbar: React.FC = () => {
+const AboutNavbar: React.FC = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -17,27 +17,6 @@ const Navbar: React.FC = () => {
           Finite Marshall Club
         </div>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex gap-8 text-white text-sm font-semibold">
-          <a href="#how-it-works" className="hover:text-orange-300 transition">
-            How It Works
-          </a>
-          <a href="#packages" className="hover:text-orange-300 transition">
-            Packages
-          </a>
-          <a href="#webinars" className="hover:text-orange-300 transition">
-            Webinars
-          </a>
-            <a href="#testimonials" className="hover:text-orange-300 transition">
-            Testimonials
-            </a>
-            <button 
-            onClick={() => navigate("/about")} 
-            className="hover:text-orange-300 transition cursor-pointer bg-none border-none"
-            >
-            About
-            </button>
-          </nav>
 
           {/* Buttons */}
           <div className="hidden md:flex items-center gap-5">
@@ -122,4 +101,4 @@ const Navbar: React.FC = () => {
   );
 };
 
-export default Navbar;
+export default AboutNavbar;

@@ -24,6 +24,7 @@ import AdminDashboardStats from '@/components/adminComponents/AdminDashboardStat
 import { formatDistanceToNowStrict, parseISO } from 'date-fns';
 import CreatePackage from '@/components/adminComponents/CreatePackage';
 import RegMentor from '@/components/adminComponents/RegMentor';
+import AdminProfileMenu from '@/components/adminComponents/AdminProfileMenu';
 
 interface TopicCardProps {
   title: string;
@@ -231,60 +232,19 @@ const upcomingWebinars = Array.isArray(webinars)
       <div className="flex-1 w-full flex flex-col min-h-screen ml-0  transition-all duration-300">
         {/* Header */}
         <header className="bg-gradient-to-r from-blue-700 to-green-400 text-white shadow-lg z-40 w-full">
-          <div className="mx-auto py-3 sm:py-4 px-3 sm:px-6">
-            <div className="flex justify-between items-center">
-              <div className=' flex justify-between items-center sm:text-xl gap-4 lg:text-2xl font-bold'><Logo size="small" /> FINITE MARSHALL CLUB</div>
-              <div className="flex items-center space-x-4 sm:space-x-6">
-                <div className="relative">
-                  <button
-                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/30 flex items-center justify-center focus:outline-none"
-                    onClick={() => setMenuOpen((open) => !open)}
-                  >
-                    <svg className="w-5 h-5 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                      <circle cx="12" cy="8" r="4" />
-                      <path d="M4 20c0-4 4-7 8-7s8 3 8 7" />
-                    </svg>
-                  </button>
-                  {menuOpen && (
-                    <div className="absolute right-0 mt-2 w-72 max-w-[90vw] bg-white rounded-xl border border-primary shadow-lg shadow-purple-300 z-50">
-                      <div className="py-4 sm:py-6 px-4 sm:px-5">
-                        <div className="flex items-center space-x-3 sm:space-x-4 mb-4">
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white text-lg sm:text-xl font-semibold shadow-inner">
-                            U
-                          </div>
-                          <div className='absolute top-2 cursor-pointer hover:text-red-600 text-xl text-slate-700 right-4' onClick={() => setMenuOpen(false)}>×</div>
-                          <div>
-                            <h3 className="text-base sm:text-lg font-semibold mt-2 text-gray-800">
-                              {username || "DemoUser"}
-                            </h3>
-                            <p className="text-sm text-gray-500">
-                              <span className='text-violet-700'>• {String(user? user?.role: 'loading...').toUpperCase()}</span> • Joined Jan 2025
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="border-t border-gray-200 my-4" />
-
-                        <ul className="space-y-2 text-sm text-gray-700">
-                          <li className="hover:text-primary cursor-pointer transition">Dashboard</li>
-                          <li className="hover:text-primary cursor-pointer transition">My Webinars</li>
-                          <li className="hover:text-primary cursor-pointer transition">Settings</li>
-                        </ul>
-
-                        <button
-                          onClick={handleSignout}
-                          className="mt-6 w-full py-2 border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition font-medium text-sm sm:text-base"
-                        >
-                          Sign Out
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+        <div className="mx-auto py-3 sm:py-4 px-3 sm:px-6">
+          <div className="flex justify-between items-center">
+            <div className='flex items-center gap-4 lg:text-2xl font-bold'>
+              <Logo size="small" /> 
+              FINITE MARSHALL CLUB
             </div>
+            <AdminProfileMenu onSignout={handleSignout} />
           </div>
-        </header>
+        </div>
+      </header>
+
+
+
 
         {/* Main Content */}
         <main className="flex-1 bg-slate-300 p-3 sm:p-4 lg:p-6 lg:ml-20 overflow-x-hidden">

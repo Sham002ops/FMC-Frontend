@@ -32,6 +32,10 @@ import MentorDashboard from "./pages/WebinarManegerPages/MentorDashboard";
 import MyWebinars from "./pages/WebinarManegerPages/MyWebinars";
 import MentorCalendar from "./pages/WebinarManegerPages/MentorCalendar";
 import AllMentors from "./pages/AdminPages/Mentors";
+import PrivacyPolicy from "./pages/privacy-policy";
+import TermsAndConditions from "./pages/terms";
+import About from "./pages/about";
+import Terms from "./pages/terms";
 
 const queryClient = new QueryClient();
 
@@ -93,6 +97,9 @@ const App = () => {
             <Route path="/landing-page" element={<LandingPage />} />
             <Route path="/Psudopage" element={<Psudopage />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
