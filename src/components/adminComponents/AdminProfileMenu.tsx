@@ -213,7 +213,7 @@ const AdminProfileMenu: React.FC<Props> = ({ onSignout }) => {
     <div className="relative">
       {/* Profile Button */}
       <button
-        className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-orange-500 flex items-center justify-center focus:outline-none hover:ring-4 hover:ring-white/30 transition-all duration-200 shadow-lg hover:scale-110"
+        className="w-10 h-10 sm:w-10 sm:h-10 rounded-full bg-orange-500 flex items-center justify-center focus:outline-none hover:ring-4 hover:ring-white/30 transition-all duration-200 shadow-lg hover:scale-110"
         onClick={() => setMenuOpen(!menuOpen)}
         aria-label="Admin profile menu"
       >

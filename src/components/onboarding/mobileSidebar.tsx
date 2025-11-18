@@ -14,6 +14,7 @@ import {
   Settings2,
   ShoppingCart,
   UserRound,
+  ChartNoAxesCombined,
 } from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -26,6 +27,7 @@ const MobileSidebar: React.FC = () => {
 
   const navItems = [
     { label: "Overview", path: "/admin-dashboard", Icon: Home },
+    { label: "Analysis", path: "/admin-analysis", Icon: ChartNoAxesCombined },
     { label: "Users", path: "/admin/all-users", Icon: Users },
     { label: "Executives", path: "/admin/executives", Icon: UserCheck },
     { label: "Mentors", path: "/admin-all-mentors", Icon: UserRound },

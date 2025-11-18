@@ -19,12 +19,14 @@ import { BackendUrl } from '@/Config';
 import MobileSidebar from '@/components/onboarding/mobileSidebar';
 import CreateWebinar from '@/components/adminComponents/CreateWebinar';
 import RegUser from '@/components/adminComponents/RegUser';
-import { Briefcase, Shield, UserPlus, Video } from 'lucide-react';
+import { Briefcase, Package, Shield, UserPlus, Video } from 'lucide-react';
 import AdminDashboardStats from '@/components/adminComponents/AdminDashboardStats';
 import { formatDistanceToNowStrict, parseISO } from 'date-fns';
 import CreatePackage from '@/components/adminComponents/CreatePackage';
 import RegMentor from '@/components/adminComponents/RegMentor';
 import AdminProfileMenu from '@/components/adminComponents/AdminProfileMenu';
+import FMC from '../../assets/FMC2.png'
+
 
 interface TopicCardProps {
   title: string;
@@ -234,9 +236,17 @@ const upcomingWebinars = Array.isArray(webinars)
         <header className="bg-gradient-to-r from-blue-700 to-green-400 text-white shadow-lg z-40 w-full">
         <div className="mx-auto py-3 sm:py-4 px-3 sm:px-6">
           <div className="flex justify-between items-center">
-            <div className='flex items-center gap-4 lg:text-2xl font-bold'>
-              <Logo size="small" /> 
-              FINITE MARSHALL CLUB
+              <div className="flex items-center gap-3">
+              <div className='flex justify-between gap-4 items-center'>
+                <img src={FMC} alt="Logo" className='w-10 h-10 rounded-full' />
+                <div className='block lg:hidden'>
+                  <div className="text-lg font-bold">FMC</div>
+                </div>
+              </div>
+              <div className="hidden sm:block">
+                <div className="text-lg font-bold">FINITE MARSHALL CLUB</div>
+                <div className="text-xs text-blue-200">Professional Learning Platform</div>
+              </div>
             </div>
             <AdminProfileMenu onSignout={handleSignout} />
           </div>
@@ -368,6 +378,17 @@ const upcomingWebinars = Array.isArray(webinars)
                       <span className="flex flex-col justify-center border-purple-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-purple-500 font-bold group-hover:text-white transition-colors duration-300">
                         <Video className="w-5 h-6" />
                         <span className="text-[9px] leading-tight">Mentor</span>
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => setOpenPackageModel(true)}
+                      className="relative bg-white group hover:bg-gradient-to-tr hover:from-indigo-500 hover:to-purple-500 group  hover:text-white text-purple-700 overflow-hidden cursor-pointer rounded-lg w-20 max-w-[80px]"
+                      title="Create Package"
+                      aria-label="Create Package">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500 to-purple-500 group  rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
+                      <span className="flex flex-col justify-center border-purple-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-purple-500 font-bold group-hover:text-white transition-colors duration-300">
+                        <Package className="w-5 h-6" />
+                        <span className="text-[9px] leading-tight">Package</span>
                       </span>
                     </button>
                   </div>
