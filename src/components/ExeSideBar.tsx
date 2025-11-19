@@ -45,7 +45,7 @@ const ExeSidebar: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between p-4 pt-24 border-b border-purple-700/50">
         <div
-          className="text-lg font-bold cursor-pointer bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent"
+          className="text-lg font-bold cursor-pointer bg-gradient-to-r from-gray-200 to-gray-300 bg-clip-text text-transparent"
           onClick={() => navigate("/exexutive-dashboard")}
         >
           {!collapsed ? "Executive Panel" : "EP"}

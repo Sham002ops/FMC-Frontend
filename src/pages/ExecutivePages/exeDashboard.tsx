@@ -10,6 +10,8 @@ import { BackendUrl } from '@/Config';
 import ExeSidebar from '@/components/ExeSideBar';
 import ExecutiveMobileSidebar from '@/components/MobExeSidebar';
 import RegUser from '@/components/adminComponents/RegUser';
+import FMC from '../../assets/FMC2.png'
+
 
 // Import custom components
 import { PerformanceTimelineChart } from '@/components/ExecutiveComponents/PerformanceTimelineChart';
@@ -180,10 +182,10 @@ const ExecutiveDashboard = () => {
       </div>
 
       {/* Header */}
-      <header className="bg-gradient-to-r from-indigo-600 to-green-400 z-40 text-white shadow-lg">
+      <header className="bg-gradient-to-r from-indigo-600 to-green-400 -z-50 text-white shadow-lg">
         <div className="container mx-auto py-4 px-4 md:px-6 flex lg:pl-28 justify-between items-center">
           <div className="flex items-center gap-3">
-            <Logo size="small" />
+            <img src={FMC} alt="Logo" className='w-10 h-10 rounded-full' />
             <div className="hidden sm:block">
               <h1 className="text-lg font-semibold">Executive Dashboard</h1>
               <p className="text-sm text-blue-100">Welcome back, {username}</p>

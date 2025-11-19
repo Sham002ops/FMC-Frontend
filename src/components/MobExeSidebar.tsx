@@ -56,13 +56,13 @@ const ExecutiveMobileSidebar: React.FC = () => {
       {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 h-full bg-gradient-to-br from-slate-900  to-slate-700 
-                    text-white shadow-xl transition-all duration-300 z-40
+                    text-white shadow-xl transition-all duration-300 z-30
                     ${collapsed ? "w-0 overflow-hidden" : "w-72"} flex flex-col lg:hidden`}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 pt-32 border-b border-emerald-500/50">
           <div
-            className="text-2xl font-bold cursor-pointer bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent"
+            className="text-2xl font-bold cursor-pointer bg-gradient-to-r from-gray-200 to-gray-300 bg-clip-text text-transparent"
             onClick={() => {
               navigate("/exexutive-dashboard");
               setCollapsed(true);
@@ -78,14 +78,6 @@ const ExecutiveMobileSidebar: React.FC = () => {
             <SquareArrowLeft size={24} />
           </div>
         </div>
-
-        {/* Performance Badge */}
-        <div className="mx-4 my-4 bg-gradient-to-r from-green-500 to-teal-500 p-4 rounded-xl text-center">
-          <div className="text-sm font-medium text-white opacity-90">Current Status</div>
-          <div className="text-xl font-bold text-white">★ Top Performer</div>
-          <div className="text-xs text-green-100">15% above target</div>
-        </div>
-
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto no-scrollbar px-4">
           <ul className="flex flex-col space-y-2">
@@ -94,7 +86,7 @@ const ExecutiveMobileSidebar: React.FC = () => {
               return (
                 <li
                   key={label}
-                  className={`cursor-pointer px-4 py-4 flex items-center gap-4 text-lg rounded-xl transition-all duration-200
+                  className={`cursor-pointer px-4 py-4 flex items-center gap-4 text-lg rounded-xl mt-2 transition-all duration-200
                               hover:bg-emerald-800/50 hover:transform hover:scale-105
                               ${isActive ? "bg-gradient-to-r from-emerald-500 to-indigo-700 font-semibold shadow-lg" : ""}`}
                   onClick={() => {
@@ -102,7 +94,7 @@ const ExecutiveMobileSidebar: React.FC = () => {
                     setCollapsed(true);
                   }}
                 >
-                  <Icon size={24} className={isActive ? "text-yellow-400" : "text-purple-300"} />
+                  <Icon size={24} className={isActive ? "text-gray-200" : "text-purple-300"} />
                   <span className={`${isActive ? "text-white" : "text-purple-200"} font-medium`}>
                     {label}
                   </span>
@@ -113,7 +105,7 @@ const ExecutiveMobileSidebar: React.FC = () => {
         </nav>
 
         {/* Settings Footer */}
-        <div className="p-6 border-t border-purple-700/50">
+        {/* <div className="p-6 border-t border-purple-700/50">
           <div
             className="flex items-center gap-4 text-lg cursor-pointer px-4 py-3 rounded-xl hover:bg-purple-800/50 transition-colors"
             onClick={() => {
@@ -124,7 +116,7 @@ const ExecutiveMobileSidebar: React.FC = () => {
             <Settings size={24} className="text-purple-300" />
             <span className="text-purple-200 font-medium">Settings</span>
           </div>
-        </div>
+        </div> */}
       </aside>
     </div>
   );

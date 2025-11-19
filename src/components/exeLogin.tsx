@@ -29,17 +29,18 @@ const ExecutiveLoginForm = () => {
         password,
       });
 
-      const { token, executive } = response.data;
+      console.log("Login response:", response.data);
+      const { token, executive, role } = response.data;
 
       if (!token || !executive) {
         throw new Error("Invalid response from server");
       }
 
       // Verify executive role
-      if (executive.role !== "EXECUTIVE") {
+      if (role !== "EXECUTIVE") {
         setErrorMsg("Access denied. Executive credentials required.");
         localStorage.clear();
-        setTimeout(() => navigate("/unauthorized"), 1500);
+        setTimeout(() => navigate("/unauthorized"), 10000);
         return;
       }
 
