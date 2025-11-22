@@ -36,6 +36,7 @@ import PrivacyPolicy from "./pages/privacy-policy";
 import TermsAndConditions from "./pages/terms";
 import About from "./pages/about";
 import Terms from "./pages/terms";
+import AdminPackagesManagement from "./pages/AdminPages/AllPackages";
 
 const queryClient = new QueryClient();
 
@@ -70,7 +71,7 @@ const App = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/admin/all-users" element={<ProtectedRoute><AllUsers /></ProtectedRoute>} />
             <Route path="/admin/executives" element={<ProtectedRoute><AllExecutive /></ProtectedRoute>} />
-            <Route path="/admin/packages" element={<ProtectedRoute><AllPackages /></ProtectedRoute>} />
+            <Route path="/admin/packages" element={<ProtectedRoute><AdminPackagesManagement /></ProtectedRoute>} />
             <Route path="/admin/webinars" element={<ProtectedRoute><AllWebinars /></ProtectedRoute>} />
             <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
             <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
