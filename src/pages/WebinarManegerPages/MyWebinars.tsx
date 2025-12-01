@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import MentorSidebar from '@/components/MentorComponents/MentorSidebar';
 import MentorMobileSidebar from '@/components/MentorComponents/MobMentorSideBar';
 import CreateWebinarByMentor from '@/components/MentorComponents/CreateWebinarByMentor';
+import MentorNav from '@/components/MentorComponents/MentorNav';
 
 interface Webinar {
   id: string;
@@ -119,7 +120,7 @@ const fetchMyWebinars = async () => {
       {/* Main content */}
       <div className="flex-1 flex flex-col">
         <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-30">
-          <Header1 />
+          <MentorNav/>
         </header>
 
         <main className="flex-1 pt-28 lg:pl-28 sm:pt-32 px-4 sm:px-6 md:px-8 overflow-auto">

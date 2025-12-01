@@ -11,11 +11,11 @@ const LoyaltyCardMobile: React.FC<LoyaltyCardMobileProps> = ({ coins }) => (
         <circle cx="10" cy="10" r="10" fill="currentColor" />
         <text x="10" y="14" textAnchor="middle" fontSize="10" fill="#fff" fontWeight="bold">★</text>
       </svg>
-      <span className="text-lg font-semibold">Loyalty Coins</span>
+      <span className="text-lg font-bold">FMC Coins</span>
     </div>
     <div className="text-3xl font-extrabold mb-1">{coins.toLocaleString()}</div>
-    <p className="text-white text-xs text-center leading-tight px-1">
-      Your loyalty coins will increase by <span className="font-bold text-yellow-200">30%</span> in 1 year.
+    <p className="text-white text-sm text-center leading-tight px-1">
+      Your loyalty coins will increase by <span className="font-bold text-yellow-200">1.2X</span> by each year.
     </p>
   </div>
 );

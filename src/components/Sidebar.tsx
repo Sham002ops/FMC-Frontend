@@ -15,12 +15,13 @@ import {
   User2Icon,
   UsersRound,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
   // Control sidebar collapse
   const [collapsed, setCollapsed] = useState(true);
@@ -31,19 +32,40 @@ const Sidebar: React.FC = () => {
     { label: "Analysis", path: "/admin-analysis", Icon: ChartNoAxesCombined },
     { label: "Users", path: "/admin/all-users", Icon: Users },
     { label: "Executives", path: "/admin/executives", Icon: UserCheck },
+    { label: "TasksManager", path: "/admin-tasks-management", Icon: UserCheck },
     { label: "Mentors", path: "/admin-all-mentors", Icon: UsersRound },
     { label: "Orders", path: "/admin/orders", Icon: ShoppingCart },
     { label: "Packages", path: "/admin/packages", Icon: Box },
     { label: "Webinars", path: "/admin/webinars", Icon: Calendar },
-    { label: "Notifications", path: "/admin/notifications", Icon: Bell },
-    { label: "Audit Log", path: "/admin/audit-log", Icon: FileText },
-    { label: "Settings", path: "/admin/settings", Icon: Settings },
   ];
+
+  // Handle click outside to close sidebar
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Only close if sidebar is expanded (!collapsed)
+      if (
+        !collapsed &&
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target as Node)
+      ) {
+        setCollapsed(true);
+      }
+    };
+
+    // Add event listener
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Cleanup
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [collapsed]);
 
   return (
     <aside
+      ref={sidebarRef}
       className={`fixed top-0 left-0 h-full bg-gradient-to-tr from-gray-900 to-slate-900 
-                  text-white shadow-md transition-all duration-300
+                  text-white shadow-md transition-all duration-300 z-40
                   ${collapsed ? "w-20" : "w-64"} flex flex-col`}
     >
       {/* Header */}
@@ -80,13 +102,13 @@ const Sidebar: React.FC = () => {
               <li
                 key={label}
                 className={`cursor-pointer px-4 py-3 flex items-center gap-3 
-                           hover:bg-gray-700 transition-colors
+                           hover:bg-gray-700 transition-colors rounded-lg
                            ${isActive ? "bg-gray-800 font-semibold" : ""}`}
                 onClick={() => navigate(path)}
                 title={collapsed ? label : undefined}
               >
                 <Icon size={20} />
-                {!collapsed && label}
+                {!collapsed && <span>{label}</span>}
               </li>
             );
           })}

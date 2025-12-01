@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { BackendUrl } from '@/Config';
 import CreateWebinar from '@/components/adminComponents/CreateWebinar';
+import FMC from '../../assets/FMC2.png'
+
 import { 
   Video, 
   Calendar, 
@@ -22,6 +24,7 @@ import {
 import WebinarManagerSidebar from '@/components/MentorComponents/MentorSidebar';
 import MentorMobileSidebar from '@/components/MentorComponents/MobMentorSideBar';
 import CreateWebinarByMentor from '@/components/MentorComponents/CreateWebinarByMentor';
+import MentorProfileMenu from '@/components/MentorComponents/MentorProfileMenu';
 
 interface Webinar {
   id: string;
@@ -186,6 +189,7 @@ const fetchUserAndWebinars = async () => {
           <MentorMobileSidebar />
         </div>
       </div>
+      
 
       {/* Main Content */}
       <div className="flex-1 w-full flex flex-col min-h-screen">
@@ -194,49 +198,21 @@ const fetchUserAndWebinars = async () => {
           <div className="mx-auto py-3 sm:py-4 px-3 sm:px-6">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-4 text-xl lg:text-2xl font-bold">
-                <Logo size="small" />
-                MENTOR DASHBOARD
+                <div className="flex items-center gap-3">
+              <div className='flex justify-between gap-4 items-center'>
+                <img src={FMC} alt="Logo" className='w-10 h-10 rounded-full' />
+                <div className='block lg:hidden'>
+                  <div className="text-lg font-bold">FMC</div>
+                </div>
+              </div>
+              <div className="hidden sm:block">
+                <div className="text-lg font-bold">FINITE MARSHALL CLUB</div>
+                <div className="text-xs text-blue-200">Professional Learning Platform</div>
+              </div>
+            </div>
               </div>
               <div className="flex items-center space-x-4">
-                <button
-                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/30 flex items-center justify-center"
-                  onClick={() => setMenuOpen(!menuOpen)}
-                >
-                  <svg className="w-5 h-5 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <circle cx="12" cy="8" r="4" />
-                    <path d="M4 20c0-4 4-7 8-7s8 3 8 7" />
-                  </svg>
-                </button>
-                {menuOpen && (
-                  <div className="absolute right-4 top-16 w-72 bg-white rounded-xl shadow-lg z-50">
-                    <div className="py-4 px-5">
-                      <div className="flex items-center space-x-3 mb-4">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-green-500 to-emerald-500 flex items-center justify-center text-white text-xl font-semibold">
-                          {user?.name?.charAt(0).toUpperCase() || 'M'}
-                        </div>
-                        <div className="absolute top-2 right-4 cursor-pointer text-2xl text-gray-700 hover:text-red-600" onClick={() => setMenuOpen(false)}>×</div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-800">{user?.name || "Mentor"}</h3>
-                          <p className="text-sm text-gray-500">
-                            <span className="text-green-700">• {user?.role || 'MENTOR'}</span>
-                          </p>
-                        </div>
-                      </div>
-                      <div className="border-t border-gray-200 my-4" />
-                      <ul className="space-y-2 text-sm text-gray-700">
-                        <li className="hover:text-green-600 cursor-pointer">Dashboard</li>
-                        <li className="hover:text-green-600 cursor-pointer">My Webinars</li>
-                        <li className="hover:text-green-600 cursor-pointer">Settings</li>
-                      </ul>
-                      <button
-                        onClick={handleSignout}
-                        className="mt-6 w-full py-2 border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition"
-                      >
-                        Sign Out
-                      </button>
-                    </div>
-                  </div>
-                )}
+                  <MentorProfileMenu onSignout={handleSignout} /> 
               </div>
             </div>
           </div>
@@ -244,6 +220,36 @@ const fetchUserAndWebinars = async () => {
 
         {/* Main Content */}
         <main className="flex-1 bg-gray-100 p-4 sm:p-6 lg:p-8 lg:ml-20 overflow-x-hidden">
+          {/* Welcome Banner - Add this after header, before stats cards */}
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 rounded-lg shadow-sm p-6 mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-800 mb-1">
+                  Welcome back, {user?.name || 'Mentor'}! 👋
+                </h1>
+                <p className="text-gray-600 flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                    </svg>
+                    Mentor Dashboard
+                  </span>
+                </p>
+              </div>
+              <div className="hidden sm:block">
+                <div className="text-sm text-gray-500">Today's Date</div>
+                <div className="text-lg font-semibold text-gray-800">
+                  {new Date().toLocaleDateString('en-US', { 
+                    weekday: 'short', 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="max-w-7xl mx-auto">
             
             {/* Create Webinar Modal */}
@@ -302,7 +308,7 @@ const fetchUserAndWebinars = async () => {
               <h2 className="text-2xl font-bold text-gray-800">My Webinars</h2>
               <button
                 onClick={() => setOpenWebinarModel(true)}
-                className="flex items-center gap-2 px-6 py-3 hover:scale-110 bg-gradient-to-r from-indigo-600 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-indigo-600 transition shadow-md"
+                className="flex items-center gap-2 px-6 py-3 hover:scale-110 bg-gradient-to-r from-blue-600 to-teal-600 text-white rounded-lg hover:from-teal-600 hover:to-blue-600 transition shadow-md"
               >
                 <Plus className="w-5 h-5" />
                 Create Webinar
@@ -334,7 +340,7 @@ const fetchUserAndWebinars = async () => {
                     <p className="text-gray-500">No upcoming webinars scheduled</p>
                     <button
                       onClick={() => setOpenWebinarModel(true)}
-                      className="mt-4 px-6 py-2 hover:scale-110 transition-transform bg-gradient-to-r from-indigo-600 to-green-600 text-white rounded-lg"
+                      className="mt-4 px-6 py-2 hover:scale-110 transition-transform bg-gradient-to-tr from-indigo-500  to-teal-500 text-white rounded-lg"
                     >
                       Create Your First Webinar
                     </button>

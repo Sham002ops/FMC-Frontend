@@ -25,7 +25,7 @@ const MentorMobileSidebar: React.FC = () => {
     { label: "Dashboard", path: "/mentor-dashboard", Icon: Home },
     { label: "My Webinars", path: "/mentor/my-webinars", Icon: Video },
     { label: "Calendar View", path: "/mentor/calendar", Icon: Calendar },
-    { label: "Reports", path: "/mentor/reports", Icon: TrendingUp },
+    // { label: "Reports", path: "/mentor/reports", Icon: TrendingUp },
   ];
 
   const handleLogout = () => {
@@ -46,7 +46,7 @@ const MentorMobileSidebar: React.FC = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700
+        className={`fixed top-0 left-0 h-full bg-gradient-to-br from-slate-900  to-slate-800
                     text-white shadow-md transition-all duration-300 z-40
                     ${collapsed ? "w-0 overflow-hidden" : "w-60"} flex flex-col lg:hidden`}
       >
@@ -93,18 +93,7 @@ const MentorMobileSidebar: React.FC = () => {
 
         {/* Settings & Logout Section */}
         <div className="border-t border-green-600">
-          <div
-            className="flex p-6 gap-4 pl-6 text-2xl cursor-pointer hover:bg-slate-700 transition-colors"
-            onClick={() => {
-              navigate("/mentor/settings");
-              setCollapsed(true);
-            }}
-          >
-            <span className="pt-1">
-              <Settings size={30} />
-            </span>
-            Settings
-          </div>
+          
 
           <div
             className="flex p-6 gap-4 pl-6 text-2xl cursor-pointer hover:bg-red-900 transition-colors text-red-400 hover:text-red-300"

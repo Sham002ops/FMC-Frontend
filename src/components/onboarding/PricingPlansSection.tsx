@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
 interface Plan {
   name: string;
@@ -66,6 +67,12 @@ const plans: Plan[] = [
 ];
 
 const PricingPlansSection: React.FC = () => {
+
+  const navigate = useNavigate();
+  
+  const handleRegister = () => {
+    navigate("/login")
+  }
   return (
     <section id='packages' className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 text-center">
@@ -95,6 +102,7 @@ const PricingPlansSection: React.FC = () => {
                 </ul>
               </div>
               <Button
+                onClick={handleRegister}
                 variant={plan.highlighted ? "default" : "outline"}
                 className="w-full border-2 hover:bg-blue-700 hover:text-white border-blue-700"
               >

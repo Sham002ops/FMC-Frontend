@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface Topic {
   title: string;
@@ -14,6 +15,11 @@ interface Props {
 
 const AutoSliderDesktop: React.FC<Props> = ({ topics, interval = 3000 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const navigate = useNavigate();
+    
+    const handleRegister = () => {
+      navigate("/login")
+    }
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -49,7 +55,7 @@ const AutoSliderDesktop: React.FC<Props> = ({ topics, interval = 3000 }) => {
                       {topic.title}
                     </h3>
                     <p className="text-white text-sm mt-1">{topic.description}</p>
-                    <button className="mt-4 border border-orange-500 text-orange-500 px-4 py-2 rounded-lg hover:bg-gradient-to-r from-orange-400 to-orange-700 hover:text-white transition">
+                    <button onClick={handleRegister} className="mt-4 border border-orange-500 text-orange-500 px-4 py-2 rounded-lg hover:bg-gradient-to-r from-orange-400 to-orange-700 hover:text-white transition">
                       Register Now
                     </button>
                   </div>

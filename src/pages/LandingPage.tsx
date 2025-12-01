@@ -27,7 +27,7 @@ const LandingPage: React.FC = () => {
         <HowItWorksSection/>
         <PricingPlansSection/>
         <RealTimeFeaturesSection/>
-        <UpcomingWebinarsSection/>
+        {/* <UpcomingWebinarsSection/> */}
         <TestimonialsSection/>
         <Footer/>
     </main>

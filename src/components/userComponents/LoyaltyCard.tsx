@@ -93,7 +93,7 @@ const LoyaltyCard: React.FC<LoyaltyCardProps> = ({ coins, username }) => {
       <div className="relative z-10 h-full flex flex-col">
         {/* Header - Fixed */}
         <div ref={headerRef} className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Loyalty Card</h3>
+          <h3 className="text-2xl font-bold animate-in">FMC Coins</h3>
           <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
             <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -120,7 +120,7 @@ const LoyaltyCard: React.FC<LoyaltyCardProps> = ({ coins, username }) => {
             <p ref={coinsNumberRef} className="text-5xl font-bold mb-2">
               0
             </p>
-            <p className="text-sm opacity-90">Loyalty Coins</p>
+            <p className="text-sm opacity-90">FMC Coins</p>
           </div>
         </div>
 
@@ -134,8 +134,8 @@ const LoyaltyCard: React.FC<LoyaltyCardProps> = ({ coins, username }) => {
             </div>
             <div>
               <p className="text-sm font-medium mb-1">Loyalty Boost</p>
-              <p className="text-xs opacity-90 leading-relaxed">
-                Your loyalty coins will increase by 30% over the next year as you continue learning with us!
+              <p className="text-sm opacity-90 leading-relaxed">
+                Your FMC coins will increase by 1.2X over the next year as you continue learning with us!
               </p>
             </div>
           </div>

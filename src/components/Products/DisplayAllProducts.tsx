@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Heart, ShoppingCart, Filter, Search, X } from 'lucide-react';
+import { Heart, ShoppingCart, Filter, Search, X, Lock } from 'lucide-react';
 import { BackendUrl } from '@/Config';
 
 interface Product {
@@ -16,13 +16,18 @@ interface Product {
   isActive: boolean;
 }
 
-console.log("BackendUrl : ", BackendUrl);
+interface UserStatsResponse {
+  package: string;          // e.g. "Supreme"
+  joinedAt?: string | null; // ISO string from backend
+}
 
+console.log('BackendUrl : ', BackendUrl);
 
 const DisplayAllProducts: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -30,15 +35,69 @@ const DisplayAllProducts: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showRequestModal, setShowRequestModal] = useState(false);
 
-  // Fetch products
+  // Supreme gating state
+  const [userPackage, setUserPackage] = useState<string | null>(null);
+  const [yearsCompleted, setYearsCompleted] = useState<number | null>(null);
+  const SUPREME_NAME = 'supreme';
+  const REQUIRED_YEARS = 12;
+
+  // Fetch basic user stats once (package + joinedAt)
   useEffect(() => {
+    const fetchUserStats = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const res = await axios.get<UserStatsResponse>(`${BackendUrl}/auth/user-stats`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setUserPackage(res.data.package || null);
+
+        if (res.data.joinedAt) {
+          const joined = new Date(res.data.joinedAt);
+          const now = new Date();
+
+          // Rough difference in years using ms diff / 365.25 days
+          const diffMs = now.getTime() - joined.getTime();
+          const years = Math.max(
+            0,
+            Math.floor(diffMs / (1000 * 60 * 60 * 24 * 365.25))
+          );
+          setYearsCompleted(years);
+        } else {
+          setYearsCompleted(0);
+        }
+      } catch (err) {
+        console.error('Failed to fetch user stats for Supreme gating', err);
+      }
+    };
+
+    fetchUserStats();
+  }, []);
+
+  // Fetch products when filters change (only if Supreme or unlocked)
+  useEffect(() => {
+    const isSupreme =
+      userPackage && userPackage.toLowerCase() === SUPREME_NAME;
+    const hasUnlocked =
+      yearsCompleted !== null && yearsCompleted >= REQUIRED_YEARS;
+
+    if (!isSupreme && !hasUnlocked) {
+      // Do not load products at all if locked
+      setProducts([]);
+      setLoading(false);
+      return;
+    }
+
     fetchProducts();
-  }, [selectedCategory, showFeaturedOnly]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategory, showFeaturedOnly, userPackage, yearsCompleted]);
 
   const fetchProducts = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const params = new URLSearchParams();
       if (selectedCategory !== 'all') {
@@ -48,35 +107,32 @@ const DisplayAllProducts: React.FC = () => {
         params.append('featured', 'true');
       }
 
-      const response = await axios.get(`${BackendUrl}/goods/products?${params.toString()}`);
-      console.log("response", response);
-      
+      const response = await axios.get(
+        `${BackendUrl}/goods/products?${params.toString()}`
+      );
+      console.log('response', response);
+
       setProducts(response.data.products);
-    } catch (err) {
+    } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to fetch products');
     } finally {
       setLoading(false);
     }
   };
 
-  // Get unique categories
-  const categories = ['all', ...new Set(products.map(p => p.category).filter(Boolean))];
+  const categories = ['all', ...new Set(products.map((p) => p.category).filter(Boolean))];
 
-  // Filter products by search
-  const filteredProducts = products.filter(product =>
+  const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     product.heading.toLowerCase().includes(searchQuery.toLowerCase()) ||
     product.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const toggleFavorite = (productId: string) => {
-    setFavorites(prev => {
+    setFavorites((prev) => {
       const newFavorites = new Set(prev);
-      if (newFavorites.has(productId)) {
-        newFavorites.delete(productId);
-      } else {
-        newFavorites.add(productId);
-      }
+      if (newFavorites.has(productId)) newFavorites.delete(productId);
+      else newFavorites.add(productId);
       return newFavorites;
     });
   };
@@ -86,14 +142,99 @@ const DisplayAllProducts: React.FC = () => {
     setShowRequestModal(true);
   };
 
+  const isSupreme =
+    userPackage && userPackage.toLowerCase() === SUPREME_NAME;
+  const hasUnlocked =
+    yearsCompleted !== null && yearsCompleted >= REQUIRED_YEARS;
+  const yearsLeft =
+    yearsCompleted !== null
+      ? Math.max(0, REQUIRED_YEARS - yearsCompleted)
+      : REQUIRED_YEARS;
+
+  // Locked view if not Supreme AND not yet 12 years
+  if (!isSupreme && !hasUnlocked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-300 rounded-xl px-4">
+        <div className="max-w-xl w-full bg-gradient-to-br from-purple-600 via-blue-500  to-yellow-500 border border-slate-700/80 rounded-3xl shadow-2xl p-8 relative overflow-hidden">
+          {/* Glow */}
+          <div className="pointer-events-none absolute -top-32 -right-32 w-64 h-64 bg-emerald-500/20 blur-3xl rounded-full" />
+          <div className="pointer-events-none absolute -bottom-40 -left-40 w-72 h-72 bg-purple-500/20 blur-3xl rounded-full" />
+
+          <div className="relative z-10 flex flex-col items-center text-center space-y-4">
+            <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-900 border border-emerald-500/40 shadow-lg shadow-emerald-900/40 mb-2">
+              <Lock className="w-8 h-8 text-emerald-400" />
+            </div>
+
+            <h1 className="text-3xl sm:text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 via-yellow-100 to-yellow-300">
+              Supreme Store Locked
+            </h1>
+
+            <p className="text-sm sm:text-base text-slate-200/80 max-w-md">
+              This exclusive store is reserved for{' '}
+              <span className="font-semibold text-emerald-300">
+                Supreme Members
+              </span>{' '}
+              only. Upgrade your package or complete your membership duration to unlock it.
+            </p>
+
+            <div className="mt-3 w-full max-w-md grid grid-cols-2 gap-3">
+              <div className="rounded-2xl bg-slate-900/80 border border-slate-700 px-4 py-3">
+                <p className="text-[11px] uppercase tracking-wide text-slate-400">
+                  Your Package
+                </p>
+                <p className="mt-1 text-lg font-semibold text-slate-50">
+                  {userPackage || 'Unknown'}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-slate-900/80 border border-emerald-500/50 px-4 py-3">
+                <p className="text-[11px] uppercase tracking-wide text-emerald-300">
+                  Years Completed
+                </p>
+                <p className="mt-1 text-lg font-semibold text-emerald-300">
+                  {yearsCompleted ?? 0} / {REQUIRED_YEARS}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-2xl bg-amber-500/10 border border-amber-400/60 px-4 py-3 w-full max-w-md">
+              <p className="text-xs sm:text-sm text-amber-100">
+                You will unlock access to the{' '}
+                <span className="font-semibold text-amber-300">
+                  Supreme Store
+                </span>{' '}
+                after approximately{' '}
+                <span className="font-bold">
+                  {yearsLeft} more year{yearsLeft === 1 ? '' : 's'}
+                </span>{' '}
+                of membership.
+              </p>
+            </div>
+
+            <p className="mt-2 text-[11px] text-white font-semibold">
+              Tip: Talk to your mentor or support team if you wish to upgrade to the
+              Supreme package sooner.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Normal Supreme / unlocked view
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br border-2 p-2 border-slate-300 rounded-lg from-gray-50 to-gray-100">
       {/* Header */}
       <div className="bg-gradient-to-tr from-slate-200 to-slate-300 shadow-sm sticky rounded-lg  top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col space-y-4">
-            <h1 className="text-4xl  bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-700 font-urbanist italic font-extrabold"> Loyalty Product Catalog</h1>
-            
+            <h1 className="text-4xl  bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-700 font-urbanist italic font-extrabold">
+              Suprem Store
+            </h1>
+            <h3 className="text-2xl  bg-clip-text text-transparent bg-gradient-to-r from-slate-800  to-slate-900 font-urbanist italic font-bold">
+              Access only Suprem Members
+            </h3>
+
             {/* Search Bar */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -127,7 +268,7 @@ const DisplayAllProducts: React.FC = () => {
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="px-4 py-2 border outline-none border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
               >
-                {categories.map(category => (
+                {categories.map((category) => (
                   <option key={category} value={category}>
                     {category === 'all' ? 'All Categories' : category}
                   </option>
@@ -169,7 +310,7 @@ const DisplayAllProducts: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map(product => (
+            {filteredProducts.map((product) => (
               <ProductCardMini
                 key={product.id}
                 product={product}
@@ -221,7 +362,7 @@ const ProductCardMini: React.FC<ProductCardMiniProps> = ({
           alt={product.name}
           className="w-full h-full object-cover"
         />
-        
+
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           {product.isFeatured && (
@@ -261,9 +402,7 @@ const ProductCardMini: React.FC<ProductCardMiniProps> = ({
                 key={index}
                 onClick={() => setCurrentImageIndex(index)}
                 className={`w-2 h-2 rounded-full transition-all ${
-                  currentImageIndex === index
-                    ? 'bg-white w-4'
-                    : 'bg-white/50'
+                  currentImageIndex === index ? 'bg-white w-4' : 'bg-white/50'
                 }`}
               />
             ))}
@@ -278,11 +417,11 @@ const ProductCardMini: React.FC<ProductCardMiniProps> = ({
             {product.category}
           </p>
         )}
-        
+
         <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-1">
           {product.name}
         </h3>
-        
+
         <p className="text-sm text-gray-600 mb-3 line-clamp-2">
           {product.heading}
         </p>
@@ -294,7 +433,7 @@ const ProductCardMini: React.FC<ProductCardMiniProps> = ({
               {product.priceInCoins} <span className="text-sm">coins</span>
             </p>
           </div>
-          
+
           <button
             onClick={onRequest}
             disabled={product.stock === 0}
@@ -312,6 +451,9 @@ const ProductCardMini: React.FC<ProductCardMiniProps> = ({
     </div>
   );
 };
+
+
+
 
 // Request Product Modal
 interface RequestProductModalProps {
