@@ -245,7 +245,7 @@ const upcomingWebinars = Array.isArray(webinars)
               </div>
               <div className="hidden sm:block">
                 <div className="text-lg font-bold">FINITE MARSHALL CLUB</div>
-                <div className="text-xs text-blue-200">Professional Learning Platform</div>
+                <div className="text-xs text-blue-200">Next Level Wellness Today</div>
               </div>
             </div>
             <AdminProfileMenu onSignout={handleSignout} />

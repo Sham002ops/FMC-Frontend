@@ -216,7 +216,7 @@ const ProductOrderManagement: React.FC = () => {
       </div>
 
       {/* Header */}
-      <header className="w-full fixed top-0 left-0 bg-white shadow-sm z-30">
+      <header className="w-full fixed top-0 left-0 bg-white shadow-sm z-40">
         <Header1 />
       </header>
 

@@ -63,8 +63,12 @@ const ExecutiveLoginForm = () => {
       }
 
       setErrorMsg(
-        err.response?.data?.error || "Login failed. Please check your credentials."
+        "Login failed. Please check your credentials."
       );
+
+       if(err.response?.data?.error){
+        alert("Login failed. Please check credentials or try different Role Ex: User/Admin/Mentor")
+      }
 
       localStorage.clear();
     } finally {
@@ -140,14 +144,14 @@ const ExecutiveLoginForm = () => {
         onClose={() => setShowBannedModal(false)}
       />
 
-      <div className="text-center mt-6">
+      {/* <div className="text-center mt-6">
         <p className="text-slate-500">
           Don't have an account?{" "}
           <Link to="/register" className="font-medium text-primary hover:underline">
             Join Now
           </Link>
         </p>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -5,6 +5,7 @@ import { Processing } from '@/components/ui/icons/Processing';
 import { BackendUrl } from '@/Config';
 import ExeSidebar from '@/components/ExeSideBar';
 import ExecutiveMobileSidebar from '@/components/MobExeSidebar';
+import FMC from '../../assets/FMC2.png'
 import { 
   Search, 
   X, 
@@ -17,6 +18,7 @@ import {
   Calendar,
   TrendingUp
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface User {
   id: string;
@@ -37,6 +39,9 @@ const AllRefUsers: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [packageFilter, setPackageFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'name' | 'date' | 'coins'>('date');
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+
 
   // Calculate stats
   const stats = {
@@ -73,6 +78,19 @@ const AllRefUsers: React.FC = () => {
   useEffect(() => {
     fetchAllRefUsers();
   }, []);
+   const handleSignout = async () => {
+      try {
+        await axios.post(`${BackendUrl}/auth/logout`, {}, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+        localStorage.removeItem("token");
+        navigate("/landing-page");
+      } catch (err) {
+        console.error("Logout error:", err);
+        localStorage.removeItem("token");
+        navigate("/landing-page");
+      }
+    };
 
   // Search and filter logic
   useEffect(() => {
@@ -157,8 +175,57 @@ const AllRefUsers: React.FC = () => {
       </div>
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-30">
-        <Header1 />
+      <header className="bg-gradient-to-r from-indigo-600 to-green-400 z-30 text-white shadow-lg fixed top-0 left-0 w-full">
+          <div className="container mx-auto py-4 px-4 md:px-6 flex lg:pl-28 justify-between items-center">
+          <div className="flex items-center gap-3">
+            <img src={FMC} alt="Logo" className='w-10 h-10 rounded-full' />
+            <div className="hidden sm:block">
+              <h1 className="text-lg font-semibold">Executive Dashboard</h1>
+              <h2 className="text-xs ">Next Level Wellness Today</h2>
+            </div>
+          </div>
+          <div className="relative">
+            <button
+              className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-sm font-bold">
+                {'E'}
+              </div>
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
+                <div className="p-6">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-lg font-bold">
+                      {'E'}
+                    </div>
+                    <div className="flex-1">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        EXECUTIVE
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setMenuOpen(false)}
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <button
+                    onClick={handleSignout}
+                    className="mt-6 w-full py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-lg hover:from-red-600 hover:to-pink-700 transition-all font-medium"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+          </div>
       </header>
 
       {/* Main content */}

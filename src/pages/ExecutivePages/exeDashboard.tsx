@@ -182,13 +182,13 @@ const ExecutiveDashboard = () => {
       </div>
 
       {/* Header */}
-      <header className="bg-gradient-to-r from-indigo-600 to-green-400 -z-50 text-white shadow-lg">
-        <div className="container mx-auto py-4 px-4 md:px-6 flex lg:pl-28 justify-between items-center">
+      <header className="bg-gradient-to-r from-indigo-600 to-green-400 z-40 text-white shadow-lg fixed top-0 left-0 w-full">
+        <div className="container mx-auto py-4 px-4 md:px-6 flex lg:pl-10 justify-between items-center">
           <div className="flex items-center gap-3">
             <img src={FMC} alt="Logo" className='w-10 h-10 rounded-full' />
             <div className="hidden sm:block">
               <h1 className="text-lg font-semibold">Executive Dashboard</h1>
-              <p className="text-sm text-blue-100">Welcome back, {username}</p>
+              <p className="text-xs text-blue-100">Next Level Wellness Today</p>
             </div>
           </div>
           <div className="relative">
@@ -237,11 +237,11 @@ const ExecutiveDashboard = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto lg:pl-28 py-6 px-4">
+      <main className="container mx-auto lg:pl-28 mt-10 py-6 px-4">
         {/* Welcome Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mt-4 mb-6">
           <div className="min-w-0">
-            <h1 className="font-bold text-gray-900 mb-1 text-xl xs:text-2xl sm:text-2xl md:text-3xl leading-snug">
+            <h1 className="font-bold text-gray-900 mb-1 text-xl xs:text-2xl pl-10 md:pl-0 lg:pl-0 sm:text-2xl md:text-3xl leading-snug">
               Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {username}! 👋
             </h1>
             <p className="text-gray-600 text-sm sm:text-base">

@@ -14,6 +14,8 @@ import {
   ChartNoAxesCombined,
   User2Icon,
   UsersRound,
+  CheckCheck,
+  Calendar1,
 } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -32,8 +34,10 @@ const Sidebar: React.FC = () => {
     { label: "Analysis", path: "/admin-analysis", Icon: ChartNoAxesCombined },
     { label: "Users", path: "/admin/all-users", Icon: Users },
     { label: "Executives", path: "/admin/executives", Icon: UserCheck },
-    { label: "TasksManager", path: "/admin-tasks-management", Icon: UserCheck },
+    { label: "TasksManager", path: "/admin-tasks-management", Icon: CheckCheck },
     { label: "Mentors", path: "/admin-all-mentors", Icon: UsersRound },
+    { label: "Yoga-Schedule", path: "/admin-yoga-schedule", Icon: Calendar1 },
+    { label: "Schedule", path: "/yoga-schedule", Icon: Calendar },
     { label: "Orders", path: "/admin/orders", Icon: ShoppingCart },
     { label: "Packages", path: "/admin/packages", Icon: Box },
     { label: "Webinars", path: "/admin/webinars", Icon: Calendar },

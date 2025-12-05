@@ -127,7 +127,7 @@ const AllExecutive: React.FC = () => {
         </div>
       </div>
 
-      <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-30">
+      <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-40">
         <Header1 />
       </header>
 

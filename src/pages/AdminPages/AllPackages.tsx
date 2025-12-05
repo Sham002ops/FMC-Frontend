@@ -256,7 +256,7 @@ const AdminPackagesManagement: React.FC = () => {
 
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-30">
+        <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-40">
           <Header1 />
         </header>
 

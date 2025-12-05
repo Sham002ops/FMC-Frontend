@@ -212,8 +212,7 @@ const DisplayAllProducts: React.FC = () => {
             </div>
 
             <p className="mt-2 text-[11px] text-white font-semibold">
-              Tip: Talk to your mentor or support team if you wish to upgrade to the
-              Supreme package sooner.
+              ⭐ Your Profile will upgrade to the Supreme after 12 years.
             </p>
           </div>
         </div>

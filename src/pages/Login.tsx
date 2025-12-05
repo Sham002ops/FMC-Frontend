@@ -143,7 +143,7 @@ const Login1 = () => {
       </div>
 
       {/* ✅ Added Terms and Policy notice */}
-      <p className="text-white text-xs -mt-5 lg:-mt-20 md:-mt-20 text-center max-w-sm z-10">
+      <p className="text-white text-xs -mt-20 lg:-mt-28 md:-mt-28 text-center max-w-sm z-10">
         By logging in, you agree to our{" "}
         <Link to="/terms" className="underline text-orange-300 hover:text-orange-400">
           Terms of Service

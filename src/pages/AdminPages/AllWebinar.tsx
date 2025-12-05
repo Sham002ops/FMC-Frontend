@@ -68,7 +68,7 @@ const AllWebinars: React.FC = () => {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col">
-        <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-30">
+        <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-40">
           <Header1 />
         </header>
 

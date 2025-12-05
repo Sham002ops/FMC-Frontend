@@ -38,7 +38,7 @@ const ExecutiveMobileSidebar: React.FC = () => {
     <div className="relative">
       {/* Floating Hamburger Button */}
       <button
-        className="lg:hidden absolute top-20 left-2 z-50 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-2 rounded-lg shadow-lg hover:from-indigo-700 hover:to-purple-700 transition-all"
+        className="lg:hidden fixed top-[77px] left-4  z-50 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-2 rounded-lg shadow-lg hover:from-indigo-700 hover:to-purple-700 transition-all"
         onClick={() => setCollapsed(!collapsed)}
         aria-label="Toggle sidebar"
       >

@@ -58,7 +58,7 @@ const Navbar: React.FC = () => {
               </div>
               <div className="hidden sm:block">
                 <div className="text-lg text-white font-bold">FINITE MARSHALL CLUB</div>
-                <div className="text-xs text-blue-200">Professional Learning Platform</div>
+                <div className="text-xs text-blue-200">Next level wellness today</div>
               </div>
           </div>
               

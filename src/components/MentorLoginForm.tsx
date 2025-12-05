@@ -62,8 +62,12 @@ const MentorLoginForm = () => {
       }
 
       setErrorMsg(
-        err.response?.data?.error || "Login failed. Please check your credentials."
+        "Login failed. Please check your credentials."
       );
+
+      if(err.response?.data?.error){
+        alert("Login failed. Please check credentials or try different Role Ex: User/Admin/Executive")
+      }
 
       localStorage.clear();
     } finally {

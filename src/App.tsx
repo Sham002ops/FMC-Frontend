@@ -38,6 +38,9 @@ import About from "./pages/about";
 import Terms from "./pages/terms";
 import AdminPackagesManagement from "./pages/AdminPages/AllPackages";
 import AdminTasksManagement from "./pages/AdminPages/TaskManeger";
+import AdminYogaSchedule from "./pages/AdminPages/AdminYogaSchedule";
+import YogaScheduleCalendar from "./components/userComponents/YogaScheduleCalendar";
+
 
 const queryClient = new QueryClient();
 
@@ -82,6 +85,7 @@ const App = () => {
             <Route path="/admin-analysis" element={<AnalyticsPage />} />
             <Route path="/admin-all-mentors" element={<AllMentors />} />
             <Route path="/admin-tasks-management" element={<AdminTasksManagement />} />
+            <Route path="/admin-yoga-schedule" element={<AdminYogaSchedule/>} />
             
             {/* Executive Routes */}
             <Route path="/exexutive-dashboard" element={<ProtectedRoute><ExexutiveDashboard /></ProtectedRoute>} />

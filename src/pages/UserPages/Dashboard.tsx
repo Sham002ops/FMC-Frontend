@@ -14,6 +14,8 @@ import DisplayAllProducts from '@/components/Products/DisplayAllProducts';
 import LoadingScreen from '@/components/LoadingScreen.tsx/LoadingScreen';
 import UserStatsCards from '@/components/userComponents/UserStatsCards';
 import UserProfileMenu from '@/components/userComponents/UserProfileMenu';
+import YogaScheduleModal from '@/components/userComponents/YogaScheduleCalendar';
+import { Calendar1 } from 'lucide-react';
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -24,6 +26,7 @@ const UserDashboard = () => {
   const [webinars, setWebinars] = useState([]);
   const [registeredWebinars, setRegisteredWebinars] = useState([]);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -233,6 +236,10 @@ const UserDashboard = () => {
     }
   };
 
+  const handleYogaPage = () => {
+    navigate("/schedule");
+  }
+
   const isRegistered = (webinarId: string) => {
     try {
       return Array.isArray(registeredWebinars) && registeredWebinars.some(w => w?.id === webinarId);
@@ -308,7 +315,7 @@ const UserDashboard = () => {
               </div>
               <div className="hidden sm:block">
                 <div className="text-lg font-bold">FINITE MARSHALL CLUB</div>
-                <div className="text-xs text-blue-200">Professional Learning Platform</div>
+                <div className="text-xs text-blue-200">Next Level Wellness Today</div>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -322,13 +329,27 @@ const UserDashboard = () => {
       <main className="container mx-auto py-6 px-4 md:px-6 space-y-8">
         {/* Hero Section */}
         <section className="text-center lg:text-left">
-          <div className="mb-6">
+          <div>
+            <div className="mb-6">
             <h1 className="text-2xl flex justify-start md:text-4xl font-bold text-gray-900 mb-2">
               Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {username}! 👋
             </h1>
             <p className="text-md text-left text-gray-600">
               Ready to expand your knowledge today? Check out your upcoming webinars below.
             </p>
+          </div>
+           <div className="flex justify-center lg:justify-end lg:-mt-20 gap-4">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="group relative px-8 py-4 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden"
+          >
+            <span className="relative z-10 flex items-center gap-3">
+              <Calendar1 className="w-6 h-6" />
+              View Schedule
+            </span>
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </button>
+        </div>
           </div>
 
           {/* Desktop Layout */}
@@ -649,6 +670,13 @@ const UserDashboard = () => {
             </Button>
           </div>
         </section>
+         {/* Modal Component */}
+      <YogaScheduleModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        isAdmin={false}
+      />
+    
 
         {showLoader && (
           <LoadingScreen

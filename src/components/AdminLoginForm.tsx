@@ -79,11 +79,15 @@ const AdminLoginForm = () => {
 
       // Handle other errors
       const errorMessage =
-        err.response?.data?.error ||
-        err.response?.data?.message ||
+        // err.response?.data?.error ||
+        // err.response?.data?.message ||
         "Login failed. Please check your credentials.";
 
       setErrorMsg(errorMessage);
+
+      if(err.response?.data?.error){
+        alert("Login failed. Please check credentials or try different Role Ex: User/Executive/Mentor")
+      }
 
       // Clear localStorage on error
       localStorage.removeItem("token");
@@ -161,7 +165,7 @@ const AdminLoginForm = () => {
         onClose={() => setShowBannedModal(false)}
       />
 
-      <div className="text-center mt-6">
+      {/* <div className="text-center mt-6">
         <p className="text-slate-500">
           Don't have an account?{" "}
           <Link
@@ -171,7 +175,7 @@ const AdminLoginForm = () => {
             Join Now
           </Link>
         </p>
-      </div>
+      </div> */}
     </div>
   );
 };
