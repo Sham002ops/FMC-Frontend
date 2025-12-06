@@ -15,6 +15,8 @@ import {
   ShoppingCart,
   UserRound,
   ChartNoAxesCombined,
+  Calendar1,
+  CheckCheck,
 } from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -31,19 +33,21 @@ const MobileSidebar: React.FC = () => {
     { label: "Users", path: "/admin/all-users", Icon: Users },
     { label: "Executives", path: "/admin/executives", Icon: UserCheck },
     { label: "Mentors", path: "/admin-all-mentors", Icon: UserRound },
+    { label: "TasksManager", path: "/admin-tasks-management", Icon: CheckCheck },
     { label: "Orders", path: "/admin/orders", Icon: ShoppingCart },
     { label: "Packages", path: "/admin/packages", Icon: Box },
+    { label: "Yoga-Schedule", path: "/admin-yoga-schedule", Icon: Calendar1 },
     { label: "Webinars", path: "/admin/webinars", Icon: Calendar },
-    { label: "Notifications", path: "/admin/notifications", Icon: Bell },
-    { label: "Audit Log", path: "/admin/audit-log", Icon: FileText },
+    // { label: "Notifications", path: "/admin/notifications", Icon: Bell },
+    // { label: "Audit Log", path: "/admin/audit-log", Icon: FileText },
     // { label: "Settings", path: "/admin/settings", Icon: Settings },
   ];
 
   return (
-    <div className=" relative">
+    <div className=" ">
               {/* Floating Hamburger Button */}
       <button
-        className="lg:hidden absolute top-16 left-2 z-50 bg-gray-900 text-white p-2 rounded-md shadow-md"
+        className="lg:hidden  fixed  lg:left-0  top-16 left-2 z-50 bg-gray-900 text-white p-2 rounded-md shadow-md"
         onClick={() => setCollapsed(!collapsed)}
         aria-label="Toggle sidebar"
       >
@@ -95,9 +99,7 @@ const MobileSidebar: React.FC = () => {
             })}
           </ul>
         </nav>
-       <div className=" flex p-6 gap-4 pl-6  text-2xl ">
-         <span className=" pt-1"> <Settings size={30}/> </span>Setting  
-       </div>
+       
       </aside>
     </div>
   );

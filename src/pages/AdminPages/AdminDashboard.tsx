@@ -233,7 +233,7 @@ const upcomingWebinars = Array.isArray(webinars)
       {/* Main Content Container - KEY FIX: Added proper left margins */}
       <div className="flex-1 w-full flex flex-col min-h-screen ml-0  transition-all duration-300">
         {/* Header */}
-        <header className="bg-gradient-to-r from-blue-700 to-green-400 text-white shadow-lg z-40 w-full">
+        <header className="bg-gradient-to-r from-blue-700 to-green-400 fixed text-white shadow-lg z-40 w-full">
         <div className="mx-auto py-3 sm:py-4 px-3 sm:px-6">
           <div className="flex justify-between items-center">
               <div className="flex items-center gap-3">
@@ -257,7 +257,7 @@ const upcomingWebinars = Array.isArray(webinars)
 
 
         {/* Main Content */}
-        <main className="flex-1 bg-slate-300 p-3 sm:p-4 lg:p-6 lg:ml-20 overflow-x-hidden">
+        <main className="flex-1 bg-slate-300 p-3 mt-16 sm:p-4 lg:p-6 lg:ml-20 overflow-x-hidden">
           <div className="max-w-full mx-auto">
             
             {/* Create Webinar Modal */}

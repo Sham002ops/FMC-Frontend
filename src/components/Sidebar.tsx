@@ -37,7 +37,6 @@ const Sidebar: React.FC = () => {
     { label: "TasksManager", path: "/admin-tasks-management", Icon: CheckCheck },
     { label: "Mentors", path: "/admin-all-mentors", Icon: UsersRound },
     { label: "Yoga-Schedule", path: "/admin-yoga-schedule", Icon: Calendar1 },
-    { label: "Schedule", path: "/yoga-schedule", Icon: Calendar },
     { label: "Orders", path: "/admin/orders", Icon: ShoppingCart },
     { label: "Packages", path: "/admin/packages", Icon: Box },
     { label: "Webinars", path: "/admin/webinars", Icon: Calendar },
