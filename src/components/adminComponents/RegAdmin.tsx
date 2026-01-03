@@ -12,6 +12,9 @@ interface AdminResponse {
   id: string;
   name: string;
   email: string;
+  number?: string;      // ✅ ADD
+  address?: string;     // ✅ ADD
+  pinCode?: string;     // ✅ ADD
   password?: string;
 }
 
@@ -22,6 +25,9 @@ const RegAdmin: React.FC<RegAdminProps> = ({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [number, setNumber] = useState("");           // ✅ ADD
+  const [address, setAddress] = useState("");         // ✅ ADD
+  const [pinCode, setPinCode] = useState("");         // ✅ ADD
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [regSuccessfull, setRegSuccessfull] = useState(false);
@@ -39,9 +45,19 @@ const RegAdmin: React.FC<RegAdminProps> = ({
         setLoading(false);
         return;
       }
+
+      // ✅ UPDATED: Include new fields
       const response = await axios.post(
         `${BackendUrl}/admin/registeradmin`,
-        { name, email, password, role: "ADMIN" },
+        { 
+          name, 
+          email, 
+          password, 
+          role: "ADMIN",
+          number: number || undefined,      // ✅ ADD
+          address: address || undefined,    // ✅ ADD
+          pinCode: pinCode || undefined     // ✅ ADD
+        },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -82,8 +98,10 @@ const RegAdmin: React.FC<RegAdminProps> = ({
 
         {/* Form & Success */}
         {!regSuccessfull ? (
-          <div className="w-full px-4 pt-6 pb-10 max-w-sm mx-auto md:max-w-md">
-            <h1 className="text-xl md:text-2xl font-bold text-center mb-5">Register New Admin</h1>
+          <div className="w-full px-4 pt-6 pb-10 max-w-sm mx-auto md:max-w-md max-h-[70vh] overflow-y-auto">
+            <h1 className="text-xl md:text-2xl font-bold text-center mb-5">
+              Register New Admin
+            </h1>
             {error && <p className="text-red-600 mb-3 text-center">{error}</p>}
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <input
@@ -110,6 +128,34 @@ const RegAdmin: React.FC<RegAdminProps> = ({
                 className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                 required
               />
+
+              {/* ✅ NEW: Contact Information Fields */}
+              <input
+                type="tel"
+                placeholder="Phone Number (Optional)"
+                value={number}
+                onChange={(e) => setNumber(e.target.value)}
+                className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                pattern="[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}"
+                title="Enter valid phone number (e.g., +91-890-768-7665)"
+              />
+              <textarea
+                placeholder="Address (Optional)"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[60px]"
+                rows={2}
+              />
+              <input
+                type="text"
+                placeholder="PIN Code (Optional)"
+                value={pinCode}
+                onChange={(e) => setPinCode(e.target.value)}
+                className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                pattern="[0-9]{4,10}"
+                title="Enter valid PIN code"
+              />
+
               <button
                 type="submit"
                 disabled={loading}
@@ -121,7 +167,9 @@ const RegAdmin: React.FC<RegAdminProps> = ({
           </div>
         ) : (
           <div className="w-full px-4 pt-10 pb-8 max-w-sm mx-auto text-center">
-            <h1 className="text-2xl font-bold mb-6 text-blue-800">Admin Registered Successfully 🎉</h1>
+            <h1 className="text-2xl font-bold mb-6 text-blue-800">
+              Admin Registered Successfully 🎉
+            </h1>
             {AdminData && (
               <div className="space-y-2 mb-6 text-left">
                 <p>
@@ -133,6 +181,22 @@ const RegAdmin: React.FC<RegAdminProps> = ({
                 <p>
                   <strong>Password:</strong> {AdminData.password}
                 </p>
+                {/* ✅ ADD: Display contact info if provided */}
+                {AdminData.number && (
+                  <p>
+                    <strong>Phone:</strong> {AdminData.number}
+                  </p>
+                )}
+                {AdminData.address && (
+                  <p>
+                    <strong>Address:</strong> {AdminData.address}
+                  </p>
+                )}
+                {AdminData.pinCode && (
+                  <p>
+                    <strong>PIN Code:</strong> {AdminData.pinCode}
+                  </p>
+                )}
               </div>
             )}
             <button
@@ -143,7 +207,6 @@ const RegAdmin: React.FC<RegAdminProps> = ({
             </button>
           </div>
         )}
-
       </div>
     </div>
   );

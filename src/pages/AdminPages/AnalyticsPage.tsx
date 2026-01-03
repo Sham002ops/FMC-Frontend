@@ -1,4 +1,4 @@
-// AnalyticsPage.tsx - COMPLETE FIXED VERSION
+// AnalyticsPage.tsx - COMPLETE UPDATED VERSION
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Header1 from '@/components/Header';
@@ -10,7 +10,6 @@ import {
   TrendingUp, 
   TrendingDown,
   Users,
-  Package as PackageIcon,
   ShoppingCart,
   DollarSign,
   Download,
@@ -20,6 +19,11 @@ import {
   Award,
   Calendar
 } from 'lucide-react';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+} from 'recharts';
+import { TopExecutivesCard } from '@/components/ExecutiveComponents/TopExecutivesCard';
+import { ExportModal } from '@/components/adminComponents/export/ExportModal';
 
 // Types
 interface PackageStats {
@@ -87,32 +91,13 @@ const AnalyticsPage: React.FC = () => {
     fetchAnalyticsData();
   }, [timeRange]);
 
-  // FIXED: Helper to convert any date value to Date object
   const toDate = (dateValue: any): Date | null => {
     if (!dateValue) return null;
-    
-    // Already a Date object
     if (dateValue instanceof Date) {
       return isNaN(dateValue.getTime()) ? null : dateValue;
     }
-    
-    // String or number - parse it
     const parsed = new Date(dateValue);
     return isNaN(parsed.getTime()) ? null : parsed;
-  };
-
-  // FIXED: Helper function to validate dates
-  const isValidDate = (date: any): boolean => {
-    if (!date) return false;
-    
-    // If it's already a Date object, check if it's valid
-    if (date instanceof Date) {
-      return !isNaN(date.getTime());
-    }
-    
-    // If it's a string, try to parse it
-    const parsed = new Date(date);
-    return parsed instanceof Date && !isNaN(parsed.getTime());
   };
 
   const fetchAnalyticsData = async () => {
@@ -121,23 +106,14 @@ const AnalyticsPage: React.FC = () => {
       const token = localStorage.getItem('token');
       const headers = { Authorization: `Bearer ${token}` };
 
-      // console.log('Fetching analytics from:', `${BackendUrl}/package/admin/package-stats`);
-
-      // Fetch package statistics and user data
       const [packageStatsRes, usersRes] = await Promise.all([
         axios.get(`${BackendUrl}/package/admin/package-stats`, { headers }),
         axios.get(`${BackendUrl}/admin/getallusers`, { headers })
       ]);
 
-      console.log('Package Stats Response:', packageStatsRes.data);
-      console.log('Users Response:', usersRes.data);
-      console.log('Raw first user:', usersRes.data.AllUsers?.[0]);
-      console.log('First user joinedAt type:', typeof usersRes.data.AllUsers?.[0]?.joinedAt);
-
       const packageStats = packageStatsRes.data.packageStats || [];
       const overallStats = packageStatsRes.data.overallStats;
       
-      // FIXED: Normalize all dates to Date objects and filter valid users
       const allUsers = (usersRes.data.AllUsers || [])
         .map((user: any) => ({
           ...user,
@@ -145,18 +121,10 @@ const AnalyticsPage: React.FC = () => {
         }))
         .filter((user: any) => user.joinedAt !== null);
 
-      console.log('Filtered valid users:', allUsers.length);
-      if (allUsers.length > 0) {
-        console.log('First valid user:', allUsers[0]);
-        console.log('First valid user joinedAt:', allUsers[0]?.joinedAt);
-      }
-
-      // Since there are no purchases yet, we'll use currentActiveUsers for visualization
       const packagesWithHistory = packageStats.map((pkg: any) => {
         const purchaseHistory = [];
         const days = getDaysFromRange(timeRange);
         
-        // Distribute current users across the time range for visualization
         if (pkg.currentActiveUsers > 0) {
           const daysWithPurchases = Math.min(pkg.currentActiveUsers, 10);
           const usersPerDay = Math.ceil(pkg.currentActiveUsers / daysWithPurchases);
@@ -185,18 +153,9 @@ const AnalyticsPage: React.FC = () => {
         };
       });
 
-      console.log('Packages with history:', packagesWithHistory);
-
-      // Calculate user growth history
       const userGrowthHistory = calculateUserGrowthHistory(allUsers, timeRange);
-      console.log('User growth history:', userGrowthHistory);
-      
-      // Calculate sales trend with package breakdown
       const salesTrendData = calculateSalesTrendFromPackages(packagesWithHistory, timeRange);
-      
-      console.log('Sales trend data:', salesTrendData);
 
-      // Calculate revenue metrics
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
       
@@ -226,13 +185,9 @@ const AnalyticsPage: React.FC = () => {
         ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 
         : thisMonthRevenue > 0 ? 100 : 0;
 
-      // Calculate new users in time range
       const newUsersCount = calculateNewUsers(allUsers, timeRange);
       const userGrowth = allUsers.length > 0 ? (newUsersCount / allUsers.length) * 100 : 0;
-
-      // Calculate user trend
       const userTrendData = calculateUserTrend(allUsers, timeRange);
-      console.log('User trend data:', userTrendData);
 
       const analyticsStats = {
         users: {
@@ -254,16 +209,12 @@ const AnalyticsPage: React.FC = () => {
         }
       };
 
-      console.log('Final stats:', analyticsStats);
-
       setStats(analyticsStats);
       setSalesTrend(salesTrendData);
       setUserGrowthTrend(userTrendData);
 
     } catch (err: any) {
       console.error('Error fetching analytics:', err);
-      console.error('Error details:', err.response?.data);
-      console.error('Error stack:', err.stack);
     } finally {
       setLoading(false);
     }
@@ -273,7 +224,6 @@ const AnalyticsPage: React.FC = () => {
     const days = getDaysFromRange(range);
     const trendMap = new Map<string, TimeSeriesData>();
 
-    // Initialize all dates
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
@@ -287,7 +237,6 @@ const AnalyticsPage: React.FC = () => {
       });
     }
 
-    // Aggregate package sales
     packages.forEach(pkg => {
       if (pkg.purchaseHistory && pkg.purchaseHistory.length > 0) {
         pkg.purchaseHistory.forEach(history => {
@@ -304,7 +253,6 @@ const AnalyticsPage: React.FC = () => {
     return Array.from(trendMap.values());
   };
 
-  // FIXED: Handle Date objects properly
   const calculateUserGrowthHistory = (users: any[], range: TimeRange) => {
     const days = getDaysFromRange(range);
     const growthMap = new Map<string, { newUsers: number; totalUsers: number }>();
@@ -312,21 +260,16 @@ const AnalyticsPage: React.FC = () => {
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
-      date.setHours(0, 0, 0, 0); // Reset to start of day
+      date.setHours(0, 0, 0, 0);
       const dateStr = date.toISOString().split('T')[0];
       
-      // FIXED: Handle Date objects properly
       const newUsersOnDate = users.filter(u => {
         if (!u.joinedAt) return false;
         try {
-          const userDate = u.joinedAt instanceof Date 
-            ? u.joinedAt 
-            : new Date(u.joinedAt);
-          
+          const userDate = u.joinedAt instanceof Date ? u.joinedAt : new Date(u.joinedAt);
           const userDateStr = userDate.toISOString().split('T')[0];
           return userDateStr === dateStr;
-        } catch (err) {
-          console.error('Date conversion error:', err);
+        } catch {
           return false;
         }
       }).length;
@@ -334,13 +277,9 @@ const AnalyticsPage: React.FC = () => {
       const totalUsersUpToDate = users.filter(u => {
         if (!u.joinedAt) return false;
         try {
-          const userDate = u.joinedAt instanceof Date 
-            ? u.joinedAt 
-            : new Date(u.joinedAt);
-          
+          const userDate = u.joinedAt instanceof Date ? u.joinedAt : new Date(u.joinedAt);
           return userDate <= date;
-        } catch (err) {
-          console.error('Date comparison error:', err);
+        } catch {
           return false;
         }
       }).length;
@@ -357,7 +296,6 @@ const AnalyticsPage: React.FC = () => {
     }));
   };
 
-  // FIXED: Handle Date objects properly
   const calculateUserTrend = (users: any[], range: TimeRange) => {
     const days = getDaysFromRange(range);
     const result = [];
@@ -365,16 +303,13 @@ const AnalyticsPage: React.FC = () => {
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
-      date.setHours(0, 0, 0, 0); // Reset to start of day
+      date.setHours(0, 0, 0, 0);
       const dateStr = date.toISOString().split('T')[0];
       
       const newUsers = users.filter(u => {
         if (!u.joinedAt) return false;
         try {
-          const userDate = u.joinedAt instanceof Date 
-            ? u.joinedAt 
-            : new Date(u.joinedAt);
-          
+          const userDate = u.joinedAt instanceof Date ? u.joinedAt : new Date(u.joinedAt);
           const userDateStr = userDate.toISOString().split('T')[0];
           return userDateStr === dateStr;
         } catch {
@@ -385,10 +320,7 @@ const AnalyticsPage: React.FC = () => {
       const totalUsers = users.filter(u => {
         if (!u.joinedAt) return false;
         try {
-          const userDate = u.joinedAt instanceof Date 
-            ? u.joinedAt 
-            : new Date(u.joinedAt);
-          
+          const userDate = u.joinedAt instanceof Date ? u.joinedAt : new Date(u.joinedAt);
           return userDate <= date;
         } catch {
           return false;
@@ -405,7 +337,6 @@ const AnalyticsPage: React.FC = () => {
     return result;
   };
 
-  // FIXED: Handle Date objects properly
   const calculateNewUsers = (users: any[], range: TimeRange): number => {
     const now = new Date();
     const cutoff = new Date();
@@ -415,10 +346,7 @@ const AnalyticsPage: React.FC = () => {
     return users.filter(u => {
       if (!u.joinedAt) return false;
       try {
-        const userDate = u.joinedAt instanceof Date 
-          ? u.joinedAt 
-          : new Date(u.joinedAt);
-        
+        const userDate = u.joinedAt instanceof Date ? u.joinedAt : new Date(u.joinedAt);
         return userDate > cutoff;
       } catch {
         return false;
@@ -441,68 +369,52 @@ const AnalyticsPage: React.FC = () => {
     setRefreshing(false);
   };
 
-  // const exportData = () => {
-  //   let csv = 'Metric,Value\n';
-  //   csv += `Total Revenue,${stats.revenue.total}\n`;
-  //   csv += `Current Revenue,${stats.revenue.current}\n`;
-  //   csv += `Total Users,${stats.users.total}\n`;
-  //   csv += `New Users (${timeRange}),${stats.users.new}\n`;
-  //   csv += `Total Package Sales,${stats.packages.totalSales}\n\n`;
-  //   csv += 'Package Name,Active Users,Current Revenue,Price\n';
-  //   stats.packages.stats.forEach(pkg => {
-  //     csv += `${pkg.packageName},${pkg.currentActiveUsers},${pkg.currentRevenue},${pkg.priceInCoins}\n`;
-  //   });
-
-  //   const blob = new Blob([csv], { type: 'text/csv' });
-  //   const url = window.URL.createObjectURL(blob);
-  //   const a = document.createElement('a');
-  //   a.href = url;
-  //   a.download = `fmc-analytics-${new Date().toISOString()}.csv`;
-  //   a.click();
-  // };
-
-
-  
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gray-50">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <Processing />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen h-screen flex bg-gray-100">
-      {/* Sidebar */}
-      <div className="transition-transform duration-300">
-        <div className="hidden lg:block">
-          <Sidebar />
-        </div>
-        <div className="block lg:hidden">
-          <MobileSidebar />
-        </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Sidebar - Fixed */}
+      <div className="hidden lg:block fixed left-0 top-0 h-screen w-20 bg-slate-900 z-30">
+        <Sidebar />
+      </div>
+      
+      {/* Mobile Sidebar */}
+      <div className="lg:hidden">
+        <MobileSidebar />
       </div>
 
-      {/* Header */}
-      <header className="w-full fixed top-0 left-0 bg-white shadow-sm z-30">
+      {/* Header - Fixed */}
+      <header className="fixed top-0 left-0 lg:left-20 right-0 bg-white shadow-sm z-40 h-16">
         <Header1 />
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col pt-28 lg:pl-20 sm:pt-24">
-        {/* Page Title & Controls */}
-        <div className="px-3 sm:px-6 md:px-8 py-4 bg-white border-b">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <h1 className="text-lg sm:text-2xl md:text-3xl font-semibold text-gray-800">
-              Dashboard Analytics
-            </h1>
+      <main className="pt-16 lg:pl-20 min-h-screen">
+        <div className="p-4 sm:p-6 md:p-8 max-w-[1600px] mx-auto">
+          
+          {/* Page Title & Controls */}
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                Dashboard Analytics
+              </h1>
+              <p className="text-sm text-gray-600 mt-1">
+                Real-time insights and performance metrics
+              </p>
+            </div>
             
             <div className="flex flex-wrap gap-2 sm:gap-3">
               {/* Time Range Selector */}
               <select
                 value={timeRange}
                 onChange={(e) => setTimeRange(e.target.value as TimeRange)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 bg-white"
               >
                 <option value="7d">Last 7 Days</option>
                 <option value="30d">Last 30 Days</option>
@@ -514,38 +426,25 @@ const AnalyticsPage: React.FC = () => {
               <button
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium disabled:opacity-50"
               >
                 <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
                 <span className="hidden sm:inline">Refresh</span>
               </button>
-             
 
               {/* Export Button */}
               <button
-                  onClick={() => setShowExportModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                >
-                  <Download className="w-4 h-4" />
-                  <span className="hidden sm:inline">Export</span>
-                </button>
-
-                <ExportModal
-                  isOpen={showExportModal}
-                  onClose={() => setShowExportModal(false)}
-                  stats={stats}
-                  userGrowthTrend={userGrowthTrend}
-                  salesTrend={salesTrend}
-                />
-                
+                onClick={() => setShowExportModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium shadow-sm"
+              >
+                <Download className="w-4 h-4" />
+                <span className="hidden sm:inline">Export</span>
+              </button>
             </div>
           </div>
-        </div>
 
-        {/* Analytics Content */}
-        <main className="flex-1 overflow-auto p-2 sm:p-4 md:p-8">
           {/* Key Metrics Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <MetricCard
               title="Current Revenue"
               value={`₹${stats.revenue.current.toLocaleString()}`}
@@ -555,6 +454,18 @@ const AnalyticsPage: React.FC = () => {
               color="green"
               trend={stats.revenue.growth >= 0 ? 'up' : 'down'}
             />
+            
+            {/* ✅ NEW: Revenue This Month Card */}
+            <MetricCard
+              title="Revenue This Month"
+              value={`₹${stats.revenue.thisMonth.toLocaleString()}`}
+              subtitle={`Last month: ₹${stats.revenue.lastMonth.toLocaleString()}`}
+              change={stats.revenue.growth > 0 ? `+${stats.revenue.growth.toFixed(1)}%` : `${stats.revenue.growth.toFixed(1)}%`}
+              icon={<Calendar className="w-6 h-6" />}
+              color="blue"
+              trend={stats.revenue.growth >= 0 ? 'up' : 'down'}
+            />
+            
             <MetricCard
               title="Total Users"
               value={stats.users.total.toString()}
@@ -565,13 +476,6 @@ const AnalyticsPage: React.FC = () => {
               trend="up"
             />
             <MetricCard
-              title="Active Packages"
-              value={stats.packages.stats.filter(p => p.currentActiveUsers > 0).length.toString()}
-              subtitle={`${stats.packages.stats.length} total packages`}
-              icon={<ShoppingCart className="w-6 h-6" />}
-              color="blue"
-            />
-            <MetricCard
               title="New Users"
               value={stats.users.new.toString()}
               subtitle={`In last ${timeRange}`}
@@ -580,12 +484,12 @@ const AnalyticsPage: React.FC = () => {
             />
           </div>
 
-          {/* Charts Row 1: Sales Trend & User Growth */}
+          {/* Charts Row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-            {/* Sales Trend - Package Based */}
-            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+            {/* Sales Trend */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-base sm:text-lg font-bold text-gray-800">
+                <h2 className="text-lg font-bold text-gray-800">
                   Package Sales Trend
                 </h2>
                 <div className="flex items-center gap-2 text-xs text-gray-600">
@@ -597,9 +501,9 @@ const AnalyticsPage: React.FC = () => {
             </div>
 
             {/* User Growth Chart */}
-            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-base sm:text-lg font-bold text-gray-800">
+                <h2 className="text-lg font-bold text-gray-800">
                   User Growth Trend
                 </h2>
                 <div className="flex items-center gap-2 text-xs text-gray-600">
@@ -614,8 +518,8 @@ const AnalyticsPage: React.FC = () => {
           {/* Package Performance Details */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
             {/* Top Packages */}
-            <div className="lg:col-span-2 bg-white rounded-lg shadow p-4 sm:p-6">
-              <h2 className="text-base sm:text-lg font-bold mb-4 text-gray-800">
+            <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-lg font-bold mb-4 text-gray-800">
                 Package Performance
               </h2>
               <div className="space-y-4">
@@ -636,8 +540,8 @@ const AnalyticsPage: React.FC = () => {
             </div>
 
             {/* Revenue Breakdown */}
-            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-              <h2 className="text-base sm:text-lg font-bold mb-4 text-gray-800">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-lg font-bold mb-4 text-gray-800">
                 Revenue Breakdown
               </h2>
               <div className="space-y-3">
@@ -678,14 +582,14 @@ const AnalyticsPage: React.FC = () => {
             </div>
           </div>
 
-          {/* ✅ Top Performing Executives */}
-            <div className="mb-6">
-              <TopExecutivesCard />
-            </div>
+          {/* Top Performing Executives */}
+          <div className="mb-6">
+            <TopExecutivesCard />
+          </div>
 
-          {/* Monthly Target Section */}
-          <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-            <h2 className="text-base sm:text-lg font-bold mb-4 text-gray-800">
+          {/* Revenue Overview */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-bold mb-6 text-gray-800">
               Revenue Overview
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -721,8 +625,18 @@ const AnalyticsPage: React.FC = () => {
               </div>
             </div>
           </div>
-        </main>
-      </div>
+        </div>
+      </main>
+
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        stats={stats}
+        userGrowthTrend={userGrowthTrend}
+        salesTrend={salesTrend}
+        timeRange={timeRange}
+      />
     </div>
   );
 };
@@ -745,7 +659,7 @@ const MetricCard: React.FC<{
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-4 sm:p-6 hover:shadow-lg transition-shadow">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between mb-3">
         <div className={`p-3 rounded-lg ${colorClasses[color]}`}>
           {icon}
@@ -847,16 +761,6 @@ const PackageSalesChart: React.FC<{
   );
 };
 
-
-
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
-} from 'recharts';
-import { TopExecutivesCard } from '@/components/ExecutiveComponents/TopExecutivesCard';
-import { ExportButton } from '@/components/adminComponents/export/ExportButton';
-import { ExportModal } from '@/components/adminComponents/export/ExportModal';
-
-// New UserGrowthChart as Line Chart
 const UserGrowthChart: React.FC<{ 
   data: Array<{ date: string; users: number; newUsers: number }>;
 }> = ({ data }) => {
@@ -869,7 +773,6 @@ const UserGrowthChart: React.FC<{
     );
   }
 
-  // Mark X values (dates) as short date format for better chart readability
   const chartData = data.map((d) => ({
     ...d,
     date: new Date(d.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
@@ -908,7 +811,6 @@ const UserGrowthChart: React.FC<{
     </ResponsiveContainer>
   );
 };
-
 
 const PackagePerformanceBar: React.FC<{
   rank: number;

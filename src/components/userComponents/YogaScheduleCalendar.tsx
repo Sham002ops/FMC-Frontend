@@ -1,3 +1,4 @@
+// YogaScheduleModal.tsx - FIXED VERSION
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { BackendUrl } from '@/Config';
@@ -69,23 +70,32 @@ const YogaScheduleModal: React.FC<YogaScheduleModalProps> = ({ isOpen, onClose, 
   const [editingClass, setEditingClass] = useState<YogaClass | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>('All Classes');
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
+  
+  // ✅ NEW: State for selected day classes (instead of single class)
+  const [selectedDayClasses, setSelectedDayClasses] = useState<YogaClass[]>([]);
+  const [showDayClassesModal, setShowDayClassesModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  
   const [selectedClass, setSelectedClass] = useState<YogaClass | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
-  // GSAP Refs for Main Modal
+  // GSAP Refs
   const modalRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-
-  // GSAP Refs for Create/Edit Modal
+  
   const createModalRef = useRef<HTMLDivElement>(null);
   const createModalBackdropRef = useRef<HTMLDivElement>(null);
   const createModalContentRef = useRef<HTMLDivElement>(null);
-
-  // GSAP Refs for Detail Modal
+  
   const detailModalRef = useRef<HTMLDivElement>(null);
   const detailModalBackdropRef = useRef<HTMLDivElement>(null);
   const detailModalContentRef = useRef<HTMLDivElement>(null);
+
+  // ✅ NEW: Refs for day classes modal
+  const dayClassesModalRef = useRef<HTMLDivElement>(null);
+  const dayClassesBackdropRef = useRef<HTMLDivElement>(null);
+  const dayClassesContentRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -111,178 +121,85 @@ const YogaScheduleModal: React.FC<YogaScheduleModalProps> = ({ isOpen, onClose, 
   useEffect(() => {
     if (!modalRef.current || !backdropRef.current || !contentRef.current) return;
 
-    const tl = gsap.timeline({
-      defaults: { ease: 'power3.out' }
-    });
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
     if (isOpen) {
       gsap.set(modalRef.current, { display: 'flex' });
       
-      tl.fromTo(
-        backdropRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.3 }
-      )
-      .fromTo(
-        contentRef.current,
-        { 
-          scale: 0.8,
-          opacity: 0,
-          y: 50
-        },
-        { 
-          scale: 1,
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          ease: 'back.out(1.4)'
-        },
-        '-=0.2'
-      );
+      tl.fromTo(backdropRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3 })
+        .fromTo(contentRef.current, { scale: 0.8, opacity: 0, y: 50 }, 
+                { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: 'back.out(1.4)' }, '-=0.2');
     } else {
-      tl.to(
-        contentRef.current,
-        { 
-          scale: 0.9,
-          opacity: 0,
-          y: 20,
-          duration: 0.3,
-          ease: 'power2.in'
-        }
-      )
-      .to(
-        backdropRef.current,
-        { 
-          opacity: 0,
-          duration: 0.2
-        },
-        '-=0.1'
-      )
-      .set(modalRef.current, { display: 'none' });
+      tl.to(contentRef.current, { scale: 0.9, opacity: 0, y: 20, duration: 0.3, ease: 'power2.in' })
+        .to(backdropRef.current, { opacity: 0, duration: 0.2 }, '-=0.1')
+        .set(modalRef.current, { display: 'none' });
     }
 
-    return () => {
-      tl.kill();
-    };
+    return () => tl.kill();
   }, [isOpen]);
 
   // GSAP Animation for Create/Edit Modal
   useEffect(() => {
     if (!createModalRef.current || !createModalBackdropRef.current || !createModalContentRef.current) return;
 
-    const tl = gsap.timeline({
-      defaults: { ease: 'power3.out' }
-    });
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
     if (showModal) {
       gsap.set(createModalRef.current, { display: 'flex' });
       
-      tl.fromTo(
-        createModalBackdropRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.3 }
-      )
-      .fromTo(
-        createModalContentRef.current,
-        { 
-          scale: 0.8,
-          opacity: 0,
-          y: 50
-        },
-        { 
-          scale: 1,
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          ease: 'back.out(1.7)'
-        },
-        '-=0.2'
-      );
+      tl.fromTo(createModalBackdropRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3 })
+        .fromTo(createModalContentRef.current, { scale: 0.8, opacity: 0, y: 50 }, 
+                { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: 'back.out(1.7)' }, '-=0.2');
     } else {
-      tl.to(
-        createModalContentRef.current,
-        { 
-          scale: 0.9,
-          opacity: 0,
-          y: 20,
-          duration: 0.3,
-          ease: 'power2.in'
-        }
-      )
-      .to(
-        createModalBackdropRef.current,
-        { 
-          opacity: 0,
-          duration: 0.2
-        },
-        '-=0.1'
-      )
-      .set(createModalRef.current, { display: 'none' });
+      tl.to(createModalContentRef.current, { scale: 0.9, opacity: 0, y: 20, duration: 0.3, ease: 'power2.in' })
+        .to(createModalBackdropRef.current, { opacity: 0, duration: 0.2 }, '-=0.1')
+        .set(createModalRef.current, { display: 'none' });
     }
 
-    return () => {
-      tl.kill();
-    };
+    return () => tl.kill();
   }, [showModal]);
 
   // GSAP Animation for Detail Modal
   useEffect(() => {
     if (!detailModalRef.current || !detailModalBackdropRef.current || !detailModalContentRef.current) return;
 
-    const tl = gsap.timeline({
-      defaults: { ease: 'power3.out' }
-    });
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
     if (showDetailModal) {
       gsap.set(detailModalRef.current, { display: 'flex' });
       
-      tl.fromTo(
-        detailModalBackdropRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.3 }
-      )
-      .fromTo(
-        detailModalContentRef.current,
-        { 
-          scale: 0.8,
-          opacity: 0,
-          rotationX: -15
-        },
-        { 
-          scale: 1,
-          opacity: 1,
-          rotationX: 0,
-          duration: 0.5,
-          ease: 'back.out(1.5)'
-        },
-        '-=0.2'
-      );
+      tl.fromTo(detailModalBackdropRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3 })
+        .fromTo(detailModalContentRef.current, { scale: 0.8, opacity: 0, rotationX: -15 }, 
+                { scale: 1, opacity: 1, rotationX: 0, duration: 0.5, ease: 'back.out(1.5)' }, '-=0.2');
     } else {
-      tl.to(
-        detailModalContentRef.current,
-        { 
-          scale: 0.9,
-          opacity: 0,
-          rotationX: 10,
-          duration: 0.3,
-          ease: 'power2.in'
-        }
-      )
-      .to(
-        detailModalBackdropRef.current,
-        { 
-          opacity: 0,
-          duration: 0.2
-        },
-        '-=0.1'
-      )
-      .set(detailModalRef.current, { display: 'none' });
+      tl.to(detailModalContentRef.current, { scale: 0.9, opacity: 0, rotationX: 10, duration: 0.3, ease: 'power2.in' })
+        .to(detailModalBackdropRef.current, { opacity: 0, duration: 0.2 }, '-=0.1')
+        .set(detailModalRef.current, { display: 'none' });
     }
 
-    return () => {
-      tl.kill();
-    };
+    return () => tl.kill();
   }, [showDetailModal]);
+
+  // ✅ NEW: GSAP Animation for Day Classes Modal
+  useEffect(() => {
+    if (!dayClassesModalRef.current || !dayClassesBackdropRef.current || !dayClassesContentRef.current) return;
+
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+    if (showDayClassesModal) {
+      gsap.set(dayClassesModalRef.current, { display: 'flex' });
+      
+      tl.fromTo(dayClassesBackdropRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3 })
+        .fromTo(dayClassesContentRef.current, { scale: 0.8, opacity: 0, y: 50 }, 
+                { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: 'back.out(1.5)' }, '-=0.2');
+    } else {
+      tl.to(dayClassesContentRef.current, { scale: 0.9, opacity: 0, y: 20, duration: 0.3, ease: 'power2.in' })
+        .to(dayClassesBackdropRef.current, { opacity: 0, duration: 0.2 }, '-=0.1')
+        .set(dayClassesModalRef.current, { display: 'none' });
+    }
+
+    return () => tl.kill();
+  }, [showDayClassesModal]);
 
   const fetchClasses = async () => {
     try {
@@ -328,7 +245,7 @@ const YogaScheduleModal: React.FC<YogaScheduleModalProps> = ({ isOpen, onClose, 
     setCurrentDate(new Date());
   };
 
-  // **FIXED: Get classes for a specific date**
+  // Get classes for a specific date
   const getClassesForDate = (day: number) => {
     const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
     const dayName = DAYS[targetDate.getDay() === 0 ? 6 : targetDate.getDay() - 1];
@@ -339,7 +256,7 @@ const YogaScheduleModal: React.FC<YogaScheduleModalProps> = ({ isOpen, onClose, 
       
       if (cls.dayOfWeek !== dayName) return false;
 
-      // **BUG FIX: For non-recurring classes, check exact date**
+      // For non-recurring classes, check exact date
       if (!cls.isRecurring) {
         const classDate = new Date(cls.startTime);
         return (
@@ -353,11 +270,15 @@ const YogaScheduleModal: React.FC<YogaScheduleModalProps> = ({ isOpen, onClose, 
     });
   };
 
+  // ✅ FIXED: Show all classes for the clicked day
   const handleDayClick = (day: number) => {
+    const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
     const dayClasses = getClassesForDate(day);
+    
     if (dayClasses.length > 0) {
-      setSelectedClass(dayClasses[0]);
-      setShowDetailModal(true);
+      setSelectedDayClasses(dayClasses);
+      setSelectedDate(targetDate);
+      setShowDayClassesModal(true);
     }
   };
 
@@ -426,6 +347,7 @@ const YogaScheduleModal: React.FC<YogaScheduleModalProps> = ({ isOpen, onClose, 
     });
     setShowModal(true);
     setShowDetailModal(false);
+    setShowDayClassesModal(false);
   };
 
   const handleDeleteClass = async (id: string) => {
@@ -437,6 +359,7 @@ const YogaScheduleModal: React.FC<YogaScheduleModalProps> = ({ isOpen, onClose, 
       });
       fetchClasses();
       setShowDetailModal(false);
+      setShowDayClassesModal(false);
     } catch (err) {
       alert('Failed to delete class');
     }
@@ -468,7 +391,7 @@ const YogaScheduleModal: React.FC<YogaScheduleModalProps> = ({ isOpen, onClose, 
     onClose();
   };
 
-  // Render calendar days
+  // ✅ IMPROVED: Render calendar days with better visibility
   const renderCalendarDays = () => {
     const daysInMonth = getDaysInMonth(currentDate);
     const firstDay = getFirstDayOfMonth(currentDate);
@@ -477,7 +400,7 @@ const YogaScheduleModal: React.FC<YogaScheduleModalProps> = ({ isOpen, onClose, 
 
     for (let i = 0; i < firstDay; i++) {
       days.push(
-        <div key={`empty-${i}`} className="h-20 sm:h-24 bg-gray-50 border border-gray-200"></div>
+        <div key={`empty-${i}`} className="h-24 sm:h-28 bg-gray-50 border border-gray-200"></div>
       );
     }
 
@@ -492,30 +415,32 @@ const YogaScheduleModal: React.FC<YogaScheduleModalProps> = ({ isOpen, onClose, 
         <div
           key={day}
           onClick={() => handleDayClick(day)}
-          className={`h-20 sm:h-24 border border-gray-200 p-1.5 sm:p-2 cursor-pointer transition-all hover:bg-teal-50 ${
+          className={`h-24 sm:h-28 border border-gray-200 p-1.5 sm:p-2 cursor-pointer transition-all hover:bg-teal-50 overflow-hidden ${
             isToday ? 'bg-teal-100 border-teal-500 ring-2 ring-teal-300' : 'bg-white'
           } ${dayClasses.length > 0 ? 'hover:shadow-lg' : ''}`}
         >
-          <div className={`text-xs sm:text-sm font-semibold mb-1 ${isToday ? 'text-teal-700' : 'text-gray-700'}`}>
+          <div className={`text-sm sm:text-base font-semibold mb-1 ${isToday ? 'text-teal-700' : 'text-gray-700'}`}>
             {day}
           </div>
+          
+          {/* ✅ IMPROVED: Better class display */}
           {dayClasses.length > 0 && (
-            <div className="space-y-0.5">
+            <div className="space-y-1">
               {dayClasses.slice(0, 2).map((cls) => {
                 const { color } = getCategoryColor(cls.title);
                 return (
                   <div
                     key={cls.id}
-                    className="text-[10px] p-0.5 sm:p-1 rounded text-white"
+                    className="text-[10px] sm:text-xs p-1 rounded text-white shadow-sm"
                     style={{ backgroundColor: color }}
                   >
-                    <div className="font-medium truncate flex items-center justify-between">
+                    <div className="font-semibold truncate flex items-center justify-between">
                       <span className="truncate">{cls.title}</span>
                       {!cls.isRecurring && (
-                        <span className="text-[8px] bg-purple-600 px-1 rounded ml-1">1x</span>
+                        <span className="text-[8px] bg-purple-600 px-1 rounded ml-1 flex-shrink-0">1x</span>
                       )}
                     </div>
-                    <div className="text-[9px] flex items-center gap-0.5">
+                    <div className="text-[9px] flex items-center gap-0.5 mt-0.5">
                       <Clock className="w-2.5 h-2.5" />
                       {formatTime(cls.startTime)}
                     </div>
@@ -523,7 +448,7 @@ const YogaScheduleModal: React.FC<YogaScheduleModalProps> = ({ isOpen, onClose, 
                 );
               })}
               {dayClasses.length > 2 && (
-                <div className="text-[9px] text-gray-500 text-center">
+                <div className="text-[10px] sm:text-xs text-center text-teal-700 font-bold bg-teal-100 rounded py-0.5">
                   +{dayClasses.length - 2} more
                 </div>
               )}
@@ -563,7 +488,7 @@ const YogaScheduleModal: React.FC<YogaScheduleModalProps> = ({ isOpen, onClose, 
 
         {/* Scrollable Content */}
         <div className="overflow-y-auto max-h-[95vh] p-4 sm:p-6">
-          {/* Compact Hero Header */}
+          {/* Hero Header */}
           <div className="relative bg-gradient-to-r from-cyan-600 via-teal-600 to-emerald-600 rounded-xl overflow-hidden mb-4">
             <div className="relative z-10 flex flex-col items-center justify-center py-4 sm:py-6 text-white px-4">
               <h1 className="text-2xl sm:text-3xl font-bold mb-1 text-center flex items-center gap-2">
@@ -833,10 +758,137 @@ const YogaScheduleModal: React.FC<YogaScheduleModalProps> = ({ isOpen, onClose, 
         </div>
       </div>
 
-      {/* Detail Modal */}
+      {/* ✅ NEW: Day Classes Modal (Shows all classes for clicked date) */}
+      <div 
+        ref={dayClassesModalRef}
+        className="fixed inset-0 hidden items-center justify-center z-[60] p-4"
+      >
+        <div 
+          ref={dayClassesBackdropRef}
+          className="absolute inset-0 bg-black/50"
+          onClick={() => setShowDayClassesModal(false)}
+        />
+        
+        <div 
+          ref={dayClassesContentRef}
+          className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto"
+        >
+          <div className="sticky top-0 bg-gradient-to-r from-teal-600 to-cyan-600 text-white p-5 rounded-t-2xl z-10">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold mb-1">Classes on {selectedDate?.toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric'
+                })}</h2>
+                <p className="text-sm text-cyan-100">{selectedDayClasses.length} class{selectedDayClasses.length !== 1 ? 'es' : ''} scheduled</p>
+              </div>
+              <button
+                onClick={() => setShowDayClassesModal(false)}
+                className="p-2 hover:bg-white/20 rounded-lg transition"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+
+          <div className="p-5 space-y-3">
+            {selectedDayClasses.map((cls) => {
+              const { category, color } = getCategoryColor(cls.title);
+              return (
+                <div
+                  key={cls.id}
+                  className="bg-white border-2 border-gray-200 rounded-xl p-4 hover:shadow-lg transition-all cursor-pointer"
+                  style={{ borderLeftColor: color, borderLeftWidth: '4px' }}
+                  onClick={() => {
+                    setSelectedClass(cls);
+                    setShowDetailModal(true);
+                    setShowDayClassesModal(false);
+                  }}
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div
+                          className="text-xs font-semibold px-2 py-1 rounded-full text-white"
+                          style={{ backgroundColor: color }}
+                        >
+                          {category}
+                        </div>
+                        {!cls.isRecurring && (
+                          <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded-full font-bold">
+                            ONE-TIME
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-lg font-bold text-gray-900 mb-1">
+                        {cls.title}
+                      </h3>
+                      <p className="text-sm text-gray-600">with {cls.instructor}</p>
+                    </div>
+                    
+                    {isAdmin && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditClass(cls);
+                          }}
+                          className="p-2 bg-cyan-50 rounded-lg hover:bg-cyan-100 transition-colors"
+                        >
+                          <Edit2 className="w-4 h-4 text-cyan-600" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClass(cls.id);
+                          }}
+                          className="p-2 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-600" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <Clock className="w-4 h-4 text-teal-600" />
+                      <span className="font-semibold">
+                        {formatTime(cls.startTime)} - {formatTime(cls.endTime)}
+                      </span>
+                    </div>
+                    {cls.location && (
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <MapPin className="w-4 h-4" />
+                        <span>{cls.location}</span>
+                      </div>
+                    )}
+                    {cls.maxCapacity && (
+                      <div className="flex items-center gap-2 text-gray-600 col-span-2">
+                        <Users className="w-4 h-4" />
+                        <span>Max capacity: {cls.maxCapacity} students</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {cls.description && (
+                    <p className="mt-3 text-sm text-gray-600 pt-3 border-t">
+                      {cls.description}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Individual Detail Modal (unchanged) */}
       <div 
         ref={detailModalRef}
-        className="fixed inset-0 hidden items-center justify-center z-[60] p-4"
+        className="fixed inset-0 hidden items-center justify-center z-[70] p-4"
       >
         <div 
           ref={detailModalBackdropRef}
@@ -960,11 +1012,11 @@ const YogaScheduleModal: React.FC<YogaScheduleModalProps> = ({ isOpen, onClose, 
         )}
       </div>
 
-      {/* Create/Edit Modal */}
+      {/* Create/Edit Modal (unchanged - keeping original) */}
       {isAdmin && (
         <div 
           ref={createModalRef}
-          className="fixed inset-0 hidden items-center justify-center z-[70] p-4"
+          className="fixed inset-0 hidden items-center justify-center z-[80] p-4"
         >
           <div 
             ref={createModalBackdropRef}

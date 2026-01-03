@@ -69,7 +69,10 @@ const AdminYogaSchedule: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState<string>('All Classes');
   const [showInactive, setShowInactive] = useState(true);
   const [selectedClass, setSelectedClass] = useState<YogaClass | null>(null);
+  const [selectedDayClasses, setSelectedDayClasses] = useState<YogaClass[]>([]); // NEW: Store all classes for selected day
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showMultipleClassModal, setShowMultipleClassModal] = useState(false); // NEW: Modal for multiple classes
+  const [timeError, setTimeError] = useState<string>('');
 
   // GSAP Refs for Create/Edit Modal
   const createModalRef = useRef<HTMLDivElement>(null);
@@ -81,6 +84,11 @@ const AdminYogaSchedule: React.FC = () => {
   const detailModalBackdropRef = useRef<HTMLDivElement>(null);
   const detailModalContentRef = useRef<HTMLDivElement>(null);
 
+  // NEW: GSAP Refs for Multiple Class Modal
+  const multipleModalRef = useRef<HTMLDivElement>(null);
+  const multipleModalBackdropRef = useRef<HTMLDivElement>(null);
+  const multipleModalContentRef = useRef<HTMLDivElement>(null);
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -91,14 +99,50 @@ const AdminYogaSchedule: React.FC = () => {
     isRecurring: false,
     recurrencePattern: 'WEEKLY',
     location: '',
-    maxCapacity: '',
     imageUrl: '',
     isActive: true,
   });
 
+  // Get current datetime in YYYY-MM-DDTHH:MM format for min attribute
+  const getCurrentDateTime = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   useEffect(() => {
     fetchClasses();
   }, []);
+
+  // Auto-set dayOfWeek when startTime changes
+  useEffect(() => {
+    if (formData.startTime) {
+      const date = new Date(formData.startTime);
+      const dayIndex = date.getDay();
+      const dayName = DAYS[dayIndex === 0 ? 6 : dayIndex - 1];
+      setFormData(prev => ({ ...prev, dayOfWeek: dayName }));
+    }
+  }, [formData.startTime]);
+
+  // Validate endTime is after startTime
+  useEffect(() => {
+    if (formData.startTime && formData.endTime) {
+      const start = new Date(formData.startTime);
+      const end = new Date(formData.endTime);
+      
+      if (end <= start) {
+        setTimeError('End time must be after start time');
+      } else {
+        setTimeError('');
+      }
+    } else {
+      setTimeError('');
+    }
+  }, [formData.startTime, formData.endTime]);
 
   // GSAP Animation for Create/Edit Modal
   useEffect(() => {
@@ -167,7 +211,7 @@ const AdminYogaSchedule: React.FC = () => {
       defaults: { ease: 'power3.out' }
     });
 
-    if (showDetailModal) {
+    if (showDetailModal && selectedClass) {
       gsap.set(detailModalRef.current, { display: 'flex' });
       
       tl.fromTo(
@@ -216,7 +260,66 @@ const AdminYogaSchedule: React.FC = () => {
     return () => {
       tl.kill();
     };
-  }, [showDetailModal]);
+  }, [showDetailModal, selectedClass]);
+
+  // NEW: GSAP Animation for Multiple Class Modal
+  useEffect(() => {
+    if (!multipleModalRef.current || !multipleModalBackdropRef.current || !multipleModalContentRef.current) return;
+
+    const tl = gsap.timeline({
+      defaults: { ease: 'power3.out' }
+    });
+
+    if (showMultipleClassModal && selectedDayClasses.length > 0) {
+      gsap.set(multipleModalRef.current, { display: 'flex' });
+      
+      tl.fromTo(
+        multipleModalBackdropRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.3 }
+      )
+      .fromTo(
+        multipleModalContentRef.current,
+        { 
+          scale: 0.8,
+          opacity: 0,
+          y: 50
+        },
+        { 
+          scale: 1,
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: 'back.out(1.7)'
+        },
+        '-=0.2'
+      );
+    } else {
+      tl.to(
+        multipleModalContentRef.current,
+        { 
+          scale: 0.9,
+          opacity: 0,
+          y: 20,
+          duration: 0.3,
+          ease: 'power2.in'
+        }
+      )
+      .to(
+        multipleModalBackdropRef.current,
+        { 
+          opacity: 0,
+          duration: 0.2
+        },
+        '-=0.1'
+      )
+      .set(multipleModalRef.current, { display: 'none' });
+    }
+
+    return () => {
+      tl.kill();
+    };
+  }, [showMultipleClassModal, selectedDayClasses]);
 
   const fetchClasses = async () => {
     try {
@@ -261,10 +364,9 @@ const AdminYogaSchedule: React.FC = () => {
     setCurrentDate(new Date());
   };
 
-  // **FIXED: Get classes for a specific date**
   const getClassesForDate = (day: number) => {
     const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-    const dayName = DAYS[targetDate.getDay() === 0 ? 6 : targetDate.getDay() - 1]; // Adjust for Sunday=0
+    const dayName = DAYS[targetDate.getDay() === 0 ? 6 : targetDate.getDay() - 1];
 
     return classes.filter(cls => {
       if (!showInactive && !cls.isActive) return false;
@@ -272,10 +374,8 @@ const AdminYogaSchedule: React.FC = () => {
       const { category } = getCategoryColor(cls.title);
       if (selectedFilter !== 'All Classes' && category !== selectedFilter) return false;
       
-      // Check if class is on the same day of week
       if (cls.dayOfWeek !== dayName) return false;
 
-      // **BUG FIX: For non-recurring classes, check if it's the exact date**
       if (!cls.isRecurring) {
         const classDate = new Date(cls.startTime);
         return (
@@ -285,17 +385,53 @@ const AdminYogaSchedule: React.FC = () => {
         );
       }
 
-      // For recurring classes, show on every matching day of week
       return true;
     });
   };
 
+  // MODIFIED: Handle day click to show multiple classes
   const handleDayClick = (day: number) => {
     const dayClasses = getClassesForDate(day);
-    if (dayClasses.length > 0) {
-      setSelectedClass(dayClasses[0]);
+    if (dayClasses.length === 0) return;
+
+    // Sort classes by start time
+    const sortedClasses = dayClasses.sort((a, b) => 
+      new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+    );
+
+    if (sortedClasses.length === 1) {
+      // If only one class, show single class detail modal
+      setSelectedClass(sortedClasses[0]);
       setShowDetailModal(true);
+    } else {
+      // If multiple classes, show list modal
+      setSelectedDayClasses(sortedClasses);
+      setShowMultipleClassModal(true);
     }
+  };
+
+  // NEW: Handle class selection from multiple class modal
+  const handleSelectClassFromList = (cls: YogaClass) => {
+    setShowMultipleClassModal(false);
+    setTimeout(() => {
+      setSelectedClass(cls);
+      setShowDetailModal(true);
+    }, 300);
+  };
+
+  const closeDetailModal = () => {
+    setShowDetailModal(false);
+    setTimeout(() => {
+      setSelectedClass(null);
+    }, 500);
+  };
+
+  // NEW: Close multiple class modal
+  const closeMultipleClassModal = () => {
+    setShowMultipleClassModal(false);
+    setTimeout(() => {
+      setSelectedDayClasses([]);
+    }, 500);
   };
 
   const formatTime = (dateString: string) => {
@@ -309,12 +445,18 @@ const AdminYogaSchedule: React.FC = () => {
 
   const handleCreateClass = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (timeError) {
+      alert(timeError);
+      return;
+    }
+
     try {
       const token = localStorage.getItem('token');
       
       const payload = {
         ...formData,
-        maxCapacity: formData.maxCapacity ? parseInt(formData.maxCapacity) : null,
+        maxCapacity: null,
       };
 
       if (editingClass) {
@@ -346,12 +488,11 @@ const AdminYogaSchedule: React.FC = () => {
       isRecurring: cls.isRecurring,
       recurrencePattern: cls.recurrencePattern || 'WEEKLY',
       location: cls.location || '',
-      maxCapacity: cls.maxCapacity?.toString() || '',
       imageUrl: cls.imageUrl || '',
       isActive: cls.isActive,
     });
     setShowModal(true);
-    setShowDetailModal(false);
+    closeDetailModal();
   };
 
   const handleDeleteClass = async (id: string) => {
@@ -362,7 +503,7 @@ const AdminYogaSchedule: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchClasses();
-      setShowDetailModal(false);
+      closeDetailModal();
     } catch (err) {
       alert('Failed to delete class');
     }
@@ -393,12 +534,12 @@ const AdminYogaSchedule: React.FC = () => {
       isRecurring: false,
       recurrencePattern: 'WEEKLY',
       location: '',
-      maxCapacity: '',
       imageUrl: '',
       isActive: true,
     });
     setEditingClass(null);
     setShowModal(false);
+    setTimeError('');
   };
 
   const activeCategories = Array.from(
@@ -412,14 +553,12 @@ const AdminYogaSchedule: React.FC = () => {
     const days = [];
     const today = new Date();
 
-    // Empty cells for days before month starts
     for (let i = 0; i < firstDay; i++) {
       days.push(
         <div key={`empty-${i}`} className="h-24 sm:h-28 bg-gray-50 border border-gray-200"></div>
       );
     }
 
-    // Actual days
     for (let day = 1; day <= daysInMonth; day++) {
       const dayClasses = getClassesForDate(day);
       const isToday =
@@ -635,7 +774,6 @@ const AdminYogaSchedule: React.FC = () => {
 
         {/* Calendar Grid */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          {/* Week days header */}
           <div className="grid grid-cols-7 bg-gradient-to-r from-cyan-600 via-teal-600 to-emerald-600">
             {weekDays.map((day) => (
               <div
@@ -647,7 +785,6 @@ const AdminYogaSchedule: React.FC = () => {
             ))}
           </div>
 
-          {/* Calendar days */}
           <div className="grid grid-cols-7">
             {renderCalendarDays()}
           </div>
@@ -674,6 +811,108 @@ const AdminYogaSchedule: React.FC = () => {
         </div>
       </div>
 
+      {/* NEW: Multiple Classes Modal */}
+      <div 
+        ref={multipleModalRef}
+        className="fixed inset-0 hidden items-center justify-center z-50 p-4"
+      >
+        <div 
+          ref={multipleModalBackdropRef}
+          className="absolute inset-0 bg-black/50"
+          onClick={closeMultipleClassModal}
+        />
+        
+        <div 
+          ref={multipleModalContentRef}
+          className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        >
+          <div className="bg-gradient-to-r from-cyan-600 via-teal-600 to-emerald-600 text-white p-6 rounded-t-2xl">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold">Classes for Selected Day</h2>
+                <p className="text-sm text-cyan-100 mt-1">
+                  {selectedDayClasses.length} class{selectedDayClasses.length !== 1 ? 'es' : ''} scheduled
+                </p>
+              </div>
+              <button
+                onClick={closeMultipleClassModal}
+                className="p-2 hover:bg-white/20 rounded-lg transition"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+
+          <div className="p-6 space-y-3">
+            {selectedDayClasses.map((cls) => {
+              const { color, category } = getCategoryColor(cls.title);
+              return (
+                <div
+                  key={cls.id}
+                  onClick={() => handleSelectClassFromList(cls)}
+                  className="p-4 rounded-lg border-2 border-gray-200 hover:border-teal-500 cursor-pointer transition-all hover:shadow-lg group"
+                  style={{ borderLeftWidth: '6px', borderLeftColor: color }}
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span 
+                          className="text-xs px-2 py-1 rounded-full text-white font-medium"
+                          style={{ backgroundColor: color }}
+                        >
+                          {category}
+                        </span>
+                        {!cls.isActive && (
+                          <span className="text-xs bg-red-500 text-white px-2 py-1 rounded-full font-bold">
+                            INACTIVE
+                          </span>
+                        )}
+                        {!cls.isRecurring && (
+                          <span className="text-xs bg-purple-500 text-white px-2 py-1 rounded-full font-bold">
+                            ONE-TIME
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-teal-600 transition">
+                        {cls.title}
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <Clock className="w-4 h-4 text-teal-500" />
+                          <span>{formatTime(cls.startTime)} - {formatTime(cls.endTime)}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <Users className="w-4 h-4 text-teal-500" />
+                          <span>{cls.instructor}</span>
+                        </div>
+                        {cls.location && (
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <MapPin className="w-4 h-4 text-teal-500" />
+                            <span>{cls.location}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="ml-4 text-teal-600 opacity-0 group-hover:opacity-100 transition">
+                      <Eye className="w-6 h-6" />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="bg-gray-50 p-4 rounded-b-2xl border-t">
+            <button
+              onClick={closeMultipleClassModal}
+              className="w-full py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Detail Modal with GSAP */}
       <div 
         ref={detailModalRef}
@@ -682,7 +921,7 @@ const AdminYogaSchedule: React.FC = () => {
         <div 
           ref={detailModalBackdropRef}
           className="absolute inset-0 bg-black/50"
-          onClick={() => setShowDetailModal(false)}
+          onClick={closeDetailModal}
         />
         
         {selectedClass && (
@@ -690,7 +929,6 @@ const AdminYogaSchedule: React.FC = () => {
             ref={detailModalContentRef}
             className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
           >
-            {/* Modal Header */}
             <div 
               className="text-white p-6 rounded-t-2xl"
               style={{ 
@@ -730,7 +968,7 @@ const AdminYogaSchedule: React.FC = () => {
                   </div>
                 </div>
                 <button
-                  onClick={() => setShowDetailModal(false)}
+                  onClick={closeDetailModal}
                   className="p-2 hover:bg-white/20 rounded-lg transition"
                 >
                   <X className="w-6 h-6" />
@@ -738,7 +976,6 @@ const AdminYogaSchedule: React.FC = () => {
               </div>
             </div>
 
-            {/* Modal Body */}
             <div className="p-6 space-y-4">
               {selectedClass.description && (
                 <div>
@@ -764,19 +1001,8 @@ const AdminYogaSchedule: React.FC = () => {
                   <p className="text-cyan-700 font-medium">{selectedClass.location}</p>
                 </div>
               )}
-
-              {selectedClass.maxCapacity && (
-                <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Users className="w-5 h-5 text-emerald-600" />
-                    <span className="font-semibold text-gray-800">Max Capacity</span>
-                  </div>
-                  <p className="text-emerald-700 font-medium">{selectedClass.maxCapacity} students</p>
-                </div>
-              )}
             </div>
 
-            {/* Modal Footer - Admin Actions */}
             <div className="bg-gray-50 p-4 rounded-b-2xl border-t flex gap-3">
               <button
                 onClick={() => handleToggleActive(selectedClass)}
@@ -885,28 +1111,29 @@ const AdminYogaSchedule: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Day of Week *</label>
-                  <select
-                    required
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Day of Week *
+                    <span className="text-xs text-gray-500 ml-2">(Auto-set from Start Time)</span>
+                  </label>
+                  <input
+                    type="text"
+                    disabled
                     value={formData.dayOfWeek}
-                    onChange={(e) => setFormData({ ...formData, dayOfWeek: e.target.value })}
-                    className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none text-sm sm:text-base"
-                  >
-                    {DAYS.map((day) => (
-                      <option key={day} value={day}>
-                        {day}
-                      </option>
-                    ))}
-                  </select>
+                    className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 text-sm sm:text-base cursor-not-allowed"
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Start Time *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Start Time *
+                    <span className="text-xs text-gray-500 ml-2">(Cannot be in past)</span>
+                  </label>
                   <input
                     type="datetime-local"
                     required
+                    min={editingClass ? undefined : getCurrentDateTime()}
                     value={formData.startTime}
                     onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
                     className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none text-sm sm:text-base"
@@ -918,35 +1145,28 @@ const AdminYogaSchedule: React.FC = () => {
                   <input
                     type="datetime-local"
                     required
+                    min={formData.startTime || undefined}
                     value={formData.endTime}
                     onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                    className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none text-sm sm:text-base"
+                    className={`w-full px-3 sm:px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none text-sm sm:text-base ${
+                      timeError ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   />
+                  {timeError && (
+                    <p className="text-red-500 text-xs mt-1">{timeError}</p>
+                  )}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                  <input
-                    type="text"
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none text-sm sm:text-base"
-                    placeholder="Studio A, Main Hall, etc."
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Max Capacity</label>
-                  <input
-                    type="number"
-                    value={formData.maxCapacity}
-                    onChange={(e) => setFormData({ ...formData, maxCapacity: e.target.value })}
-                    className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none text-sm sm:text-base"
-                    placeholder="e.g., 20"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                <input
+                  type="text"
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none text-sm sm:text-base"
+                  placeholder="Studio A, Main Hall, etc."
+                />
               </div>
 
               <div>
@@ -998,7 +1218,12 @@ const AdminYogaSchedule: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="w-full sm:flex-1 px-6 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 text-sm sm:text-base"
+                  disabled={!!timeError}
+                  className={`w-full sm:flex-1 px-6 py-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 text-sm sm:text-base ${
+                    timeError
+                      ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white hover:shadow-lg'
+                  }`}
                 >
                   <Save className="w-4 h-4 sm:w-5 sm:h-5" />
                   {editingClass ? 'Update Class' : 'Create Class'}

@@ -10,7 +10,7 @@ interface User {
   email: string;
   packageName: string | null;
   packagePrice: number;
-  createdAt: string;
+  joinedAt: string;
 }
 
 interface Stats {
@@ -193,7 +193,7 @@ export const ExecutiveStatsModal: React.FC<Props> = ({ executiveId, isOpen, onCl
                               ₹{user.packagePrice.toLocaleString()}
                             </td>
                             <td className="px-4 py-3 text-center text-xs text-gray-500">
-                              {new Date(user.createdAt).toLocaleDateString()}
+                              {new Date(user.joinedAt).toLocaleDateString()}
                             </td>
                           </tr>
                         ))}

@@ -190,6 +190,50 @@ const UserTasksModal: React.FC<UserTasksModalProps> = ({
     }
   };
 
+  // Copy description (fallback to title) + micro animation
+const handleCopyDescription = async (task: Task) => {
+  const textToCopy = task.description?.trim() || task.title;
+
+  try {
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(textToCopy);
+    } else {
+      const textarea = document.createElement("textarea");
+      textarea.value = textToCopy;
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    }
+
+    setCopiedTaskId(task.id);
+    microAnimateCopy(task.id);
+
+    setTimeout(() => {
+      setCopiedTaskId((prev) => (prev === task.id ? null : prev));
+    }, 1200);
+  } catch (e) {
+    console.error("Failed to copy text");
+  }
+};
+
+  const linkifyDescription = (text: string) => {
+  if (!text) return "";
+
+  // simple URL regex; you can refine for your use case
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+
+  return text.replace(urlRegex, (url) => {
+    // ensure protocol exists
+    const withProtocol = url.startsWith("http") ? url : `https://${url}`;
+    return `<a href="${withProtocol}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 underline">${url}</a>`;
+  });
+};
+
+
+
   const microAnimateCheckbox = (id: string) => {
     const el = document.querySelector<HTMLElement>(`[data-checkbox-id="${id}"]`);
     if (!el) return;
@@ -259,11 +303,11 @@ const UserTasksModal: React.FC<UserTasksModalProps> = ({
         </button>
 
         {/* Header */}
-        <div className="mt-10 mb-3 text-center relative z-10">
+        <div className="mt-10 mb-3 text-2xl text-center relative z-10">
           <div className="bg-clip-text text-transparent font-bold bg-gradient-to-tr from-indigo-900 via-purple-700 to-pink-500 text-xl md:text-3xl">
             Your Daily Tasks
           </div>
-          <p className="text-xs md:text-sm text-slate-600 mt-1">
+          <p className="text-sm md:text-sm text-slate-600 mt-1">
             Package:{" "}
             <span className="font-semibold">
               {packageName || "No active package"}
@@ -273,7 +317,7 @@ const UserTasksModal: React.FC<UserTasksModalProps> = ({
 
         {/* Stats Row */}
         <div className="relative z-10 w-full px-4 md:px-6 mb-4">
-          <div className="grid grid-cols-3 gap-2 text-center text-xs md:text-sm">
+          <div className="grid grid-cols-3 gap-2 text-center text-md md:text-lg">
             <div className="bg-white rounded-xl shadow-sm py-2">
               <p className="text-[10px] text-slate-500 uppercase tracking-wide">
                 Total
@@ -305,7 +349,7 @@ const UserTasksModal: React.FC<UserTasksModalProps> = ({
           ) : error ? (
             <p className="text-red-600 text-center text-sm py-8">{error}</p>
           ) : tasks.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-10 text-slate-500 text-sm">
+            <div className="flex flex-col items-center justify-center py-10 text-slate-500 text-lg">
               <CheckCircle2 className="w-10 h-10 text-slate-300 mb-2" />
               No tasks assigned yet for your current package.
             </div>
@@ -342,7 +386,7 @@ const UserTasksModal: React.FC<UserTasksModalProps> = ({
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <p
-                        className={`text-sm font-semibold ${
+                        className={`text-xl font-semibold ${
                           task.completed
                             ? "text-slate-500 line-through"
                             : "text-slate-800"
@@ -357,33 +401,38 @@ const UserTasksModal: React.FC<UserTasksModalProps> = ({
                           Yoga
                         </span>
                       )}
-
-                      {/* Copy icon */}
-                      <button
-                        type="button"
-                        data-copy-id={task.id}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCopyTitle(task);
-                        }}
-                        className="ml-1 inline-flex items-center justify-center rounded-full p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-                        aria-label="Copy task title"
-                      >
-                        {copiedTaskId === task.id ? (
-                          <Check className="w-3.5 h-3.5 text-emerald-600" />
-                        ) : (
-                          <Copy className="w-3.5 h-3.5" />
-                        )}
-                      </button>
                     </div>
 
                     {task.description && (
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        {task.description}
-                      </p>
+                      <div className=" flex first-letter:justify-center items-center">
+                       <p
+                          className="text-lg text-slate-500 mt-0.5"
+                          // description may contain links
+                          dangerouslySetInnerHTML={{ __html: linkifyDescription(task.description) }}
+                        />
+                      <div>
+                        <button
+                            type="button"
+                            data-copy-id={task.id}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCopyDescription(task);
+                            }}
+                            className="ml-1 inline-flex items-center justify-center rounded-full p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                            aria-label="Copy task description"
+                          >
+                            {copiedTaskId === task.id ? (
+                              <Check className="w-3.5 h-3.5 text-emerald-600" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+
+                      </div>
+                      </div>
                     )}
                     {task.completed && task.completedAt && (
-                      <p className="text-[11px] text-emerald-600 mt-0.5">
+                      <p className="text-[16px] text-emerald-600 mt-0.5">
                         Completed at{" "}
                         {new Date(task.completedAt).toLocaleTimeString([], {
                           hour: "2-digit",

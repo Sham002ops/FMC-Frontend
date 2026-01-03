@@ -12,6 +12,9 @@ interface ExecutiveResponse {
   name: string;
   email: string;
   referralCode: string;
+  number?: string;      // ✅ ADD
+  address?: string;     // ✅ ADD
+  pinCode?: string;     // ✅ ADD
   password?: string;
 }
 
@@ -22,6 +25,9 @@ const RegisterExecutive: React.FC<RegExecutiveProps> = ({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [number, setNumber] = useState("");           // ✅ ADD
+  const [address, setAddress] = useState("");         // ✅ ADD
+  const [pinCode, setPinCode] = useState("");         // ✅ ADD
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [regSuccessfull, setRegSuccessfull] = useState(false);
@@ -38,9 +44,18 @@ const RegisterExecutive: React.FC<RegExecutiveProps> = ({
         setLoading(false);
         return;
       }
+
+      // ✅ UPDATED: Include new fields in request
       const response = await axios.post(
         `${BackendUrl}/executive/register-executive`,
-        { name, email, password },
+        { 
+          name, 
+          email, 
+          password,
+          number: number || undefined,      // ✅ ADD (send undefined if empty)
+          address: address || undefined,    // ✅ ADD
+          pinCode: pinCode || undefined     // ✅ ADD
+        },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -81,7 +96,7 @@ const RegisterExecutive: React.FC<RegExecutiveProps> = ({
 
         {/* Form & Success */}
         {!regSuccessfull ? (
-          <div className="w-full px-4 pt-6 pb-10 max-w-sm mx-auto md:max-w-md">
+          <div className="w-full px-4 pt-6 pb-10 max-w-sm mx-auto md:max-w-md max-h-[70vh] overflow-y-auto">
             <h1 className="text-xl md:text-2xl font-bold text-center mb-5">Register New Executive</h1>
             {error && <p className="text-red-600 mb-3 text-center">{error}</p>}
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -109,6 +124,34 @@ const RegisterExecutive: React.FC<RegExecutiveProps> = ({
                 className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400"
                 required
               />
+
+              {/* ✅ NEW: Contact Information Fields */}
+              <input
+                type="tel"
+                placeholder="Phone Number (Optional)"
+                value={number}
+                onChange={(e) => setNumber(e.target.value)}
+                className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400"
+                pattern="[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}"
+                title="Enter valid phone number (e.g., +91-890-768-7665)"
+              />
+              <textarea
+                placeholder="Address (Optional)"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 min-h-[60px]"
+                rows={2}
+              />
+              <input
+                type="text"
+                placeholder="PIN Code (Optional)"
+                value={pinCode}
+                onChange={(e) => setPinCode(e.target.value)}
+                className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400"
+                pattern="[0-9]{4,10}"
+                title="Enter valid PIN code"
+              />
+
               <button
                 type="submit"
                 disabled={loading}
@@ -135,6 +178,22 @@ const RegisterExecutive: React.FC<RegExecutiveProps> = ({
                 <p>
                   <strong>Password:</strong> {executiveData.password}
                 </p>
+                {/* ✅ ADD: Display contact info if provided */}
+                {executiveData.number && (
+                  <p>
+                    <strong>Phone:</strong> {executiveData.number}
+                  </p>
+                )}
+                {executiveData.address && (
+                  <p>
+                    <strong>Address:</strong> {executiveData.address}
+                  </p>
+                )}
+                {executiveData.pinCode && (
+                  <p>
+                    <strong>PIN Code:</strong> {executiveData.pinCode}
+                  </p>
+                )}
               </div>
             )}
             <button

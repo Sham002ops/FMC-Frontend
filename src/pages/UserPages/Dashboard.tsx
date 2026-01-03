@@ -338,7 +338,7 @@ const UserDashboard = () => {
               Ready to expand your knowledge today? Check out your upcoming webinars below.
             </p>
           </div>
-           <div className="flex justify-center lg:justify-end lg:-mt-20 gap-4">
+           <div className="flex justify-center mb-6 lg:mb-2 lg:justify-end lg:-mt-20 gap-4">
           <button
             onClick={() => setIsModalOpen(true)}
             className="group relative px-6 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden"
@@ -353,7 +353,7 @@ const UserDashboard = () => {
           </div>
 
           {/* Desktop Layout */}
-          <div className="hidden lg:flex gap-6 items-center justify-center">
+          <div className="hidden lg:flex gap-6  mt-2 lg:mt-6 items-center justify-center">
             <LoyaltyCard coins={user?.coins || 0} username={username} />
               <div className="flex-1 max-w-4xl">
                 <NotificationSliderDesktop 
