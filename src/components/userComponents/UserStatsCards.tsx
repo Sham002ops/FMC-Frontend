@@ -34,7 +34,7 @@ const UserStatsCards: React.FC<Props> = ({ userCoins }) => {
   const [loading, setLoading] = useState(true);
   const [openTasksModal, setOpenTasksModal] = useState(false);
 
-  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const cardsRef = useRef<(HTMLDivElement | HTMLButtonElement | null)[]>([]);
   const sectionRef = useRef<HTMLElement>(null);
 
   const fetchUserStats = async () => {
@@ -177,27 +177,52 @@ const UserStatsCards: React.FC<Props> = ({ userCoins }) => {
             </div>
           </div>
 
-          {/* Task Completion */}
-          <div
+          {/* ✅ Task Completion - REDESIGNED AS BUTTON */}
+          <button
             ref={(el) => (cardsRef.current[1] = el)}
             onClick={() => setOpenTasksModal(true)}
-            className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer"
+            className="relative group bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-xl shadow-lg border-2 border-emerald-200 hover:border-emerald-400 hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer overflow-hidden text-left"
           >
-            <div className="flex items-center justify-between">
+            {/* Animated Background Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-100/50 to-teal-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            
+            {/* Ripple Effect on Hover */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 rounded-full bg-emerald-400 group-hover:w-96 group-hover:h-96 transition-all duration-700"></div>
+            </div>
+
+            <div className="relative z-10 flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-medium text-gray-500">Task Completion</h3>
-                <p className="text-2xl font-bold text-emerald-600 stat-number">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-sm font-semibold text-emerald-700 group-hover:text-emerald-900 transition-colors">
+                    Task Completion
+                  </h3>
+                  {/* Click Indicator */}
+                  <svg 
+                    className="w-4 h-4 text-emerald-600 group-hover:translate-x-1 transition-transform" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <p className="text-3xl font-bold text-emerald-700 stat-number group-hover:text-emerald-800 transition-colors">
                   {completedTasks}
                 </p>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-emerald-600 font-medium mt-1">
                   {totalTasks > 0
                     ? `${completedTasks}/${totalTasks} tasks completed`
                     : 'No tasks assigned yet'}
                 </p>
+                {/* Click to view indicator */}
+                <p className="text-[10px] text-emerald-500 mt-2 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                  Click to view tasks →
+                </p>
               </div>
-              <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+              <div className="w-14 h-14 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
                 <svg
-                  className="w-6 h-6 text-emerald-600"
+                  className="w-7 h-7 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -205,13 +230,23 @@ const UserStatsCards: React.FC<Props> = ({ userCoins }) => {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth="2"
+                    strokeWidth="2.5"
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
               </div>
             </div>
-          </div>
+
+            {/* Progress Bar */}
+            {totalTasks > 0 && (
+              <div className="relative z-10 mt-4 w-full h-2 bg-emerald-200/50 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-500 group-hover:shadow-lg"
+                  style={{ width: `${(completedTasks / totalTasks) * 100}%` }}
+                ></div>
+              </div>
+            )}
+          </button>
 
           {/* Product Orders */}
           <div

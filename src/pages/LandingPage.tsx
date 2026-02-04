@@ -11,28 +11,42 @@ import Footer from '@/components/onboarding/Footer';
 import TreeWithIcons from '../components/onboarding/TreeWithIcons';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/all';
-
-
+import AppDownloadSection from '@/components/onboarding/AppDownloadSection';
 
 const LandingPage: React.FC = () => {
-
-
   console.log("LandingPage rendered");
+  
   return (
-  <div className=" hide-scrollbar scroll-smooth min-h-screen bg-gray-50 snap-y overflow-y-scroll h-screen">
-    <Navbar />
-    <main className="pt-20 hide-scrollbar ">
-      <HeroSection/>
-      <TreeWithIcons/>
+    // ✅ REMOVED: overflow-y-scroll h-screen snap-y
+    // ✅ ADDED: Simple overflow-x-hidden
+    <div className="hide-scrollbar scroll-smooth min-h-screen bg-gray-50 overflow-x-hidden">
+      <Navbar />
+      <main className="pt-20 hide-scrollbar">
+        <HeroSection/>
+        <TreeWithIcons/>
         <HowItWorksSection/>
         <PricingPlansSection/>
         <RealTimeFeaturesSection/>
         {/* <UpcomingWebinarsSection/> */}
-        <TestimonialsSection/>
+        {/* <TestimonialsSection/> */}
+        
+        {/* ✅ App Download Section */}
+        <AppDownloadSection
+          appName="Finite Marshall Club"
+          playStoreUrl="https://play.google.com/store/apps/details?id=com.finitemarshallclub"
+          // appStoreUrl="https://apps.apple.com/app/your-app"
+          whatsappChannelUrl="https://whatsapp.com/channel/0029VarAlsO4WaC2OZ3umo1d"
+          stats={{
+            downloads: '10K+',
+            rating: '4.8',
+            users: '5K+'
+          }}
+        />
+        
         <Footer/>
-    </main>
-  </div>
-);
+      </main>
+    </div>
+  );
 };
 
 export default LandingPage;

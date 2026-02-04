@@ -1,15 +1,18 @@
+// pages/ProtectedRoute.tsx
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import api from "@/lib/api"; // Your axios instance
 
 interface ProtectedRouteProps {
   children: JSX.Element;
-  requiredRole?: 'USER' | 'ADMIN' | 'EXECUTIVE' | 'MENTOR';
+  requiredRole?: 'USER' | 'ADMIN' | 'EXECUTIVE' | 'MENTOR' | 'SUPER_ADMIN';
+  allowedRoles?: Array<'USER' | 'ADMIN' | 'EXECUTIVE' | 'MENTOR' | 'SUPER_ADMIN'>;
 }
 
 const ProtectedRoute = ({ 
   children, 
-  requiredRole 
+  requiredRole,
+  allowedRoles
 }: ProtectedRouteProps) => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -20,7 +23,6 @@ const ProtectedRoute = ({
       const token = localStorage.getItem("token");
       const userStr = localStorage.getItem("user");
       
-      // No token = not authenticated
       if (!token || !userStr) {
         setIsAuthenticated(false);
         setLoading(false);
@@ -28,75 +30,76 @@ const ProtectedRoute = ({
       }
 
       try {
-        // Verify token with backend
         const response = await api.get('/auth/verifyToken');
         
         if (response.data && response.data.user) {
           setIsAuthenticated(true);
-          
-          // Update user data in localStorage (in case it changed)
           localStorage.setItem("user", JSON.stringify(response.data.user));
           
-          // Check role if required
-          if (requiredRole) {
-            const userRole = response.data.user.role;
+          const userRole = response.data.user.role;
+
+          if (allowedRoles) {
+            setHasPermission(allowedRoles.includes(userRole));
+          } else if (requiredRole) {
             setHasPermission(userRole === requiredRole);
           } else {
             setHasPermission(true);
           }
+
+          // SuperAdmin can access Admin routes
+          if (userRole === 'SUPER_ADMIN' && requiredRole === 'ADMIN') {
+            setHasPermission(true);
+          }
         } else {
-          // Invalid response
           throw new Error("Invalid response from server");
         }
       } catch (error: any) {
         console.error("Auth verification failed:", error);
-        
-        // Token is invalid or expired
-        // Clear localStorage
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        
+        localStorage.removeItem("loggedIn");
         setIsAuthenticated(false);
-        
-        // The axios interceptor will handle the redirect
-        // But we'll also set auth to false to prevent rendering
       } finally {
         setLoading(false);
       }
     };
 
     verifyAuth();
-  }, [requiredRole]);
+  }, [requiredRole, allowedRoles]);
 
-  // Show loading spinner while verifying
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-violet-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-sm">Verifying authentication...</p>
+          <div className="relative">
+            <div className="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-violet-600 mx-auto mb-4"></div>
+            <div className="absolute inset-0 animate-ping rounded-full h-20 w-20 border-4 border-violet-300 opacity-20"></div>
+          </div>
+          <p className="text-gray-700 font-medium">Verifying authentication...</p>
+          <p className="text-gray-500 text-sm mt-1">Please wait</p>
         </div>
       </div>
     );
   }
 
-  // Not authenticated - redirect to login
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  // Authenticated but wrong role - redirect to unauthorized
-  if (requiredRole && !hasPermission) {
+  if ((requiredRole || allowedRoles) && !hasPermission) {
     return (
       <Navigate 
         to="/unauthorized" 
-        state={{ reason: 'role_mismatch' }} 
+        state={{ 
+          reason: 'role_mismatch',
+          requiredRole: requiredRole || allowedRoles?.join(', '),
+          currentRole: JSON.parse(localStorage.getItem("user") || '{}').role
+        }} 
         replace 
       />
     );
   }
 
-  // All checks passed - show protected content
   return children;
 };
 

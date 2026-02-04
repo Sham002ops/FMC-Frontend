@@ -1,91 +1,91 @@
-// pages/AdminPages/AdminDashboard.tsx
-import { useNavigate } from 'react-router-dom'; 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import EventCard from '@/components/EventCard';
-import { Processing } from '@/components/ui/icons/Processing';
+// pages/SuperAdminDashboard.tsx
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import Sidebar from '@/components/Sidebar';
-import RegisterExecutive from '@/components/adminComponents/RegisterExecutive';
-// ❌ REMOVED: import RegAdmin from '@/components/adminComponents/RegAdmin';
 import { BackendUrl } from '@/Config';
+import { Processing } from '@/components/ui/icons/Processing';
+import { useToast } from '@/components/ui/use-toast';
+import Sidebar from '@/components/Sidebar';
 import MobileSidebar from '@/components/onboarding/mobileSidebar';
-import CreateWebinar from '@/components/adminComponents/CreateWebinar';
-import RegUser from '@/components/adminComponents/RegUser';
-import { Briefcase, Package, UserPlus, Video } from 'lucide-react'; // ❌ REMOVED: Shield
-import AdminDashboardStats from '@/components/adminComponents/AdminDashboardStats';
-import CreatePackage from '@/components/adminComponents/CreatePackage';
-import RegMentor from '@/components/adminComponents/RegMentor';
-import AdminProfileMenu from '@/components/adminComponents/AdminProfileMenu';
-import FMC from '../../assets/FMC2.png';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Briefcase, Package, Shield, UserPlus, Video, Users } from 'lucide-react';
 
-const AdminDashboard = () => {
+// ✅ Import all modals from Admin
+import RegisterExecutive from '@/components/adminComponents/RegisterExecutive';
+import RegAdmin from '@/components/adminComponents/RegAdmin';
+import RegUser from '@/components/adminComponents/RegUser';
+import RegMentor from '@/components/adminComponents/RegMentor';
+import CreateWebinar from '@/components/adminComponents/CreateWebinar';
+import CreatePackage from '@/components/adminComponents/CreatePackage';
+
+// SuperAdmin components
+import SuperAdminHeader from '@/components/SuperAdminComponents/SuperAdminHeader';
+import SuperAdminStats from '@/components/SuperAdminComponents/SuperAdminStats';
+import PendingRegistrationsTable from '@/components/SuperAdminComponents/PendingRegistrationsTable';
+import RegistrationStatsChart from '@/components/SuperAdminComponents/RegistrationStatsChart';
+import RecentApprovals from '@/components/SuperAdminComponents/RecentApprovals';
+
+const SuperAdminDashboard = () => {
   const navigate = useNavigate();
-  // ❌ REMOVED: const [openAdminModel, setOpenAdminModel] = useState(false);
-  const [openUserModel, setOpenUserModel] = useState(false);
-  const [openWebinarModel, setOpenWebinarModel] = useState(false);
-  const [openMentorModel, setOpenMentorModel] = useState(false);
-  const [openPackageModel, setOpenPackageModel] = useState(false);
-  const [openExecutiveModel, setOpenExecutiveModel] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-  const [username, setUsername] = useState(null);
-  const [webinars, setWebinars] = useState([]);
-  const [fetchLoading, setFetchLoading] = useState(false);
+  const [stats, setStats] = useState(null);
+  const [pendingRegistrations, setPendingRegistrations] = useState([]);
+
+  // ✅ Modal states (same as Admin Dashboard)
+  const [openUserModel, setOpenUserModel] = useState(false);
+  const [openAdminModel, setOpenAdminModel] = useState(false);
+  const [openExecutiveModel, setOpenExecutiveModel] = useState(false);
+  const [openMentorModel, setOpenMentorModel] = useState(false);
+  const [openWebinarModel, setOpenWebinarModel] = useState(false);
+  const [openPackageModel, setOpenPackageModel] = useState(false);
 
   useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        setLoading(true);
-        const token = localStorage.getItem('token');
-
-        // Verify user token and role
-        const res = await axios.get(`${BackendUrl}/auth/verifyToken`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setUser(res.data.user);
-        setUsername(res.data.user.name);
-        
-        if (res.data.user.role !== "ADMIN" && res.data.user.role !== "SUPER_ADMIN") {
-          navigate("/unauthorized");
-          return;
-        }
-
-        // Fetch webinars after user validation
-        const webinarsRes = await axios.get(`${BackendUrl}/webinar`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setWebinars(webinarsRes.data);
-      } catch (err) {
-        console.log("Error fetching data:", err);
-        setUser(null);
-        setWebinars([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUserDetails();
+    fetchSuperAdminData();
   }, []);
 
-  const startOfToday = () => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d;
+  const fetchSuperAdminData = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+
+      // Verify SuperAdmin
+      const userRes = await axios.get(`${BackendUrl}/auth/verifyToken`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (userRes.data.user.role !== 'SUPER_ADMIN') {
+        navigate('/unauthorized');
+        return;
+      }
+
+      setUser(userRes.data.user);
+
+      // Fetch SuperAdmin-specific data
+      const [statsRes, pendingRes] = await Promise.all([
+        axios.get(`${BackendUrl}/superadmin/pending-registrations/stats`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get(`${BackendUrl}/superadmin/pending-registrations?status=PENDING&limit=10`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      ]);
+
+      setStats(statsRes.data.stats);
+      setPendingRegistrations(pendingRes.data.registrations);
+
+    } catch (err) {
+      console.error('Error fetching SuperAdmin data:', err);
+      toast({
+        title: 'Error',
+        description: 'Failed to load dashboard data',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
-
-  const isUpcomingOrToday = (iso: string | Date) => {
-    const when = new Date(iso);
-    if (!Number.isFinite(when.getTime())) return false;
-    return when >= startOfToday();
-  };
-
-  const upcomingWebinars = Array.isArray(webinars)
-    ? webinars.filter(w => isUpcomingOrToday(w.date))
-    : [];
-
-  if (loading) {
-    return <div className="justify-center items-center flex min-h-screen text-center"><Processing /></div>;
-  }
 
   const handleSignout = async () => {
     try {
@@ -102,13 +102,16 @@ const AdminDashboard = () => {
     }
   };
 
-  const fullThumb = (path?: string) => {
-    if (!path) return '/placeholder-image.png';
-    return path.startsWith('http') ? path : `${BackendUrl}${path.startsWith('/') ? path : `/${path}`}`;
-  };
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Processing />
+      </div>
+    );
+  }
 
   return (
-    <div className="flex w-full min-h-screen bg-gray-50">
+    <div className="flex w-full min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Sidebar */}
       <div className="transition-transform duration-300">
         <div className="hidden lg:block">
@@ -119,77 +122,53 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Main Content Container */}
+      {/* Main Content */}
       <div className="flex-1 w-full flex flex-col min-h-screen ml-0 transition-all duration-300">
+        
         {/* Header */}
-        <header className="bg-gradient-to-r from-blue-700 to-green-400 fixed text-white shadow-lg z-40 w-full">
-          <div className="mx-auto py-3 sm:py-4 px-3 sm:px-6">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className='flex justify-between gap-4 items-center'>
-                  <img src={FMC} alt="Logo" className='w-10 h-10 rounded-full' />
-                  <div className='block lg:hidden'>
-                    <div className="text-lg font-bold">FMC</div>
-                  </div>
+        <SuperAdminHeader user={user} onSignout={handleSignout} />
+
+        {/* Main Content Area */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 mt-16 lg:ml-20 overflow-x-hidden">
+          <div className="max-w-7xl mx-auto space-y-6">
+            
+            {/* ✅ ALL MODALS (Same as Admin Dashboard) */}
+            {openUserModel && <RegUser setOpenUserModel={setOpenUserModel} />}
+            {openAdminModel && <RegAdmin setOpenAdminModel={setOpenAdminModel} />}
+            {openExecutiveModel && <RegisterExecutive setOpenExecutiveModel={setOpenExecutiveModel} />}
+            {openMentorModel && <RegMentor setOpenMentorModel={setOpenMentorModel} />}
+            {openWebinarModel && <CreateWebinar setOpenWebinarModel={setOpenWebinarModel} />}
+            {openPackageModel && <CreatePackage setOpenPackageModel={setOpenPackageModel} />}
+
+            {/* Welcome Section */}
+            <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-2xl shadow-xl p-6 sm:p-8 text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+                    Welcome back, {user?.name} 👋
+                  </h1>
+                  <p className="text-blue-100 text-sm sm:text-base">
+                    SuperAdmin Control Center - Manage platform operations
+                  </p>
                 </div>
                 <div className="hidden sm:block">
-                  <div className="text-lg font-bold">FINITE MARSHALL CLUB</div>
-                  <div className="text-xs text-blue-200">Next Level Wellness Today</div>
+                  <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                    </svg>
+                  </div>
                 </div>
               </div>
-              <AdminProfileMenu onSignout={handleSignout} />
             </div>
-          </div>
-        </header>
 
-        {/* Main Content */}
-        <main className="flex-1 bg-slate-300 p-3 mt-16 sm:p-4 lg:p-6 lg:ml-20 overflow-x-hidden">
-          <div className="max-w-full mx-auto">
-            
-            {/* Modals */}
-            {openWebinarModel && <CreateWebinar setOpenWebinarModel={setOpenWebinarModel} />}
-            {openMentorModel && <RegMentor setOpenMentorModel={setOpenMentorModel} />}
-            {openPackageModel && <CreatePackage setOpenPackageModel={setOpenPackageModel} />}
-            {openExecutiveModel && <RegisterExecutive setOpenExecutiveModel={setOpenExecutiveModel} />}
-            {/* ❌ REMOVED: {openAdminModel && <RegAdmin setOpenAdminModel={setOpenAdminModel} />} */}
-            {openUserModel && <RegUser setOpenUserModel={setOpenUserModel} />}
+            {/* ✅ QUICK ACTION BUTTONS (Same layout as Admin Dashboard) */}
+            <div className="bg-white rounded-2xl shadow-xl p-6 border-2 border-purple-200">
+              <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <Users className="w-5 h-5 text-purple-600" />
+                Quick Actions
+              </h2>
 
-            {/* Profile and Action Buttons */}
-            <div className="w-full mb-6 sm:mb-8 flex flex-col lg:flex-row justify-between lg:justify-center gap-4 lg:gap-40 items-start lg:items-center">
-              {/* User Profile Card */}
-              <div className='flex lg:h-[135px] items-center ml-12 lg-ml-0 pl-5 gap-4 sm:gap-6 bg-white rounded-lg shadow-sm p-4 border-l-4 border-event-primary'>
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-blue-600 to-green-500 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold shadow-md flex-shrink-0">
-                  {username ? username.charAt(0).toUpperCase() : 'A'}
-                </div>
-
-                <div className='flex flex-col gap-1'>
-                  <div className='flex items-center gap-2 flex-wrap'>
-                    <h2 className='text-gray-800 font-bold text-xl sm:text-2xl lg:text-3xl truncate max-w-[180px] sm:max-w-[240px]'>
-                      {user?.name ? user.name : 'Loading...'}
-                    </h2>
-                    <span className='px-2 py-0.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-semibold rounded-full shadow-sm'>
-                      {user?.role ? user.role.toUpperCase() : "ADMIN"}
-                    </span>
-                  </div>
-
-                  <div className='flex items-center gap-2 text-xs sm:text-sm text-gray-500'>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12H8m8 0l-4-4m4 4l-4 4" />
-                    </svg>
-                    <span className='truncate max-w-[140px] sm:max-w-[180px]'>{user?.email || "–"}</span>
-                  </div>
-
-                  <div className='flex items-center gap-2 text-xs sm:text-sm text-yellow-700 font-semibold'>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <circle cx="12" cy="12" r="9" />
-                      <text x="12" y="16" textAnchor="middle" fontSize="10" fontWeight="bold" fill="gold">₹</text>
-                    </svg>
-                    <span>Coins:&nbsp;{user?.coins?.toLocaleString() ?? "–"}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Mobile View - Compact Icon Buttons (5 buttons now) */}
+              {/* Mobile View - Compact Icon Buttons */}
               <div className='flex sm:hidden flex-row gap-2 w-full justify-center flex-wrap'>
                 <button
                   onClick={() => setOpenUserModel(true)}
@@ -202,7 +181,16 @@ const AdminDashboard = () => {
                   </span>
                 </button>
                 
-                {/* ❌ REMOVED: Register Admin Button */}
+                <button
+                  onClick={() => setOpenAdminModel(true)}
+                  className="relative bg-white group hover:bg-blue-700 hover:text-white text-blue-700 overflow-hidden cursor-pointer rounded-lg w-20"
+                  title="Register Admin">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                  <span className="flex flex-col justify-center border-blue-500 border-2 items-center rounded-lg gap-0.5 px-2 py-2 relative text-blue-500 font-bold group-hover:text-white transition-colors duration-300">
+                    <Shield className="w-5 h-6" />
+                    <span className="text-[9px] leading-tight">Admin</span>
+                  </span>
+                </button>
                 
                 <button
                   onClick={() => setOpenExecutiveModel(true)}
@@ -249,8 +237,8 @@ const AdminDashboard = () => {
                 </button>
               </div>
 
-              {/* Desktop View - Full Text Buttons (5 buttons now) */}
-              <div className='hidden sm:grid grid-cols-2 lg:grid-cols-3 gap-3 w-full sm:w-auto lg:w-[680px]'>
+              {/* Desktop View - Full Text Buttons */}
+              <div className='hidden sm:grid grid-cols-2 lg:grid-cols-3 gap-3'>
                 <button 
                   onClick={() => setOpenUserModel(true)}
                   className="relative bg-white group hover:bg-teal-700 hover:text-white text-teal-700 overflow-hidden cursor-pointer rounded-lg">
@@ -261,7 +249,15 @@ const AdminDashboard = () => {
                   </span>
                 </button>
                 
-                {/* ❌ REMOVED: Register Admin Button */}
+                <button 
+                  onClick={() => setOpenAdminModel(true)}
+                  className="relative bg-white group hover:bg-blue-700 hover:text-white text-blue-700 overflow-hidden cursor-pointer rounded-lg">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                  <span className="flex justify-center border-blue-500 border-2 items-center rounded-lg gap-2 px-4 py-4 relative text-blue-500 font-bold group-hover:text-white transition-colors duration-300">
+                    <Shield className="w-5 h-5" />
+                    <span>Register Admin</span>
+                  </span>
+                </button>
                 
                 <button 
                   onClick={() => setOpenExecutiveModel(true)}
@@ -305,46 +301,39 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* Dashboard Stats */}
-            <div className="flex-1 overflow-auto p-2 sm:p-4 md:p-8">
-              <AdminDashboardStats />
-            </div>
+            {/* Statistics Cards */}
+            <SuperAdminStats stats={stats} />
 
-            {/* Webinars Tabs */}
-            <Tabs defaultValue="upcoming" className="w-full">
-              <div className="overflow-x-auto mb-4 sm:mb-6">
-                <TabsList className="bg-gray-100 flex w-full min-w-max">
-                  <TabsTrigger value="upcoming" className="flex-1 text-xs sm:text-sm px-2 sm:px-4">
-                    Upcoming Webinars
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-              <TabsContent value="upcoming">
-                {fetchLoading ? (
-                  <div className="flex justify-center items-center py-10"><Processing /></div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-                    {upcomingWebinars.length === 0 ? (
-                      <div className="text-gray-500 text-center col-span-full py-8">
-                        No upcoming webinars found.
-                      </div>
-                    ) : (
-                      upcomingWebinars.map((webinar) => (
-                        <EventCard
-                          key={webinar.id}
-                          title={webinar.title}
-                          image={fullThumb(webinar.thumbnail)}
-                          price={webinar.package?.name || webinar.packageId}
-                          PlayNow="Join"
-                          date={new Date(webinar.date).toLocaleDateString()}
-                          zoomLink={webinar.zoomLink}
-                        />
-                      ))
-                    )}
-                  </div>
-                )}
+            {/* Tabs Section */}
+            <Tabs defaultValue="pending" className="w-full">
+              <TabsList className="bg-white border border-gray-200 shadow-sm">
+                <TabsTrigger value="pending" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+                  Pending Registrations ({stats?.pending || 0})
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+                  Analytics
+                </TabsTrigger>
+                <TabsTrigger value="recent" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+                  Recent Activity
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="pending" className="mt-6">
+                <PendingRegistrationsTable
+                  registrations={pendingRegistrations}
+                  onRefresh={fetchSuperAdminData}
+                />
+              </TabsContent>
+
+              <TabsContent value="analytics" className="mt-6">
+                <RegistrationStatsChart stats={stats} />
+              </TabsContent>
+
+              <TabsContent value="recent" className="mt-6">
+                <RecentApprovals />
               </TabsContent>
             </Tabs>
+
           </div>
         </main>
       </div>
@@ -352,4 +341,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default SuperAdminDashboard;

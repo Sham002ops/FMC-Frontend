@@ -16,6 +16,8 @@ import {
   UsersRound,
   CheckCheck,
   Calendar1,
+  Trash2Icon,
+  FileStackIcon,
 } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -40,6 +42,8 @@ const Sidebar: React.FC = () => {
     { label: "Orders", path: "/admin/orders", Icon: ShoppingCart },
     { label: "Packages", path: "/admin/packages", Icon: Box },
     { label: "Webinars", path: "/admin/webinars", Icon: Calendar },
+    { label: "Deleted Users", path: "/admin/deleted-users", Icon: Trash2Icon },
+    { label: "Audit Logs", path: "/admin/audit-logs", Icon: FileStackIcon },
   ];
 
   // Handle click outside to close sidebar

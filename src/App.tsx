@@ -40,6 +40,9 @@ import AdminPackagesManagement from "./pages/AdminPages/AllPackages";
 import AdminTasksManagement from "./pages/AdminPages/TaskManeger";
 import AdminYogaSchedule from "./pages/AdminPages/AdminYogaSchedule";
 import YogaScheduleCalendar from "./components/userComponents/YogaScheduleCalendar";
+import DeletedUsers from "./pages/AdminPages/DeletedUsers";
+import SuperAdminDashboard from "./pages/SuperAdmin Pages/SuperAdminDashboard";
+import AuditLogsPage from "./pages/AdminPages/AuditLogs";
 
 
 const queryClient = new QueryClient();
@@ -69,11 +72,14 @@ const App = () => {
               path="/"
               element={isLoggedIn ? <Dashboard /> : <LandingPage />}
             />
+
+            
             
             {/* Admin Routes */}
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/register" element={<Register />} />
             <Route path="/admin/all-users" element={<ProtectedRoute><AllUsers /></ProtectedRoute>} />
+            <Route path="/admin/deleted-users" element={<ProtectedRoute><DeletedUsers /></ProtectedRoute>} />
             <Route path="/admin/executives" element={<ProtectedRoute><AllExecutive /></ProtectedRoute>} />
             <Route path="/admin/packages" element={<ProtectedRoute><AdminPackagesManagement /></ProtectedRoute>} />
             <Route path="/admin/webinars" element={<ProtectedRoute><AllWebinars /></ProtectedRoute>} />
@@ -86,6 +92,10 @@ const App = () => {
             <Route path="/admin-all-mentors" element={<AllMentors />} />
             <Route path="/admin-tasks-management" element={<AdminTasksManagement />} />
             <Route path="/admin-yoga-schedule" element={<AdminYogaSchedule/>} />
+            <Route path="/admin/audit-logs" element={<AuditLogsPage />} />
+
+
+            <Route path="/superadmin-dashboard" element={ <ProtectedRoute requiredRole="SUPER_ADMIN"><SuperAdminDashboard /></ProtectedRoute>}/>
             
             {/* Executive Routes */}
             <Route path="/exexutive-dashboard" element={<ProtectedRoute><ExexutiveDashboard /></ProtectedRoute>} />

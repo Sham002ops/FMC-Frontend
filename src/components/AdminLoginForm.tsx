@@ -43,9 +43,9 @@ const AdminLoginForm = () => {
         throw new Error("Invalid response from server");
       }
 
-      // CRITICAL: Verify role before saving anything
-      if (user.role !== "ADMIN") {
-        setErrorMsg("Access denied. Admin credentials required.");
+      // ✅ UPDATED: Allow both ADMIN and SUPER_ADMIN roles
+      if (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") {
+        setErrorMsg("Access denied. Admin or SuperAdmin credentials required.");
         // Clear any existing auth data
         localStorage.removeItem("token");
         localStorage.removeItem("user");
@@ -59,14 +59,23 @@ const AdminLoginForm = () => {
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("loggedIn", "true");
 
+      // ✅ Different success messages based on role
+      const welcomeMessage = user.role === "SUPER_ADMIN" 
+        ? `Welcome back, SuperAdmin ${user.name}!`
+        : `Welcome back, ${user.name}!`;
+
       // Success toast
       toast({
         title: "Login successful!",
-        description: `Welcome back, ${user.name}!`,
+        description: welcomeMessage,
       });
 
-      // Navigate to admin dashboard
-      navigate("/admin-dashboard");
+      // ✅ UPDATED: Navigate based on role
+      if (user.role === "SUPER_ADMIN") {
+        navigate("/superadmin-dashboard");
+      } else {
+        navigate("/admin-dashboard");
+      }
 
     } catch (err) {
       console.error("Login error:", err);
@@ -79,14 +88,18 @@ const AdminLoginForm = () => {
 
       // Handle other errors
       const errorMessage =
-        // err.response?.data?.error ||
-        // err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.response?.data?.message ||
         "Login failed. Please check your credentials.";
 
       setErrorMsg(errorMessage);
 
-      if(err.response?.data?.error){
-        alert("Login failed. Please check credentials or try different Role Ex: User/Executive/Mentor")
+      if (err.response?.data?.error) {
+        toast({
+          title: "Login Failed",
+          description: "Please check credentials or try different Role (User/Executive/Mentor/Admin)",
+          variant: "destructive"
+        });
       }
 
       // Clear localStorage on error
@@ -102,14 +115,17 @@ const AdminLoginForm = () => {
   return (
     <div className="flex flex-col space-y-6 p-6">
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight">Admin Login</h2>
-        <p className="text-sm text-muted-foreground">Admin Access only</p>
+        {/* ✅ UPDATED: Changed title to reflect both roles */}
+        <h2 className="text-2xl font-bold tracking-tight">Admin Portal</h2>
+        <p className="text-sm text-muted-foreground">
+          Admin & SuperAdmin Access
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 shadow-lg">
         <div className="space-y-4">
           <div>
-            <Label htmlFor="email">Admin Email</Label>
+            <Label htmlFor="email">Email Address</Label>
             <Input
               id="email"
               type="email"
@@ -124,7 +140,7 @@ const AdminLoginForm = () => {
 
           <div>
             <div className="flex justify-between items-center">
-              <Label htmlFor="password">Admin Password</Label>
+              <Label htmlFor="password">Password</Label>
               <Link
                 to="/forgot-password"
                 className="text-sm text-event-primary hover:underline"
@@ -155,27 +171,24 @@ const AdminLoginForm = () => {
             className="w-full bg-blue-500 hover:bg-blue-600"
             disabled={isLoading}
           >
-            {isLoading ? <Processing /> : "Admin Login"}
+            {isLoading ? <Processing /> : "Login to Portal"}
           </Button>
         </div>
       </form>
+
+      {/* ✅ ADDED: Role-based access info */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <p className="text-xs text-blue-700 text-center">
+          <strong>Note:</strong> This portal is for authorized administrators only.
+          <br />
+          You will be redirected based on your role permissions.
+        </p>
+      </div>
 
       <BannedModal
         isOpen={showBannedModal}
         onClose={() => setShowBannedModal(false)}
       />
-
-      {/* <div className="text-center mt-6">
-        <p className="text-slate-500">
-          Don't have an account?{" "}
-          <Link
-            to="/register"
-            className="font-medium text-primary hover:underline"
-          >
-            Join Now
-          </Link>
-        </p>
-      </div> */}
     </div>
   );
 };

@@ -17,6 +17,9 @@ import {
   ChartNoAxesCombined,
   Calendar1,
   CheckCheck,
+  Delete,
+  Trash2Icon,
+  FileStackIcon,
 } from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -38,6 +41,8 @@ const MobileSidebar: React.FC = () => {
     { label: "Packages", path: "/admin/packages", Icon: Box },
     { label: "Yoga-Schedule", path: "/admin-yoga-schedule", Icon: Calendar1 },
     { label: "Webinars", path: "/admin/webinars", Icon: Calendar },
+    { label: "Deleted Users", path: "/admin/deleted-users", Icon: Trash2Icon },
+    { label: "Audit Logs", path: "/admin/audit-logs", Icon: FileStackIcon },
     // { label: "Notifications", path: "/admin/notifications", Icon: Bell },
     // { label: "Audit Log", path: "/admin/audit-log", Icon: FileText },
     // { label: "Settings", path: "/admin/settings", Icon: Settings },

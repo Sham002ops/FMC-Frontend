@@ -12,21 +12,32 @@ export default function LoadingScreen({ isLoading, onFinish }: Props) {
   const logoRef = useRef<SVGSVGElement | null>(null);
   const logoAnimRef = useRef<GSAPTimeline | null>(null);
   const RECT_COUNT = 9;
-// Responsive rectangle width based on device width
-const getRectWidth = () => {
-    if (typeof window !== 'undefined') {
-        if (window.innerWidth < 640) return '100px'; // mobile
-        if (window.innerWidth < 1024) return '200px'; // tablet
-    }
-    return '300px'; // desktop
-};
-const [RECT_W, setRectW] = useState(getRectWidth());
 
-useEffect(() => {
-    const handleResize = () => setRectW(getRectWidth());
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-}, []);
+  // ✅ NEW: Dynamic height calculation
+  const [screenHeight, setScreenHeight] = useState(0);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setScreenHeight(window.innerHeight);
+      
+      const handleResize = () => {
+        setScreenHeight(window.innerHeight);
+        setRectW(getRectWidth());
+      };
+      
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
+
+  const getRectWidth = () => {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth < 640) return '100px';
+      if (window.innerWidth < 1024) return '200px';
+    }
+    return '300px';
+  };
+  const [RECT_W, setRectW] = useState(getRectWidth());
 
   const addRectRef = (el: HTMLDivElement | null) => {
     if (el && !rectRefs.current.includes(el)) rectRefs.current.push(el);
@@ -36,51 +47,60 @@ useEffect(() => {
     const textEl = logoRef.current?.querySelector('text');
 
     if (isLoading) {
-      // Reset positions
       gsap.set(rectRefs.current, { y: 0 });
       gsap.set(logoRef.current, { y: 0, opacity: 1 });
       if (textEl) gsap.set(textEl, { strokeDashoffset: 300 });
 
-      // Start looping animation if not already running
       if (textEl && !logoAnimRef.current) {
         logoAnimRef.current = gsap.timeline({ repeat: -1 });
         logoAnimRef.current.to(textEl, { strokeDashoffset: 0, duration: 1.2, ease: 'power1.inOut' });
         logoAnimRef.current.to(textEl, { strokeDashoffset: 300, duration: 1.2, ease: 'power1.inOut' });
       }
     } else {
-      // Exit animation
       const tl = gsap.timeline({
-        defaults: { ease: 'power3.out' },
+        defaults: { ease: 'power2.inOut' },
         onComplete: () => {
           if (onFinish) onFinish();
         },
       });
 
-      tl.to(rectRefs.current, { y: -1050, duration: 0.5, stagger: 0.15 });
+      // ✅ Dynamic slide distance based on screen height
+      const slideDistance = -(screenHeight * 1.5); // 150% of screen height
+      
+      tl.to(rectRefs.current, { 
+        y: slideDistance,
+        duration: 0.8,
+        stagger: 0.08,
+        ease: 'power2.in'
+      });
+      
       gsap.set(logoRef.current, { y: -60, opacity: 0 });
 
-      // Stop looping animation
       if (logoAnimRef.current) {
         logoAnimRef.current.kill();
         logoAnimRef.current = null;
       }
     }
-  }, [isLoading, onFinish]);
+  }, [isLoading, onFinish, screenHeight]);
 
   const parentVars = {
     ['--n']: RECT_COUNT,
     ['--rect-w']: RECT_W,
+    ['--rect-h']: `${screenHeight * 1.2}px`, // ✅ 120% of screen height
   } as React.CSSProperties;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-transparent pointer-events-auto">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-transparent pointer-events-auto overflow-hidden">
       <div className="loading-row relative" style={parentVars}>
         {Array.from({ length: RECT_COUNT }).map((_, i) => (
           <div
             key={i}
             ref={addRectRef}
             className="rect-slice"
-            style={{ ['--i']: i } as React.CSSProperties}
+            style={{ 
+              ['--i']: i,
+              height: `var(--rect-h)`, // ✅ Dynamic height
+            } as React.CSSProperties}
           />
         ))}
 

@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // Add this import
 import Header1 from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import MobileSidebar from '@/components/onboarding/mobileSidebar';
 import { Processing } from '@/components/ui/icons/Processing';
 import { BackendUrl } from '@/Config';
-import { Trash2, Eye, Ban, CheckCircle, Search, X, Filter, Download, RefreshCw, Phone, MapPin, Calendar, User } from 'lucide-react';
+import { 
+  Trash2, Eye, Ban, CheckCircle, Search, X, Filter, Download, 
+  RefreshCw, Phone, MapPin, Calendar, User, AlertTriangle, ArrowRight 
+} from 'lucide-react';
 import { toast } from 'react-toastify';
 
 interface User {
@@ -28,6 +32,7 @@ type SortField = 'name' | 'email' | 'coins';
 type SortOrder = 'asc' | 'desc';
 
 const AllUsers: React.FC = () => {
+  const navigate = useNavigate(); // Add navigation hook
   const [loading, setLoading] = useState(false);
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
@@ -37,6 +42,12 @@ const AllUsers: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [executiveName, setExecutiveName] = useState<string | null>(null);
   const [loadingExecutive, setLoadingExecutive] = useState(false);
+  
+  // Delete modal states
+  const [deleteModalUser, setDeleteModalUser] = useState<User | null>(null);
+  const [deletionReason, setDeletionReason] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [deletedUserName, setDeletedUserName] = useState('');
   
   const [filterRole, setFilterRole] = useState<string>('ALL');
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
@@ -222,33 +233,50 @@ const AllUsers: React.FC = () => {
     setActionLoading(null);
   };
 
-  const handleDelete = async (user: User) => {
-    if (!window.confirm(`Are you sure you want to delete ${user.name}? This will also delete all associated referrals.`)) {
+  // ✅ NEW: Open delete confirmation modal
+  const openDeleteModal = (user: User) => {
+    setDeleteModalUser(user);
+    setDeletionReason('');
+  };
+
+  // ✅ NEW: Close delete modal
+  const closeDeleteModal = () => {
+    setDeleteModalUser(null);
+    setDeletionReason('');
+  };
+
+  // ✅ UPDATED: Handle delete with reason
+  const handleDelete = async () => {
+    if (!deleteModalUser) return;
+
+    if (!deletionReason.trim()) {
+      toast.error('Please provide a reason for deletion');
       return;
     }
 
-    setActionLoading(user.id);
+    setActionLoading(deleteModalUser.id);
     setError(null);
 
     try {
-      const response = await axios.delete(`${BackendUrl}/admin/users/${user.id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+      const response = await axios.delete(`${BackendUrl}/admin/users/${deleteModalUser.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { reason: deletionReason }
       });
 
-      const deletedData = response.data.deletedData;
-
-      if (deletedData) {
-        toast.success(
-          `✅ Deleted ${deletedData.userName} and ${deletedData.referralsDeleted} referral(s)`,
-          { autoClose: 5000 }
-        );
-      } else {
-        toast.success('✅ User deleted successfully');
-      }
-
+      // Close delete modal
+      closeDeleteModal();
+      
+      // Store deleted user name
+      setDeletedUserName(deleteModalUser.name);
+      
+      // Show success modal
+      setShowSuccessModal(true);
+      
+      // Refresh user list
       fetchAllUsers();
+
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || 'Failed to delete user';
+      const errorMessage = err.response?.data?.message || 'Failed to delete user';
       setError(errorMessage);
       toast.error(`❌ ${errorMessage}`);
     } finally {
@@ -443,7 +471,7 @@ const AllUsers: React.FC = () => {
             </div>
           ) : (
             <>
-              {/* Desktop Table - Simplified */}
+              {/* Desktop Table */}
               <div className="hidden md:block overflow-x-auto bg-white shadow-sm rounded-lg border border-gray-200">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -553,7 +581,7 @@ const AllUsers: React.FC = () => {
                             <button
                               title="Delete User"
                               disabled={actionLoading === user.id}
-                              onClick={() => handleDelete(user)}
+                              onClick={() => openDeleteModal(user)} // ✅ Changed to open modal
                               className={`p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition ${
                                 actionLoading === user.id ? 'opacity-50 cursor-not-allowed' : ''
                               }`}
@@ -600,7 +628,7 @@ const AllUsers: React.FC = () => {
                       <button
                         title="Delete"
                         disabled={actionLoading === user.id}
-                        onClick={() => handleDelete(user)}
+                        onClick={() => openDeleteModal(user)} // ✅ Changed to open modal
                         className="p-2 rounded-lg bg-gray-100"
                       >
                         <Trash2 className="w-4 h-4 text-gray-600" />
@@ -646,7 +674,155 @@ const AllUsers: React.FC = () => {
         </div>
       </main>
 
-      {/* Enhanced User Details Modal */}
+      {/* ✅ NEW: Delete Confirmation Modal */}
+      {deleteModalUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+            {/* Modal Header */}
+            <div className="bg-red-600 px-6 py-4 rounded-t-xl">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white/20 rounded-lg">
+                  <AlertTriangle className="w-6 h-6 text-white" />
+                </div>
+                <h2 className="text-xl font-bold text-white">Confirm User Deletion</h2>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p className="text-sm text-red-800">
+                  <span className="font-semibold">Warning:</span> You are about to permanently delete this user account.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm text-gray-600">User to be deleted:</p>
+                <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                  <p className="font-semibold text-gray-900">{deleteModalUser.name}</p>
+                  <p className="text-sm text-gray-600">{deleteModalUser.email}</p>
+                  <p className="text-xs text-gray-500 mt-1">Role: {deleteModalUser.role}</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Reason for deletion <span className="text-red-600">*</span>
+                </label>
+                <textarea
+                  value={deletionReason}
+                  onChange={(e) => setDeletionReason(e.target.value)}
+                  placeholder="Enter the reason why this user is being deleted (e.g., Violated terms of service, Duplicate account, User requested deletion)"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none"
+                  rows={4}
+                  maxLength={500}
+                />
+                <p className="text-xs text-gray-500 text-right">
+                  {deletionReason.length}/500 characters
+                </p>
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <p className="text-xs text-yellow-800">
+                  <span className="font-semibold">Note:</span> This action cannot be undone. The user's data will be moved to the deleted users archive.
+                </p>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-gray-50 px-6 py-4 rounded-b-xl flex flex-col-reverse sm:flex-row gap-3 justify-end">
+              <button
+                onClick={closeDeleteModal}
+                className="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={!deletionReason.trim() || actionLoading === deleteModalUser.id}
+                className={`px-5 py-2.5 rounded-lg font-medium text-white transition flex items-center justify-center gap-2 ${
+                  !deletionReason.trim() || actionLoading === deleteModalUser.id
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-red-600 hover:bg-red-700'
+                }`}
+              >
+                {actionLoading === deleteModalUser.id ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    Delete User
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ NEW: Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full animate-in fade-in zoom-in duration-300">
+            {/* Success Icon */}
+            <div className="pt-8 pb-4 flex justify-center">
+              <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
+                <CheckCircle className="w-12 h-12 text-green-600" />
+              </div>
+            </div>
+
+            {/* Success Message */}
+            <div className="px-6 pb-6 text-center">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                User Deleted Successfully!
+              </h2>
+              <p className="text-gray-600 mb-1">
+                <span className="font-semibold text-gray-900">{deletedUserName}</span> has been removed from the system.
+              </p>
+              <p className="text-sm text-gray-500">
+                All user data has been archived and can be viewed in the deleted users section.
+              </p>
+            </div>
+
+            {/* Info Box */}
+            <div className="mx-6 mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <Trash2 className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-blue-900 mb-1">
+                    View Deleted Users
+                  </p>
+                  <p className="text-xs text-blue-700">
+                    You can review all deleted users, including their deletion reasons and audit trail, in the Deleted Users page.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="bg-gray-50 px-6 py-4 rounded-b-xl flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => setShowSuccessModal(false)}
+                className="flex-1 px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition"
+              >
+                Stay Here
+              </button>
+              <button
+                onClick={() => navigate('/admin/deleted-users')}
+                className="flex-1 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition flex items-center justify-center gap-2"
+              >
+                View Deleted Users
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* User Details Modal (existing code unchanged) */}
       {selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
@@ -793,7 +969,7 @@ const AllUsers: React.FC = () => {
             <div className="sticky bottom-0 bg-gray-50 px-6 py-4 flex flex-col sm:flex-row justify-end gap-3 border-t border-gray-200 rounded-b-lg">
               <button
                 onClick={() => {
-                  handleDelete(selectedUser);
+                  openDeleteModal(selectedUser); // ✅ Changed to open modal
                   setSelectedUser(null);
                 }}
                 className="px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 text-white font-medium transition"

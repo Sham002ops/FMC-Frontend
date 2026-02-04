@@ -17,7 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Trash2, Edit, Plus } from 'lucide-react';
+import { Trash2, Edit, Plus, Link as LinkIcon } from 'lucide-react'; // ✅ Added LinkIcon
 
 interface Package {
   id: string;
@@ -28,6 +28,7 @@ interface Task {
   id: string;
   title: string;
   description?: string;
+  shareableLink?: string; // ✅ Added
   type: 'NORMAL' | 'YOGA';
   isActive: boolean;
   packageId: string;
@@ -48,10 +49,11 @@ const AdminTasksManagement: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
 
-  // Form state
+  // Form state - ✅ Added shareableLink
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    shareableLink: '', // ✅ Added
     type: 'NORMAL',
     packageId: '',
   });
@@ -118,6 +120,7 @@ const AdminTasksManagement: React.FC = () => {
     setFormData({
       title: '',
       description: '',
+      shareableLink: '', // ✅ Reset
       type: 'NORMAL',
       packageId: '',
     });
@@ -144,6 +147,7 @@ const AdminTasksManagement: React.FC = () => {
         {
           title: formData.title,
           description: formData.description || undefined,
+          shareableLink: formData.shareableLink || undefined, // ✅ Added
           type: formData.type,
           packageId: formData.packageId,
         },
@@ -181,6 +185,7 @@ const AdminTasksManagement: React.FC = () => {
         {
           title: formData.title,
           description: formData.description || undefined,
+          shareableLink: formData.shareableLink || undefined, // ✅ Added
           type: formData.type,
           isActive: selectedTask.isActive,
         },
@@ -247,6 +252,7 @@ const AdminTasksManagement: React.FC = () => {
     setFormData({
       title: task.title,
       description: task.description || '',
+      shareableLink: task.shareableLink || '', // ✅ Load existing link
       type: task.type,
       packageId: task.packageId,
     });
@@ -327,7 +333,10 @@ const AdminTasksManagement: React.FC = () => {
                           Package
                         </th>
                         <th className="px-6 py-4 text-left font-semibold text-gray-600 uppercase tracking-wide">
-                          Completed Users
+                          Link {/* ✅ Added column */}
+                        </th>
+                        <th className="px-6 py-4 text-left font-semibold text-gray-600 uppercase tracking-wide">
+                          Completed
                         </th>
                         <th className="px-6 py-4 text-left font-semibold text-gray-600 uppercase tracking-wide">
                           Status
@@ -361,6 +370,22 @@ const AdminTasksManagement: React.FC = () => {
                           </td>
                           <td className="px-6 py-3 whitespace-nowrap">
                             {getPackageName(task)}
+                          </td>
+                          {/* ✅ New Link Column */}
+                          <td className="px-6 py-3 whitespace-nowrap">
+                            {task.shareableLink ? (
+                              <a
+                                href={task.shareableLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                              >
+                                <LinkIcon size={14} />
+                                <span className="text-xs">View Link</span>
+                              </a>
+                            ) : (
+                              <span className="text-gray-400 text-xs">No link</span>
+                            )}
                           </td>
                           <td className="px-6 py-3 whitespace-nowrap">
                             {task._count?.completions ?? 0}
@@ -427,6 +452,20 @@ const AdminTasksManagement: React.FC = () => {
                     <p className="text-gray-600 text-sm mb-1">
                       <strong>Package:</strong> {getPackageName(task)}
                     </p>
+                    {/* ✅ Show link in mobile view */}
+                    {task.shareableLink && (
+                      <p className="text-gray-600 text-sm mb-1">
+                        <strong>Link:</strong>{' '}
+                        <a
+                          href={task.shareableLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
+                          View Link
+                        </a>
+                      </p>
+                    )}
                     <p className="text-gray-600 text-sm mb-1">
                       <strong>Completed Users:</strong>{' '}
                       {task._count?.completions ?? 0}
@@ -494,6 +533,22 @@ const AdminTasksManagement: React.FC = () => {
                 }
                 placeholder="Short description of the task"
               />
+            </div>
+            {/* ✅ New Shareable Link Input */}
+            <div>
+              <Label htmlFor="task-link">Shareable Link (Optional)</Label>
+              <Input
+                id="task-link"
+                type="url"
+                value={formData.shareableLink}
+                onChange={(e) =>
+                  setFormData({ ...formData, shareableLink: e.target.value })
+                }
+                placeholder="https://youtube.com/watch?v=..."
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Add a YouTube, Google Drive, or any external link for this task.
+              </p>
             </div>
             <div>
               <Label htmlFor="task-type">Task Type</Label>
@@ -570,6 +625,19 @@ const AdminTasksManagement: React.FC = () => {
                 }
               />
             </div>
+            {/* ✅ Edit Shareable Link */}
+            <div>
+              <Label htmlFor="edit-task-link">Shareable Link (Optional)</Label>
+              <Input
+                id="edit-task-link"
+                type="url"
+                value={formData.shareableLink}
+                onChange={(e) =>
+                  setFormData({ ...formData, shareableLink: e.target.value })
+                }
+                placeholder="https://youtube.com/watch?v=..."
+              />
+            </div>
             <div>
               <Label htmlFor="edit-task-type">Task Type</Label>
               <select
@@ -586,13 +654,6 @@ const AdminTasksManagement: React.FC = () => {
                 <option value="NORMAL">General Task</option>
                 <option value="YOGA">Yoga Task</option>
               </select>
-            </div>
-            <div>
-              <Label>Status</Label>
-              <p className="text-sm text-gray-600 mt-1">
-                Status can be toggled from a separate control later if you want
-                (currently using existing isActive value).
-              </p>
             </div>
           </div>
           <DialogFooter>

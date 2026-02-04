@@ -74,7 +74,7 @@ const LoyaltyCardMobile: React.FC<LoyaltyCardMobileProps> = ({ coins }) => {
         </div>
         
         <p className="text-white text-sm text-center leading-tight px-1">
-          Your loyalty coins will increase by <span className="font-bold text-yellow-200">1.2X</span> by each year.
+          Your loyalty coins will increase by <span className="font-bold text-yellow-200">1.5X</span> by each year.
         </p>
       </div>
     </div>

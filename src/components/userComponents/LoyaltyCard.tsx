@@ -118,7 +118,7 @@ const LoyaltyCard: React.FC<LoyaltyCardProps> = ({ coins, username }) => {
             <div>
               <p className="text-sm font-medium mb-1">Loyalty Boost</p>
               <p className="text-sm opacity-90 leading-relaxed">
-                Your FMC coins will increase by 1.2X over the next year as you continue learning with us!
+                Your FMC coins will increase by 1.5X over the next year as you continue learning with us!
               </p>
             </div>
           </div>
