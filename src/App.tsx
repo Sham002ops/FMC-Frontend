@@ -21,9 +21,6 @@ import ExexutiveDashboard from "./pages/ExecutivePages/exeDashboard";
 import AllExecutive from "./pages/AdminPages/AllExecutive";
 import AllPackages from "./pages/AdminPages/AllPackages";
 import AllWebinars from "./pages/AdminPages/AllWebinar";
-import AdminSettings from "./pages/AdminPages/Settings";
-import Audit from "./pages/AdminPages/Audit";
-import Notifications from "./pages/AdminPages/Notification";
 import AllRefUsers from "./pages/ExecutivePages/AllRefUsers";
 import ProductOrderManagement from "./pages/AdminPages/AllOrders";
 import AnalyticsPage from "./pages/AdminPages/AnalyticsPage";
@@ -43,6 +40,8 @@ import YogaScheduleCalendar from "./components/userComponents/YogaScheduleCalend
 import DeletedUsers from "./pages/AdminPages/DeletedUsers";
 import SuperAdminDashboard from "./pages/SuperAdmin Pages/SuperAdminDashboard";
 import AuditLogsPage from "./pages/AdminPages/AuditLogs";
+import PendingRegistrations from "./pages/AdminPages/PendingRegistrations";
+import ExportLogsPage from "./pages/SuperAdmin Pages/ExportLogsPage";
 
 
 const queryClient = new QueryClient();
@@ -84,19 +83,19 @@ const App = () => {
             <Route path="/admin/packages" element={<ProtectedRoute><AdminPackagesManagement /></ProtectedRoute>} />
             <Route path="/admin/webinars" element={<ProtectedRoute><AllWebinars /></ProtectedRoute>} />
             <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
-            <Route path="/admin/audit-log" element={<ProtectedRoute><Audit /></ProtectedRoute>} />
-            <Route path="/admin/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
             <Route path="/admin/orders" element={<ProductOrderManagement />} />
             <Route path="/admin-analysis" element={<AnalyticsPage />} />
             <Route path="/admin-all-mentors" element={<AllMentors />} />
             <Route path="/admin-tasks-management" element={<AdminTasksManagement />} />
             <Route path="/admin-yoga-schedule" element={<AdminYogaSchedule/>} />
             <Route path="/admin/audit-logs" element={<AuditLogsPage />} />
+            <Route path="/admin/pending-registrations" element={<PendingRegistrations />} />
 
 
             <Route path="/superadmin-dashboard" element={ <ProtectedRoute requiredRole="SUPER_ADMIN"><SuperAdminDashboard /></ProtectedRoute>}/>
-            
+
+            <Route path="/superadmin/export-logs" element={<ExportLogsPage />} />
+
             {/* Executive Routes */}
             <Route path="/exexutive-dashboard" element={<ProtectedRoute><ExexutiveDashboard /></ProtectedRoute>} />
             <Route path="/executive/referrals" element={<ProtectedRoute><AllRefUsers /></ProtectedRoute>} />

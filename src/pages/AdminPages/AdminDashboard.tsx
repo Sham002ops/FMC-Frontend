@@ -46,7 +46,11 @@ const AdminDashboard = () => {
         setUser(res.data.user);
         setUsername(res.data.user.name);
         
-        if (res.data.user.role !== "ADMIN" && res.data.user.role !== "SUPER_ADMIN") {
+        if (res.data.user.role !== "ADMIN" ) {
+          navigate("/unauthorized");
+          return;
+        }
+        if (res.data.user.role !== "ADMIN" ) {
           navigate("/unauthorized");
           return;
         }

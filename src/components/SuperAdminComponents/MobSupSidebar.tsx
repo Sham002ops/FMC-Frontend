@@ -14,14 +14,15 @@ import {
   CheckCheck,
   Trash2Icon,
   FileStackIcon,
-  FileDown, // ✅ Add this for Export Logs
+  FileClockIcon,
+  FileDownIcon,
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { BackendUrl } from "@/Config";
 
-const MobileSidebar: React.FC = () => {
+const MobileSupSidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -72,8 +73,7 @@ const MobileSidebar: React.FC = () => {
     setCollapsed(true);
   };
 
-  // ✅ Base nav items (available to all admins)
-  const baseNavItems = [
+  const navItems = [
     { label: "Analysis", path: "/admin-analysis", Icon: ChartNoAxesCombined },
     { label: "Users", path: "/admin/all-users", Icon: Users },
     { label: "Executives", path: "/admin/executives", Icon: UserCheck },
@@ -84,18 +84,10 @@ const MobileSidebar: React.FC = () => {
     { label: "Yoga-Schedule", path: "/admin-yoga-schedule", Icon: Calendar1 },
     { label: "Webinars", path: "/admin/webinars", Icon: Calendar },
     { label: "Deleted Users", path: "/admin/deleted-users", Icon: Trash2Icon },
+    { label: "Pending Registrations", path: "/admin/pending-registrations", Icon: FileClockIcon },
     { label: "Audit Logs", path: "/admin/audit-logs", Icon: FileStackIcon },
+    { label: "Export Logs", path: "/superadmin/export-logs", Icon: FileDownIcon },
   ];
-
-  // ✅ Super Admin only items
-  const superAdminOnlyItems = [
-    { label: "Export Logs", path: "/superadmin/export-logs", Icon: FileDown },
-  ];
-
-  // ✅ Combine nav items based on role
-  const navItems = userRole === "SUPER_ADMIN" 
-    ? [...baseNavItems, ...superAdminOnlyItems]
-    : baseNavItems;
 
   // ✅ Show loading spinner while fetching role
   if (isLoading) {
@@ -164,7 +156,6 @@ const MobileSidebar: React.FC = () => {
           <ul className="flex flex-col space-y-2">
             {navItems.map(({ label, path, Icon }) => {
               const isActive = location.pathname === path;
-              const isSuperAdminOnly = superAdminOnlyItems.some(item => item.path === path);
               
               return (
                 <li
@@ -179,35 +170,20 @@ const MobileSidebar: React.FC = () => {
                   }}
                 >
                   <Icon size={20} />
-                  <span className="flex-1">{label}</span>
-                  {/* ✅ Show badge for Super Admin only items */}
-                  {isSuperAdminOnly && (
-                    <span className="text-xs bg-yellow-500 text-gray-900 px-2 py-0.5 rounded-full font-bold">
-                      SA
-                    </span>
-                  )}
+                  <span>{label}</span>
                 </li>
               );
             })}
           </ul>
         </nav>
 
-        {/* Footer - Show role */}
+        {/* Footer - Show role for debugging */}
         <div className="p-4 border-t border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs text-gray-400">
-                {userRole === "SUPER_ADMIN" ? "Super Administrator" : "Administrator"}
-              </div>
-              <div className="text-xs text-gray-500 mt-1">
-                Role: {userRole || "N/A"}
-              </div>
-            </div>
-            {userRole === "SUPER_ADMIN" && (
-              <span className="bg-yellow-500 text-gray-900 px-2 py-1 rounded text-xs font-bold">
-                SUPER
-              </span>
-            )}
+          <div className="text-xs text-gray-400 text-center">
+            {userRole === "SUPER_ADMIN" ? "Super Administrator" : "Administrator"}
+          </div>
+          <div className="text-xs text-gray-500 text-center mt-1">
+            Role: {userRole || "N/A"}
           </div>
         </div>
       </aside>
@@ -215,4 +191,4 @@ const MobileSidebar: React.FC = () => {
   );
 };
 
-export default MobileSidebar;
+export default MobileSupSidebar;

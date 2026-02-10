@@ -5,8 +5,7 @@ import axios from 'axios';
 import { BackendUrl } from '@/Config';
 import { Processing } from '@/components/ui/icons/Processing';
 import { useToast } from '@/components/ui/use-toast';
-import Sidebar from '@/components/Sidebar';
-import MobileSidebar from '@/components/onboarding/mobileSidebar';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Briefcase, Package, Shield, UserPlus, Video, Users } from 'lucide-react';
 
@@ -24,6 +23,8 @@ import SuperAdminStats from '@/components/SuperAdminComponents/SuperAdminStats';
 import PendingRegistrationsTable from '@/components/SuperAdminComponents/PendingRegistrationsTable';
 import RegistrationStatsChart from '@/components/SuperAdminComponents/RegistrationStatsChart';
 import RecentApprovals from '@/components/SuperAdminComponents/RecentApprovals';
+import SuperSidebar from '@/components/SuperAdminComponents/superSidebar';
+import MobileSupSidebar from '@/components/SuperAdminComponents/MobSupSidebar';
 
 const SuperAdminDashboard = () => {
   const navigate = useNavigate();
@@ -115,10 +116,10 @@ const SuperAdminDashboard = () => {
       {/* Sidebar */}
       <div className="transition-transform duration-300">
         <div className="hidden lg:block">
-          <Sidebar />
+          <SuperSidebar />
         </div>
         <div className="block lg:hidden">
-          <MobileSidebar />
+          <MobileSupSidebar />
         </div>
       </div>
 
@@ -141,7 +142,7 @@ const SuperAdminDashboard = () => {
             {openPackageModel && <CreatePackage setOpenPackageModel={setOpenPackageModel} />}
 
             {/* Welcome Section */}
-            <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-2xl shadow-xl p-6 sm:p-8 text-white">
+            <div className="bg-gradient-to-r from-blue-600 to-emerald-500 hover:from-blue-700 hover:to-emerald-600 rounded-2xl shadow-xl p-6 sm:p-8 text-white">
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-2xl sm:text-3xl font-bold mb-2">

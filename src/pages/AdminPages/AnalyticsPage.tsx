@@ -628,15 +628,15 @@ const AnalyticsPage: React.FC = () => {
         </div>
       </main>
 
-      {/* Export Modal */}
-      <ExportModal
-        isOpen={showExportModal}
-        onClose={() => setShowExportModal(false)}
-        stats={stats}
-        userGrowthTrend={userGrowthTrend}
-        salesTrend={salesTrend}
-        timeRange={timeRange}
-      />
+        <ExportModal
+          isOpen={showExportModal}
+          onClose={() => setShowExportModal(false)}
+          stats={stats}
+          userGrowthTrend={userGrowthTrend}
+          salesTrend={salesTrend}
+          timeRange={timeRange}
+        />
+
     </div>
   );
 };

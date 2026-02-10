@@ -191,7 +191,7 @@ const AllExecutive: React.FC = () => {
       </div>
 
       {/* Header - Fixed */}
-      <header className="fixed top-0 left-0 lg:left-20 right-0 bg-white shadow-sm z-40 h-16">
+      <header className="fixed top-0 left-0 lg:left-20 right-0 bg-white shadow-sm z-50 h-16">
         <Header1 />
       </header>
 

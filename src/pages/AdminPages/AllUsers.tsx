@@ -175,12 +175,13 @@ const AllUsers: React.FC = () => {
     applyFiltersAndSort(allUsers, '', 'ALL', 'ALL', 'name', 'asc');
   };
 
-  const exportToCSV = () => {
-    if (filteredUsers.length === 0) {
-      toast.warning('No users to export');
-      return;
-    }
+const exportToCSV = async () => {
+  if (filteredUsers.length === 0) {
+    toast.warning('No users to export');
+    return;
+  }
 
+  try {
     const csvHeaders = ['Name', 'Email', 'Phone', 'Date of Birth', 'Address', 'PIN Code', 'Role', 'Coins', 'Package', 'Executive Ref', 'Status', 'Joined At'];
     const csvRows = filteredUsers.map(user => [
       user.name,
@@ -202,14 +203,39 @@ const AllUsers: React.FC = () => {
       ...csvRows.map(row => row.map(cell => `"${cell}"`).join(','))
     ].join('\n');
 
+    // ✅ CREATE BLOB & CALCULATE FILE SIZE
+    const fileName = `users_${new Date().toISOString().split('T')[0]}.csv`;
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const fileSize = blob.size;
+
+    // ✅ LOG EXPORT TO BACKEND (async, non-blocking)
+    axios.post(
+      `${BackendUrl}/export-logs/log`,
+      {
+        entity: 'Users',
+        fileName,
+        recordCount: filteredUsers.length,
+        fileSize,
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    ).catch(err => {
+      console.error('Failed to log export:', err);
+      // Don't block download if logging fails
+    });
+
+    // ✅ DOWNLOAD CSV
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `users_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = fileName;
     link.click();
 
     toast.success(`Exported ${filteredUsers.length} users to CSV`);
-  };
+  } catch (error) {
+    console.error('Export error:', error);
+    toast.error('Failed to export users');
+  }
+};
+
 
   const handleBanToggle = async (user: User) => {
     const action = user.isBanned ? 'unban' : 'ban';

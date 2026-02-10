@@ -456,7 +456,7 @@ const AdminYogaSchedule: React.FC = () => {
       
       const payload = {
         ...formData,
-        maxCapacity: null,
+        maxCapacity: 0,
       };
 
       if (editingClass) {

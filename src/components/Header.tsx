@@ -42,7 +42,7 @@ const Header1: React.FC<Header1Props> = ({ username, user }) => {
   };
 
   return (
-    <header className="bg-gradient-to-r from-blue-700 to-green-400 fixed text-white shadow-lg w-full">
+    <header className="bg-gradient-to-r z-50 from-blue-700 to-green-400 fixed text-white shadow-lg w-full">
       <div className="mx-auto py-3 sm:py-4 px-3 sm:px-6">
         <div className="flex justify-between items-center">
           <div className="flex justify-between items-center sm:text-xl gap-4 lg:text-2xl font-bold">

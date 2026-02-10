@@ -9,17 +9,15 @@ import axios from 'axios';
 import { BackendUrl } from '@/Config';
 import ExeSidebar from '@/components/ExeSideBar';
 import ExecutiveMobileSidebar from '@/components/MobExeSidebar';
-import RegUser from '@/components/adminComponents/RegUser';
-import FMC from '../../assets/FMC2.png'
-
-
-// Import custom components
+import FMC from '../../assets/FMC2.png';
 import { PerformanceTimelineChart } from '@/components/ExecutiveComponents/PerformanceTimelineChart';
 import { PackageDistributionChart } from '@/components/ExecutiveComponents/PackageDistributionChart';
 import { RecentActivityFeed } from '@/components/ExecutiveComponents/RecentActivityFeed';
 import { LeaderboardRankCard } from '@/components/ExecutiveComponents/LeaderboardRankCard';
 import { TargetProgressBar } from '@/components/ExecutiveComponents/TargetProgressBar';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, UserPlus } from 'lucide-react';
+import ExecutiveRegisterUser from '@/components/ExecutiveComponents/ExecutiveRegisterUser';
+import ExecutiveProfileMenu from '@/components/ExecutiveComponents/ExecutiveProfileModal';
 
 interface DashboardData {
   executive: {
@@ -108,7 +106,6 @@ const ExecutiveDashboard = () => {
           return;
         }
 
-        // Fetch dashboard data
         await fetchDashboardData();
       } catch (err) {
         console.error("Error initializing dashboard:", err);
@@ -167,7 +164,6 @@ const ExecutiveDashboard = () => {
     totalExecutives: 0,
   };
 
-  // Monthly target (can be configured)
   const MONTHLY_TARGET = 20;
 
   return (
@@ -182,57 +178,17 @@ const ExecutiveDashboard = () => {
       </div>
 
       {/* Header */}
-      <header className="bg-gradient-to-r from-indigo-600 to-green-400 z-40 text-white shadow-lg fixed top-0 left-0 w-full">
+      <header className="bg-gradient-to-r from-indigo-600 to-green-500 z-40 text-white shadow-lg fixed top-0 left-0 w-full">
         <div className="container mx-auto py-4 px-4 md:px-6 flex lg:pl-10 justify-between items-center">
           <div className="flex items-center gap-3">
             <img src={FMC} alt="Logo" className='w-10 h-10 rounded-full' />
             <div className="hidden sm:block">
               <h1 className="text-lg font-semibold">Executive Dashboard</h1>
-              <p className="text-xs text-blue-100">Next Level Wellness Today</p>
+              <p className="text-xs text-indigo-100">Next Level Wellness Today</p>
             </div>
           </div>
-          <div className="relative">
-            <button
-              className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors"
-              onClick={() => setMenuOpen(!menuOpen)}
-            >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-sm font-bold">
-                {username?.charAt(0).toUpperCase() || 'E'}
-              </div>
-            </button>
-            {menuOpen && (
-              <div className="absolute right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
-                <div className="p-6">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-lg font-bold">
-                      {username?.charAt(0).toUpperCase() || 'E'}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-800">{username}</h3>
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                        EXECUTIVE
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => setMenuOpen(false)}
-                      className="text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                  
-                  <button
-                    onClick={handleSignout}
-                    className="mt-6 w-full py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-lg hover:from-red-600 hover:to-pink-700 transition-all font-medium"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+           <ExecutiveProfileMenu onSignout={handleSignout} />
+
         </div>
       </header>
 
@@ -262,25 +218,31 @@ const ExecutiveDashboard = () => {
             </div>
           </div>
 
+          {/* ✅ UPDATED REGISTER BUTTON */}
           <div className="w-full sm:w-auto">
             <button 
               onClick={() => setOpenUserModel(true)}
-              className="relative bg-white group hover:bg-teal-700 hover:text-white text-teal-700 overflow-hidden w-full sm:w-36 cursor-pointer rounded-lg"
+              className="group relative w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
             >
-              <div className="absolute inset-0 bg-gradient-to-tr from-teal-600 to-teal-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"></div>
-              <span className="flex justify-center border-teal-500 border-2 items-center rounded-lg gap-2 px-4 py-2 relative text-teal-500 font-bold group-hover:text-white transition-colors duration-300">
-                Register User
-              </span>
+              <UserPlus className="w-5 h-5" />
+              <span>Register User</span>
+              <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
           </div>
         </div>
 
-        {openUserModel && <RegUser setOpenUserModel={setOpenUserModel} />}
+        {/* ✅ NEW REGISTRATION MODAL */}
+        {openUserModel && (
+          <ExecutiveRegisterUser
+            setOpenUserModel={setOpenUserModel} 
+            refreshUser={fetchDashboardData}
+          />
+        )}
 
         {/* Top Row: Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {/* Total Referrals */}
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-medium opacity-90">Total Referrals</h3>
@@ -298,7 +260,7 @@ const ExecutiveDashboard = () => {
           </div>
           
           {/* This Month */}
-          <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+          <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-medium text-gray-500">This Month</h3>
@@ -316,7 +278,7 @@ const ExecutiveDashboard = () => {
           </div>
           
           {/* Revenue */}
-          <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+          <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Total Revenue</h3>
@@ -333,7 +295,7 @@ const ExecutiveDashboard = () => {
           </div>
           
           {/* Rank */}
-          <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+          <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Your Rank</h3>
@@ -370,7 +332,6 @@ const ExecutiveDashboard = () => {
 
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          {/* Leaderboard Rank */}
           <div className="lg:col-span-1">
             <LeaderboardRankCard
               rank={stats.rank}
@@ -379,7 +340,6 @@ const ExecutiveDashboard = () => {
             />
           </div>
 
-          {/* Performance Timeline */}
           <div className="lg:col-span-2">
             <PerformanceTimelineChart data={dashboardData?.timeline || []} />
           </div>
@@ -387,10 +347,8 @@ const ExecutiveDashboard = () => {
 
         {/* Second Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Package Distribution */}
           <PackageDistributionChart distribution={dashboardData?.packageDistribution || {}} />
 
-          {/* Target Progress */}
           <TargetProgressBar
             current={stats.thisMonthReferrals}
             target={MONTHLY_TARGET}

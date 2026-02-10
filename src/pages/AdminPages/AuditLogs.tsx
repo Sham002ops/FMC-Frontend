@@ -117,26 +117,135 @@ const AuditLogsPage: React.FC = () => {
     }).format(date);
   };
 
-  const exportToCSV = () => {
-    const csvContent = [
-      ['Date', 'Entity', 'Action', 'User', 'Changes'].join(','),
-      ...logs.map((log) =>
-        [
-          formatDate(log.createdAt),
-          log.entity,
-          log.action,
-          log.user?.name || 'System',
-          JSON.stringify(log.changes),
-        ].join(',')
-      ),
-    ].join('\n');
+  // ✅ Helper to escape CSV fields
+  const escapeCsvField = (field: any): string => {
+    if (field === null || field === undefined) return '';
+    const str = String(field);
+    if (str.includes(',') || str.includes('\n') || str.includes('"')) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  };
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `audit-logs-${new Date().toISOString()}.csv`;
-    a.click();
+  // ✅ Helper to format changes for CSV
+  const formatChanges = (changes: any): string => {
+    if (!changes) return '';
+    
+    const parts: string[] = [];
+    
+    if (changes.before && Object.keys(changes.before).length > 0) {
+      parts.push(`Before: ${JSON.stringify(changes.before)}`);
+    }
+    
+    if (changes.after && Object.keys(changes.after).length > 0) {
+      parts.push(`After: ${JSON.stringify(changes.after)}`);
+    }
+    
+    return parts.join(' | ');
+  };
+
+  // ✅ Categorized CSV Export with Logging
+  const exportToCSV = async () => {
+    try {
+      // Group logs by Entity and Action
+      const categorizedLogs: Record<string, Record<string, AuditLog[]>> = {};
+
+      logs.forEach((log) => {
+        const entity = log.entity || 'Unknown';
+        const action = log.action || 'UNKNOWN';
+
+        if (!categorizedLogs[entity]) {
+          categorizedLogs[entity] = {};
+        }
+
+        if (!categorizedLogs[entity][action]) {
+          categorizedLogs[entity][action] = [];
+        }
+
+        categorizedLogs[entity][action].push(log);
+      });
+
+      // Build CSV content with categories
+      const csvLines: string[] = [];
+
+      // Add header
+      csvLines.push('Category,Date,Entity,Action,Entity ID,User Name,User Email,Changes');
+      csvLines.push(''); // Empty line for readability
+
+      // Add data by category
+      Object.keys(categorizedLogs).sort().forEach((entity) => {
+        Object.keys(categorizedLogs[entity]).sort().forEach((action) => {
+          const categoryLogs = categorizedLogs[entity][action];
+          
+          // Add category header
+          const categoryName = `${entity} / ${action}`;
+          csvLines.push(`"${categoryName}"`);
+          
+          // Add logs for this category
+          categoryLogs.forEach((log) => {
+            const row = [
+              '', // Category column (empty for data rows)
+              escapeCsvField(formatDate(log.createdAt)),
+              escapeCsvField(log.entity),
+              escapeCsvField(log.action),
+              escapeCsvField(log.entityId),
+              escapeCsvField(log.user?.name || 'System'),
+              escapeCsvField(log.user?.email || ''),
+              escapeCsvField(formatChanges(log.changes)),
+            ];
+            csvLines.push(row.join(','));
+          });
+
+          // Add empty line after each category
+          csvLines.push('');
+        });
+      });
+
+      // Create CSV content
+      const csvContent = csvLines.join('\n');
+      const fileName = `audit-logs-categorized-${new Date().toISOString().split('T')[0]}.csv`;
+      const fileSize = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }).size;
+
+      // ✅ Log export to backend (async, non-blocking)
+      const token = localStorage.getItem('token');
+      axios.post(
+        `${BackendUrl}/export-logs/log`,
+        {
+          entity: 'AuditLogs',
+          fileName,
+          recordCount: logs.length,
+          fileSize,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      ).catch(err => {
+        console.error('Failed to log export:', err);
+        // Don't block download if logging fails
+      });
+
+      // Download CSV
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: 'Success',
+        description: `Exported ${logs.length} audit logs in ${Object.keys(categorizedLogs).length} categories`,
+      });
+
+    } catch (error: any) {
+      console.error('Export error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to export data',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
@@ -165,13 +274,16 @@ const AuditLogsPage: React.FC = () => {
               <h1 className="text-3xl font-bold text-gray-900">Audit Logs</h1>
               <p className="text-gray-600 mt-1">Track all system changes and user activity</p>
             </div>
-            <button
-              onClick={exportToCSV}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              <Download size={18} />
-              Export CSV
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={exportToCSV}
+                disabled={logs.length === 0}
+                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download size={18} />
+                Export CSV
+              </button>
+            </div>
           </div>
 
           {/* Stats Cards */}
@@ -210,6 +322,8 @@ const AuditLogsPage: React.FC = () => {
                   <option value="Task">Task</option>
                   <option value="Webinar">Webinar</option>
                   <option value="Order">Order</option>
+                  <option value="Executive">Executive</option>
+                  <option value="YogaSchedule">Yoga Schedule</option>
                 </select>
               </div>
               <div>
@@ -223,6 +337,7 @@ const AuditLogsPage: React.FC = () => {
                   <option value="CREATE">Create</option>
                   <option value="UPDATE">Update</option>
                   <option value="DELETE">Delete</option>
+                  <option value="EXPORT">Export</option>
                 </select>
               </div>
               <div>
@@ -248,6 +363,16 @@ const AuditLogsPage: React.FC = () => {
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Processing />
+            </div>
+          ) : logs.length === 0 ? (
+            <div className="bg-white rounded-xl shadow-sm border p-12 text-center">
+              <FileText className="mx-auto text-gray-400 mb-4" size={48} />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No audit logs found</h3>
+              <p className="text-gray-600">
+                {filters.entity || filters.action || filters.startDate || filters.endDate
+                  ? 'Try adjusting your filters'
+                  : 'Audit logs will appear here as actions are performed'}
+              </p>
             </div>
           ) : (
             <>

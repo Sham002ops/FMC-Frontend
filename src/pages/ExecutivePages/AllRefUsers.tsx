@@ -19,6 +19,7 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ExecutiveProfileMenu from '@/components/ExecutiveComponents/ExecutiveProfileModal';
 
 interface User {
   id: string;
@@ -184,47 +185,7 @@ const AllRefUsers: React.FC = () => {
               <h2 className="text-xs ">Next Level Wellness Today</h2>
             </div>
           </div>
-          <div className="relative">
-            <button
-              className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors"
-              onClick={() => setMenuOpen(!menuOpen)}
-            >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-sm font-bold">
-                {'E'}
-              </div>
-            </button>
-            {menuOpen && (
-              <div className="absolute right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
-                <div className="p-6">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-lg font-bold">
-                      {'E'}
-                    </div>
-                    <div className="flex-1">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                        EXECUTIVE
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => setMenuOpen(false)}
-                      className="text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                  
-                  <button
-                    onClick={handleSignout}
-                    className="mt-6 w-full py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-lg hover:from-red-600 hover:to-pink-700 transition-all font-medium"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          <ExecutiveProfileMenu onSignout={handleSignout} />
           </div>
       </header>
 

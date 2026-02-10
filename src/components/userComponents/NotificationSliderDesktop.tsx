@@ -20,7 +20,7 @@ interface Props {
   webinars: Webinar[];
   userPackageId?: string; // User's current package ID
   interval?: number;
-  handleRegister?: (webinarId: string, zoomLink: string) => void;
+  handleRegister?: (zoomLink: string) => void;
 }
 
 export const NotificationSliderDesktop: React.FC<Props> = ({
@@ -150,7 +150,7 @@ export const NotificationSliderDesktop: React.FC<Props> = ({
                       </p>
                     </div>
                     <button
-                      onClick={() => handleRegister?.(webinar.id, webinar.zoomLink)}
+                      onClick={() => handleRegister?.(webinar.zoomLink)}
                       className="ml-4 bg-blue-500 cursor-pointer hover:bg-blue-600 hover:scale-110 text-white text-base px-5 py-2 rounded-md shadow transition flex-shrink-0"
                     >
                       Register & Join

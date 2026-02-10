@@ -71,6 +71,9 @@ const Unauthorized: React.FC = () => {
             case 'ADMIN':
               navigate('/admin/dashboard');
               break;
+            case 'SUPER_ADMIN':
+              navigate('/superadmin-dashboard');
+              break;
             case 'MENTOR':
               navigate('/mentor/dashboard');
               break;

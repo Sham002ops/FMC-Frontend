@@ -72,7 +72,6 @@ const UserDashboard = () => {
           }
         } catch (userErr) {
           console.error('Error verifying user:', userErr);
-          // If token invalid, redirect to login
           if (axios.isAxiosError(userErr) && userErr.response?.status === 401) {
             localStorage.removeItem('token');
             navigate("/landing-page");
@@ -81,19 +80,18 @@ const UserDashboard = () => {
           throw userErr;
         }
 
-        // ✅ Fetch webinars (non-critical, continue even if fails)
+        // ✅ Fetch webinars
         try {
-          const webinarRes = await axios.get(`${BackendUrl}/webinar`, {
+          const webinarRes = await axios.get(`${BackendUrl}/webinar/user-webinars`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           setWebinars(Array.isArray(webinarRes.data) ? webinarRes.data : []);
         } catch (webinarErr) {
           console.error('Error fetching webinars:', webinarErr);
           setWebinars([]);
-          // Don't throw - just continue with empty array
         }
 
-        // ✅ Fetch registered webinars (non-critical, continue even if fails)
+        // ✅ Fetch registered webinars
         try {
           const registeredRes = await axios.get(`${BackendUrl}/webinar/registered-webinars`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -102,7 +100,6 @@ const UserDashboard = () => {
         } catch (regErr) {
           console.error('Error fetching registered webinars:', regErr);
           setRegisteredWebinars([]);
-          // Don't throw - just continue with empty array
         }
 
       } catch (err) {
@@ -132,7 +129,15 @@ const UserDashboard = () => {
     }
   };
 
-  // ✅ Safe webinar filtering with error handling
+  // ✅ CHANGED: Only join webinar (no registration)
+  const handleJoinWebinar = (zoomLink: string) => {
+    if (!zoomLink) {
+      alert('Zoom link not available for this webinar');
+      return;
+    }
+    window.open(zoomLink, '_blank');
+  };
+
   const getUpcomingWebinars = () => {
     try {
       if (!Array.isArray(webinars)) return [];
@@ -205,49 +210,6 @@ const UserDashboard = () => {
     }
   };
 
-  const handleRegisterAndJoin = async (webinarId: string, zoomLink: string) => {
-    try {
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        alert('Please login to register for webinars');
-        return;
-      }
-
-      await axios.post(
-        `${BackendUrl}/webinar/register`,
-        { webinarId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      
-      if (zoomLink) {
-        window.open(zoomLink, '_blank');
-      }
-      
-    } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.data?.error === 'Already registered for this webinar') {
-        if (zoomLink) {
-          window.open(zoomLink, '_blank');
-        }
-      } else {
-        console.error('Registration error:', err);
-        alert(axios.isAxiosError(err) ? err.response?.data?.error || 'Registration failed' : 'Registration failed');
-      }
-    }
-  };
-
-  const handleYogaPage = () => {
-    navigate("/schedule");
-  }
-
-  const isRegistered = (webinarId: string) => {
-    try {
-      return Array.isArray(registeredWebinars) && registeredWebinars.some(w => w?.id === webinarId);
-    } catch {
-      return false;
-    }
-  };
-
   const getRegisteredUpcoming = () => {
     try {
       if (!Array.isArray(registeredWebinars)) return [];
@@ -277,7 +239,6 @@ const UserDashboard = () => {
 
   const registeredEvents = getRegisteredUpcoming();
 
-  // ✅ Error state display
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
@@ -331,44 +292,44 @@ const UserDashboard = () => {
         <section className="text-center lg:text-left">
           <div>
             <div className="mb-6">
-            <h1 className="text-2xl flex justify-start md:text-4xl font-bold text-gray-900 mb-2">
-              Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {username}! 👋
-            </h1>
-            <p className="text-md text-left text-gray-600">
-              Ready to expand your knowledge today? Check out your upcoming webinars below.
-            </p>
-          </div>
-           <div className="flex justify-center mb-6 lg:mb-2 lg:justify-end lg:-mt-20 gap-4">
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="group relative px-6 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden"
-          >
-            <span className="relative z-10 flex items-center gap-3">
-              <Calendar1 className="w-6 h-6" />
-              View Schedule
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          </button>
-        </div>
+              <h1 className="text-2xl flex justify-start md:text-4xl font-bold text-gray-900 mb-2">
+                Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {username}! 👋
+              </h1>
+              <p className="text-md text-left text-gray-600">
+                Ready to expand your knowledge today? Check out your upcoming webinars below.
+              </p>
+            </div>
+            <div className="flex justify-center mb-6 lg:mb-2 lg:justify-end lg:-mt-20 gap-4">
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="group relative px-6 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden"
+              >
+                <span className="relative z-10 flex items-center gap-3">
+                  <Calendar1 className="w-6 h-6" />
+                  View Schedule
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </button>
+            </div>
           </div>
 
           {/* Desktop Layout */}
-          <div className="hidden lg:flex gap-6  mt-2 lg:mt-6 items-center justify-center">
+          <div className="hidden lg:flex gap-6 mt-2 lg:mt-6 items-center justify-center">
             <LoyaltyCard coins={user?.coins || 0} username={username} />
-              <div className="flex-1 max-w-4xl">
-                <NotificationSliderDesktop 
-                  webinars={webinars} 
-                  userPackageId={user?.packageId}
-                  handleRegister={handleRegisterAndJoin} 
-                />
-              </div>
+            <div className="flex-1 max-w-4xl">
+              <NotificationSliderDesktop 
+                webinars={webinars} 
+                userPackageId={user?.packageId}
+                handleRegister={handleJoinWebinar}
+              />
+            </div>
           </div>
 
           {/* Mobile Layout */}
           <div className="block lg:hidden">
             <NotificationSliderMobile 
               webinars={webinars} 
-              handleRegister={handleRegisterAndJoin} 
+              handleRegister={handleJoinWebinar}
             />
           </div>
         </section>
@@ -376,266 +337,264 @@ const UserDashboard = () => {
         {/* Stats Cards */}
         <UserStatsCards userCoins={user?.coins || 0} />
 
-          {/* Content Tabs */}
-          <section>
-            <Tabs defaultValue="upcoming" className="w-full">
-              <TabsList className="bg-white rounded-lg shadow-sm p-1">
-                <TabsTrigger value="upcoming" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
-                  Upcoming ({upcomingEvents.length})
-                </TabsTrigger>
-                <TabsTrigger value="registered" className="data-[state=active]:bg-green-500 data-[state=active]:text-white">
-                  Registered ({registeredEvents.length})
-                </TabsTrigger>
-                <TabsTrigger value="past" className="data-[state=active]:bg-gray-500 data-[state=active]:text-white">
-                  Past ({pastEvents.length})
-                </TabsTrigger>
-              </TabsList>
+        {/* Content Tabs */}
+        <section>
+          <Tabs defaultValue="upcoming" className="w-full">
+            <TabsList className="bg-white rounded-lg shadow-sm p-1">
+              <TabsTrigger value="upcoming" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                Upcoming ({upcomingEvents.length})
+              </TabsTrigger>
+              <TabsTrigger value="registered" className="data-[state=active]:bg-green-500 data-[state=active]:text-white">
+                Registered ({registeredEvents.length})
+              </TabsTrigger>
+              <TabsTrigger value="past" className="data-[state=active]:bg-gray-500 data-[state=active]:text-white">
+                Past ({pastEvents.length})
+              </TabsTrigger>
+            </TabsList>
 
-              {/* Upcoming Tab */}
-              <TabsContent value="upcoming" className="mt-6">
-                {upcomingEvents.length === 0 ? (
-                  <div className="text-center py-12 bg-white rounded-lg shadow">
-                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">No Upcoming Webinars</h3>
-                    <p className="text-gray-500">Check back later for new webinars</p>
+            {/* Upcoming Tab */}
+            <TabsContent value="upcoming" className="mt-6">
+              {upcomingEvents.length === 0 ? (
+                <div className="text-center py-12 bg-white rounded-lg shadow">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {upcomingEvents.map(event => {
-                      if (!event?.id) return null;
-                      return (
-                        <div key={event.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
-                          <EventCard 
-                            title={event.title || 'Untitled'}
-                            image={getFullThumbnailUrl(event.thumbnail)}
-                            price={event.package?.name || 'Free'}
-                            PlayNow="Join"
-                            date={new Date(event.date).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric'
-                            })}
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">No Upcoming Webinars</h3>
+                  <p className="text-gray-500">Check back later for new webinars</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {upcomingEvents.map(event => {
+                    if (!event?.id) return null;
+                    return (
+                      <div key={event.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
+                        <EventCard 
+                          title={event.title || 'Untitled'}
+                          image={getFullThumbnailUrl(event.thumbnail)}
+                          price={event.package?.name || 'Free'}
+                          PlayNow="Join"
+                          date={new Date(event.date).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        />
+                        
+                        <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
+                          <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                            <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span className="font-medium text-xs">
+                              {new Date(event.date).toLocaleDateString('en-US', {
+                                weekday: 'short',
+                                month: 'short',
+                                day: 'numeric'
+                              })}
+                            </span>
+                            <span className="mx-1">•</span>
+                            <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="font-medium text-xs">
+                              {new Date(event.date).toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true
+                              })}
+                            </span>
+                          </div>
+                          
+                          {/* ✅ CHANGED: Only Join button */}
+                          <button
+                            onClick={() => handleJoinWebinar(event.zoomLink)}
+                            className="block w-full py-3 text-center bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-lg shadow-md transition-all flex items-center justify-center gap-2"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            Join Webinar
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Registered Tab */}
+            <TabsContent value="registered" className="mt-6">
+              {registeredEvents.length === 0 ? (
+                <div className="text-center py-16 bg-white rounded-xl border border-gray-100">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">No Registered Webinars</h3>
+                  <p className="text-gray-500">Register for upcoming webinars to see them here</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {registeredEvents.map(event => {
+                    if (!event?.id) return null;
+                    return (
+                      <div key={event.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition border-2 border-green-200">
+                        <div className="relative">
+                          <img 
+                            src={getFullThumbnailUrl(event.thumbnail)} 
+                            alt={event.title}
+                            className="w-full h-48 object-cover"
                           />
-                          
-                          <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
-                            <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                              <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                              <span className="font-medium text-xs">
-                                {new Date(event.date).toLocaleDateString('en-US', {
-                                  weekday: 'short',
-                                  month: 'short',
-                                  day: 'numeric'
-                                })}
-                              </span>
-                              <span className="mx-1">•</span>
-                              <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              <span className="font-medium text-xs">
-                                {new Date(event.date).toLocaleTimeString('en-US', {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                  hour12: true
-                                })}
-                              </span>
-                            </div>
-                            
-                            <button
-                              onClick={() => handleRegisterAndJoin(event.id, event.zoomLink)}
-                              className="block w-full py-3 text-center bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 text-white font-semibold rounded-lg shadow-md transition-all flex items-center justify-center gap-2"
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                              </svg>
-                              Register & Join
-                            </button>
+                          <div className="absolute top-2 right-2 bg-green-600 text-white text-xs px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Registered
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </TabsContent>
-
-              {/* ✅ Registered Tab */}
-              <TabsContent value="registered" className="mt-6">
-                {registeredEvents.length === 0 ? (
-                  <div className="text-center py-16 bg-white rounded-xl border border-gray-100">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">No Registered Webinars</h3>
-                    <p className="text-gray-500">Register for upcoming webinars to see them here</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {registeredEvents.map(event => {
-                      if (!event?.id) return null;
-                      return (
-                        <div key={event.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition border-2 border-green-200">
-                          <div className="relative">
-                            <img 
-                              src={getFullThumbnailUrl(event.thumbnail)} 
-                              alt={event.title}
-                              className="w-full h-48 object-cover"
-                            />
-                            <div className="absolute top-2 right-2 bg-green-600 text-white text-xs px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              Registered
-                            </div>
+                        
+                        <div className="p-4">
+                          <h3 className="font-bold text-lg text-gray-800 mb-2 line-clamp-2">
+                            {event.title || 'Untitled'}
+                          </h3>
+                          
+                          <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                            <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span className="text-xs">
+                              {new Date(event.date).toLocaleDateString('en-US', {
+                                weekday: 'short',
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric'
+                              })}
+                            </span>
+                            <span className="mx-1">•</span>
+                            <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="text-xs">
+                              {new Date(event.date).toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true
+                              })}
+                            </span>
                           </div>
                           
-                          <div className="p-4">
-                            <h3 className="font-bold text-lg text-gray-800 mb-2 line-clamp-2">
-                              {event.title || 'Untitled'}
-                            </h3>
-                            
-                            <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
-                              <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                              <span className="text-xs">
-                                {new Date(event.date).toLocaleDateString('en-US', {
-                                  weekday: 'short',
-                                  month: 'short',
-                                  day: 'numeric',
-                                  year: 'numeric'
-                                })}
-                              </span>
-                              <span className="mx-1">•</span>
-                              <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              <span className="text-xs">
-                                {new Date(event.date).toLocaleTimeString('en-US', {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                  hour12: true
-                                })}
-                              </span>
+                          {event.package?.name && (
+                            <div className="inline-block px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full mb-3">
+                              {event.package.name}
                             </div>
-                            
-                            {event.package?.name && (
-                              <div className="inline-block px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full mb-3">
-                                {event.package.name}
-                              </div>
-                            )}
-                            
-                            <button
-                              onClick={() => event.zoomLink && window.open(event.zoomLink, '_blank')}
-                              className="w-full py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg transition-all font-medium flex items-center justify-center gap-2 text-sm"
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                              </svg>
-                              Join Webinar
-                            </button>
+                          )}
+                          
+                          <button
+                            onClick={() => handleJoinWebinar(event.zoomLink)}
+                            className="w-full py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg transition-all font-medium flex items-center justify-center gap-2 text-sm"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            Join Webinar
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Past Tab */}
+            <TabsContent value="past" className="mt-6">
+              {pastEvents.length === 0 ? (
+                <div className="text-center py-16 bg-white rounded-xl border border-gray-100">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">No Past Webinars</h3>
+                  <p className="text-gray-500">Your attended webinars will appear here</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {pastEvents.map(event => {
+                    if (!event?.id) return null;
+                    return (
+                      <div key={event.id} className="bg-white rounded-xl shadow-md overflow-hidden opacity-90 hover:opacity-100 transition">
+                        <div className="relative">
+                          <img 
+                            src={getFullThumbnailUrl(event.thumbnail)} 
+                            alt={event.title}
+                            className="w-full h-48 object-cover grayscale"
+                          />
+                          <div className="absolute top-2 right-2 bg-gray-800/80 text-white text-xs px-3 py-1 rounded-full">
+                            Completed
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </TabsContent>
-
-              {/* Past Tab */}
-              <TabsContent value="past" className="mt-6">
-                {pastEvents.length === 0 ? (
-                  <div className="text-center py-16 bg-white rounded-xl border border-gray-100">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">No Past Webinars</h3>
-                    <p className="text-gray-500">Your attended webinars will appear here</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {pastEvents.map(event => {
-                      if (!event?.id) return null;
-                      return (
-                        <div key={event.id} className="bg-white rounded-xl shadow-md overflow-hidden opacity-90 hover:opacity-100 transition">
-                          <div className="relative">
-                            <img 
-                              src={getFullThumbnailUrl(event.thumbnail)} 
-                              alt={event.title}
-                              className="w-full h-48 object-cover grayscale"
-                            />
-                            <div className="absolute top-2 right-2 bg-gray-800/80 text-white text-xs px-3 py-1 rounded-full">
-                              Completed
-                            </div>
+                        
+                        <div className="p-4">
+                          <h3 className="font-bold text-lg text-gray-800 mb-2 line-clamp-2">
+                            {event.title}
+                          </h3>
+                          
+                          <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span className="text-xs">
+                              {new Date(event.date).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric'
+                              })}
+                            </span>
+                            <span className="mx-1">•</span>
+                            <span className="text-xs">
+                              {new Date(event.date).toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true
+                              })}
+                            </span>
                           </div>
                           
-                          <div className="p-4">
-                            <h3 className="font-bold text-lg text-gray-800 mb-2 line-clamp-2">
-                              {event.title}
-                            </h3>
-                            
-                            <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                              <span className="text-xs">
-                                {new Date(event.date).toLocaleDateString('en-US', {
-                                  month: 'short',
-                                  day: 'numeric',
-                                  year: 'numeric'
-                                })}
-                              </span>
-                              <span className="mx-1">•</span>
-                              <span className="text-xs">
-                                {new Date(event.date).toLocaleTimeString('en-US', {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                  hour12: true
-                                })}
-                              </span>
+                          {event.package?.name && (
+                            <div className="inline-block px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full mb-3">
+                              {event.package.name}
                             </div>
-                            
-                            {event.package?.name && (
-                              <div className="inline-block px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full mb-3">
-                                {event.package.name}
-                              </div>
-                            )}
-                            
-                            <button
-                              disabled
-                              className="w-full py-2 bg-gray-200 text-gray-500 rounded-lg cursor-not-allowed text-sm font-medium"
-                            >
-                              Event Ended
-                            </button>
-                          </div>
+                          )}
+                          
+                          <button
+                            disabled
+                            className="w-full py-2 bg-gray-200 text-gray-500 rounded-lg cursor-not-allowed text-sm font-medium"
+                          >
+                            Event Ended
+                          </button>
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
-          </section>
-
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </section>
 
         <DisplayAllProducts />
 
-
-         {/* Modal Component */}
-      <YogaScheduleModal 
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        isAdmin={false}
-      />
-    
+        {/* Modal */}
+        <YogaScheduleModal 
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          isAdmin={false}
+        />
 
         {showLoader && (
           <LoadingScreen

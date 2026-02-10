@@ -14,7 +14,7 @@ interface Webinar {
 interface Props {
   webinars: Webinar[];
   interval?: number;
-  handleRegister?: (webinarId: string, zoomLink: string) => void;
+  handleRegister?: (zoomLink: string) => void;
 }
 
 export const NotificationSliderMobile: React.FC<Props> = ({ 
@@ -114,7 +114,7 @@ export const NotificationSliderMobile: React.FC<Props> = ({
         </div>
         
         <a 
-          onClick={() => handleRegister(w.id, w.zoomLink)}
+          onClick={() => handleRegister(w.zoomLink)}
           className="bg-blue-500 hover:bg-blue-600 cursor-pointer hover:scale-110 text-white text-sm px-3 py-1 rounded-md shadow transition"
         >
          Register & Join
