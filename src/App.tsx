@@ -42,6 +42,7 @@ import SuperAdminDashboard from "./pages/SuperAdmin Pages/SuperAdminDashboard";
 import AuditLogsPage from "./pages/AdminPages/AuditLogs";
 import PendingRegistrations from "./pages/AdminPages/PendingRegistrations";
 import ExportLogsPage from "./pages/SuperAdmin Pages/ExportLogsPage";
+import ForgotPasswordPage from "./pages/forgot-password";
 
 
 const queryClient = new QueryClient();
@@ -115,6 +116,7 @@ const App = () => {
             <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

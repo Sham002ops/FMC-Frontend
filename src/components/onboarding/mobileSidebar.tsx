@@ -14,7 +14,8 @@ import {
   CheckCheck,
   Trash2Icon,
   FileStackIcon,
-  FileDown, // ✅ Add this for Export Logs
+  FileDown,
+  FileText, // ✅ Add this for Export Logs
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -85,6 +86,7 @@ const MobileSidebar: React.FC = () => {
     { label: "Webinars", path: "/admin/webinars", Icon: Calendar },
     { label: "Deleted Users", path: "/admin/deleted-users", Icon: Trash2Icon },
     { label: "Audit Logs", path: "/admin/audit-logs", Icon: FileStackIcon },
+    { label: "Pending Registrations", path: "/admin/pending-registrations", Icon: FileText },
   ];
 
   // ✅ Super Admin only items

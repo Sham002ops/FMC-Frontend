@@ -32,7 +32,7 @@ interface AppDownloadSectionProps {
 const AppDownloadSection: React.FC<AppDownloadSectionProps> = ({
   appName = 'Finite Marshall Club',
   playStoreUrl = 'https://play.google.com/store/apps/details?id=com.finitemarshallclub',
-  whatsappChannelUrl = 'https://whatsapp.com/channel/0029VarAlsO4WaC2OZ3umo1d',
+  whatsappChannelUrl = 'https://whatsapp.com/channel/0029Vb7ULSfHFxOsbADktD2m',
   stats = {
     downloads: '10K+',
     rating: '4.8',
