@@ -66,6 +66,10 @@ const UserDashboard = () => {
             navigate("/Mentor-dashboard");
             return;
           }
+          if (role === "SUPER_ADMIN") {
+            navigate("/superadmin-dashboard");
+            return;
+          }
           if (role && role !== "USER") {
             navigate("/unauthorized");
             return;
