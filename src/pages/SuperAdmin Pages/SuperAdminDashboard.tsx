@@ -57,14 +57,14 @@ const SuperAdminDashboard = () => {
       });
      console.log("role at SA: ", userRes.data.user.role );
 
-      if (userRes.data.user.role !== 'SUPER_ADMIN') {
+      // if (userRes.data.user.role !== 'SUPER_ADMIN') {
         
-        console.log("role at SA: ", userRes.data.user.role );
+      //   console.log("role at SA: ", userRes.data.user.role );
         
 
-        navigate('/unauthorized');
-        return;
-      }
+      //   navigate('/unauthorized');
+      //   return;
+      // }
 
       setUser(userRes.data.user);
 
