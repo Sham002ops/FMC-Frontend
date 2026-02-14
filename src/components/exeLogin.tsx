@@ -54,7 +54,7 @@ const ExecutiveLoginForm = () => {
         description: `Welcome back, ${executive.name}!`,
       });
 
-      navigate("/exexutive-dashboard");
+      navigate("/executive-dashboard");
 
     } catch (err) {
       if (err.response?.status === 403 && err.response?.data?.isBanned) {

@@ -52,8 +52,18 @@ const UserStatsCards: React.FC<Props> = ({ userCoins }) => {
     }
   };
 
+  // ✅ INITIAL FETCH
   useEffect(() => {
     fetchUserStats();
+  }, []);
+
+  // ✅ NEW: AUTO-REFRESH EVERY 30 SECONDS
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchUserStats();
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
   }, []);
 
   useEffect(() => {
@@ -132,15 +142,51 @@ const UserStatsCards: React.FC<Props> = ({ userCoins }) => {
     );
   }
 
+  // ✅ UPDATED: Smart order status text with priority
   const getOrderStatusText = () => {
     if (!stats) return { text: 'No Orders', color: 'text-gray-500' };
-    if (stats.orders.pending > 0)
-      return { text: `${stats.orders.pending} Pending`, color: 'text-yellow-600' };
-    if (stats.orders.shipped > 0)
-      return { text: `${stats.orders.shipped} Shipped`, color: 'text-blue-600' };
-    if (stats.orders.delivered > 0)
-      return { text: `${stats.orders.delivered} Delivered`, color: 'text-green-600' };
-    return { text: 'No Active Orders', color: 'text-gray-500' };
+
+    const { orders } = stats;
+
+    // Priority: Pending > Shipped > Rejected > Delivered > No orders
+    if (orders.pending > 0) {
+      return { 
+        text: `${orders.pending} Pending`, 
+        color: 'text-yellow-600',
+        icon: '⏳'
+      };
+    }
+    
+    if (orders.shipped > 0) {
+      return { 
+        text: `${orders.shipped} Shipped`, 
+        color: 'text-blue-600',
+        icon: '🚚'
+      };
+    }
+
+    // ✅ NEW: Show rejected orders
+    if (orders.rejected > 0) {
+      return { 
+        text: `${orders.rejected} Rejected`, 
+        color: 'text-red-600',
+        icon: '❌'
+      };
+    }
+
+    if (orders.delivered > 0) {
+      return { 
+        text: `${orders.delivered} Delivered`, 
+        color: 'text-green-600',
+        icon: '✅'
+      };
+    }
+
+    return { 
+      text: 'No Active Orders', 
+      color: 'text-gray-500',
+      icon: '📦'
+    };
   };
 
   const orderStatus = getOrderStatusText();
@@ -177,16 +223,14 @@ const UserStatsCards: React.FC<Props> = ({ userCoins }) => {
             </div>
           </div>
 
-          {/* ✅ Task Completion - REDESIGNED AS BUTTON */}
+          {/* Task Completion */}
           <button
             ref={(el) => (cardsRef.current[1] = el)}
             onClick={() => setOpenTasksModal(true)}
             className="relative group bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-xl shadow-lg border-2 border-emerald-200 hover:border-emerald-400 hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer overflow-hidden text-left"
           >
-            {/* Animated Background Gradient */}
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-100/50 to-teal-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             
-            {/* Ripple Effect on Hover */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity">
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 rounded-full bg-emerald-400 group-hover:w-96 group-hover:h-96 transition-all duration-700"></div>
             </div>
@@ -197,7 +241,6 @@ const UserStatsCards: React.FC<Props> = ({ userCoins }) => {
                   <h3 className="text-sm font-semibold text-emerald-700 group-hover:text-emerald-900 transition-colors">
                     Task Completion
                   </h3>
-                  {/* Click Indicator */}
                   <svg 
                     className="w-4 h-4 text-emerald-600 group-hover:translate-x-1 transition-transform" 
                     fill="none" 
@@ -215,7 +258,6 @@ const UserStatsCards: React.FC<Props> = ({ userCoins }) => {
                     ? `${completedTasks}/${totalTasks} tasks completed`
                     : 'No tasks assigned yet'}
                 </p>
-                {/* Click to view indicator */}
                 <p className="text-[10px] text-emerald-500 mt-2 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                   Click to view tasks →
                 </p>
@@ -237,7 +279,6 @@ const UserStatsCards: React.FC<Props> = ({ userCoins }) => {
               </div>
             </div>
 
-            {/* Progress Bar */}
             {totalTasks > 0 && (
               <div className="relative z-10 mt-4 w-full h-2 bg-emerald-200/50 rounded-full overflow-hidden">
                 <div 
@@ -248,18 +289,44 @@ const UserStatsCards: React.FC<Props> = ({ userCoins }) => {
             )}
           </button>
 
-          {/* Product Orders */}
+          {/* ✅ UPDATED: Product Orders Card */}
           <div
             ref={(el) => (cardsRef.current[2] = el)}
-            className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow cursor-pointer"
+            className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow cursor-pointer relative"
           >
+            {/* ✅ NEW: Visual indicator for rejected orders */}
+            {stats.orders.rejected > 0 && (
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center animate-pulse">
+                <span className="text-white text-xs font-bold">!</span>
+              </div>
+            )}
+
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Product Orders</h3>
                 <p className="text-2xl font-bold text-purple-600 stat-number">
                   {stats.orders.total}
                 </p>
-                <p className={`text-xs ${orderStatus.color}`}>{orderStatus.text}</p>
+                <div className="flex items-center gap-1 mt-1">
+                  <span className="text-lg">{orderStatus.icon}</span>
+                  <p className={`text-xs font-medium ${orderStatus.color}`}>
+                    {orderStatus.text}
+                  </p>
+                </div>
+
+                {/* ✅ NEW: Show breakdown if multiple statuses */}
+                {stats.orders.total > 1 && (
+                  <div className="mt-2 text-[10px] text-gray-500 space-y-0.5">
+                    {stats.orders.delivered > 0 && (
+                      <div>✅ {stats.orders.delivered} Delivered</div>
+                    )}
+                    {stats.orders.rejected > 0 && (
+                      <div className="text-red-600 font-semibold">
+                        ❌ {stats.orders.rejected} Rejected
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
                 <svg

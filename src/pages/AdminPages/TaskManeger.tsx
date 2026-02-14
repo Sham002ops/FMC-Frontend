@@ -278,279 +278,360 @@ const AdminTasksManagement: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-100">
-      {/* Sidebar */}
-      <div className="transition-transform duration-300">
-        <div className="hidden lg:block">
-          <Sidebar />
-        </div>
-        <div className="block lg:hidden">
-          <MobileSidebar />
-        </div>
+    <div className="min-h-screen flex bg-gray-50">
+      {/* ✅ Sidebar - Fixed positioning */}
+      <div className="hidden lg:block fixed left-0 top-0 h-full z-30">
+        <Sidebar />
+      </div>
+      <div className="lg:hidden">
+        <MobileSidebar />
       </div>
 
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-40">
+      {/* ✅ Main Content Area - Adjusted for sidebar */}
+      <div className="flex-1 flex flex-col lg:ml-64 w-full">
+        {/* ✅ Fixed Header */}
+        <header className="fixed top-0 right-0 left-0 lg:left-64 bg-white shadow-sm z-40 h-16">
           <Header1 />
         </header>
 
-        {/* Main Content */}
-        <main
-          className="
-            flex-1
-            pt-24 md:pt-28
-            lg:pl-28
-            px-3 sm:px-4 md:px-6 lg:px-8
-            pb-6
-            overflow-auto
-          "
-        >
-          {/* Top bar: title + button */}
-          <div
-            className="
-              flex flex-wrap gap-3
-              items-center
-              justify-between
-              mb-6 md:mb-8
-            "
-          >
-            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-semibold text-gray-800">
-              Task &amp; Yoga Task Management
-            </h1>
-
-            <div className="flex-shrink-0">
+        {/* ✅ Main Content - Properly padded */}
+        <main className="flex-1 pt-20 px-4 sm:px-6 lg:px-8 pb-8 overflow-auto">
+          {/* ✅ Page Header - Always visible */}
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                Task & Yoga Task Management
+              </h1>
+              
+              {/* ✅ Desktop/Tablet Button - Always visible */}
               <Button
                 onClick={openCreateModal}
-                className="
-                  bg-blue-600 hover:bg-blue-700
-                  flex items-center gap-2
-                  px-3 sm:px-4
-                  py-2
-                  text-sm sm:text-base
-                "
+                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 px-4 py-2 shrink-0"
               >
                 <Plus size={18} />
-                <span className="hidden xs:inline">Create Task</span>
-                <span className="xs:hidden">New</span>
+                <span>New Task</span>
               </Button>
             </div>
-          </div>
 
-          {/* Floating button for very small screens */}
-          <button
-            onClick={openCreateModal}
-            className="
-              fixed
-              bottom-4 right-4
-              z-40
-              flex items-center justify-center
-              h-12 w-12
-              rounded-full
-              bg-blue-600 text-white shadow-lg
-              hover:bg-blue-700
-              transition
-              sm:hidden
-            "
-            aria-label="Create Task"
-          >
-            <Plus size={20} />
-          </button>
-
-          {tasks.length === 0 ? (
-            <p className="text-center text-gray-600 mt-16 sm:mt-20">
-              No tasks found.
-            </p>
-          ) : (
-            <>
-              {/* Desktop & Tablet Table */}
-              <div className="hidden sm:flex flex-col items-center w-full">
-                <div className="w-full max-w-screen-xl mx-auto bg-white shadow rounded-xl overflow-x-auto">
-                  <table className="w-full divide-y divide-gray-200 text-base">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-600 uppercase tracking-wide">
-                          Title
-                        </th>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-600 uppercase tracking-wide">
-                          Type
-                        </th>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-600 uppercase tracking-wide">
-                          Package
-                        </th>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-600 uppercase tracking-wide">
-                          Link
-                        </th>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-600 uppercase tracking-wide">
-                          Completed
-                        </th>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-600 uppercase tracking-wide">
-                          Status
-                        </th>
-                        <th className="px-6 py-4 text-center font-semibold text-gray-600 uppercase tracking-wide">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {tasks.map((task) => (
-                        <tr key={task.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-3 whitespace-nowrap text-gray-800 font-medium">
-                            {task.title}
-                            {task.description && (
-                              <div className="text-xs text-gray-500 mt-1 max-w-md truncate">
-                                {task.description}
+            {/* ✅ Content Area */}
+            {tasks.length === 0 ? (
+              <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+                <div className="max-w-md mx-auto">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Plus size={32} className="text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    No tasks found
+                  </h3>
+                  <p className="text-gray-500 mb-6">
+                    Get started by creating your first task
+                  </p>
+                  <Button onClick={openCreateModal} className="bg-blue-600 hover:bg-blue-700">
+                    <Plus size={18} className="mr-2" />
+                    Create Task
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* ✅ Desktop Table - Optimized for large screens */}
+                <div className="hidden lg:block bg-white rounded-lg shadow-sm overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Title
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Type
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Package
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Link
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Completed
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {tasks.map((task) => (
+                          <tr key={task.id} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-4 py-3">
+                              <div className="max-w-xs">
+                                <p className="font-medium text-gray-900 truncate">
+                                  {task.title}
+                                </p>
+                                {task.description && (
+                                  <p className="text-xs text-gray-500 truncate mt-0.5">
+                                    {task.description}
+                                  </p>
+                                )}
                               </div>
-                            )}
-                          </td>
-                          <td className="px-6 py-3 whitespace-nowrap">
+                            </td>
+                            <td className="px-4 py-3">
+                              <span
+                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                  task.type === 'YOGA'
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-purple-100 text-purple-800'
+                                }`}
+                              >
+                                {task.type === 'YOGA' ? 'Yoga Task' : 'General'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-900">
+                              {getPackageName(task)}
+                            </td>
+                            <td className="px-4 py-3">
+                              {task.shareableLink ? (
+                                <a
+                                  href={task.shareableLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
+                                >
+                                  <LinkIcon size={14} />
+                                  <span>View Link</span>
+                                </a>
+                              ) : (
+                                <span className="text-gray-400 text-sm">No link</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-900">
+                              {task._count?.completions ?? 0}
+                            </td>
+                            <td className="px-4 py-3">
+                              <span
+                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                  task.isActive
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-gray-100 text-gray-600'
+                                }`}
+                              >
+                                {task.isActive ? 'Active' : 'Inactive'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex items-center justify-center gap-2">
+                                <Button
+                                  onClick={() => openEditModal(task)}
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-8 px-3"
+                                >
+                                  <Edit size={14} className="mr-1" />
+                                  Edit
+                                </Button>
+                                <Button
+                                  onClick={() => openDeleteModal(task)}
+                                  size="sm"
+                                  variant="destructive"
+                                  className="h-8 px-3"
+                                >
+                                  <Trash2 size={14} />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* ✅ Tablet View (md-lg) - Compact table */}
+                <div className="hidden md:block lg:hidden bg-white rounded-lg shadow-sm overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                            Task Details
+                          </th>
+                          <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                            Package
+                          </th>
+                          <th className="px-3 py-3 text-center text-xs font-semibold text-gray-600 uppercase">
+                            Completed
+                          </th>
+                          <th className="px-3 py-3 text-center text-xs font-semibold text-gray-600 uppercase">
+                            Status
+                          </th>
+                          <th className="px-3 py-3 text-center text-xs font-semibold text-gray-600 uppercase">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {tasks.map((task) => (
+                          <tr key={task.id} className="hover:bg-gray-50">
+                            <td className="px-3 py-3">
+                              <div>
+                                <p className="font-medium text-gray-900 text-sm">
+                                  {task.title}
+                                </p>
+                                <span
+                                  className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs ${
+                                    task.type === 'YOGA'
+                                      ? 'bg-green-100 text-green-800'
+                                      : 'bg-purple-100 text-purple-800'
+                                  }`}
+                                >
+                                  {task.type === 'YOGA' ? 'Yoga' : 'General'}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-3 py-3 text-sm text-gray-900">
+                              {getPackageName(task)}
+                            </td>
+                            <td className="px-3 py-3 text-center text-sm text-gray-900">
+                              {task._count?.completions ?? 0}
+                            </td>
+                            <td className="px-3 py-3 text-center">
+                              <span
+                                className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+                                  task.isActive
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-gray-100 text-gray-600'
+                                }`}
+                              >
+                                {task.isActive ? 'Active' : 'Inactive'}
+                              </span>
+                            </td>
+                            <td className="px-3 py-3">
+                              <div className="flex justify-center gap-1">
+                                <Button
+                                  onClick={() => openEditModal(task)}
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <Edit size={14} />
+                                </Button>
+                                <Button
+                                  onClick={() => openDeleteModal(task)}
+                                  size="sm"
+                                  variant="destructive"
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <Trash2 size={14} />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* ✅ Mobile Cards (sm and below) */}
+                <div className="md:hidden space-y-4">
+                  {tasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900 mb-1">
+                            {task.title}
+                          </h3>
+                          <div className="flex flex-wrap gap-2">
                             <span
-                              className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                                 task.type === 'YOGA'
-                                  ? 'bg-green-100 text-green-700'
-                                  : 'bg-purple-100 text-purple-700'
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-purple-100 text-purple-800'
                               }`}
                             >
-                              {task.type === 'YOGA' ? 'Yoga Task' : 'General'}
+                              {task.type === 'YOGA' ? 'Yoga' : 'General'}
                             </span>
-                          </td>
-                          <td className="px-6 py-3 whitespace-nowrap">
-                            {getPackageName(task)}
-                          </td>
-                          <td className="px-6 py-3 whitespace-nowrap">
-                            {task.shareableLink ? (
-                              <a
-                                href={task.shareableLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                              >
-                                <LinkIcon size={14} />
-                                <span className="text-xs">View Link</span>
-                              </a>
-                            ) : (
-                              <span className="text-gray-400 text-xs">
-                                No link
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-6 py-3 whitespace-nowrap">
-                            {task._count?.completions ?? 0}
-                          </td>
-                          <td className="px-6 py-3 whitespace-nowrap">
                             <span
-                              className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                                 task.isActive
-                                  ? 'bg-emerald-100 text-emerald-700'
-                                  : 'bg-gray-200 text-gray-600'
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-gray-100 text-gray-600'
                               }`}
                             >
                               {task.isActive ? 'Active' : 'Inactive'}
                             </span>
-                          </td>
-                          <td className="px-6 py-3 whitespace-nowrap text-center">
-                            <div className="flex justify-center gap-2">
-                              <Button
-                                onClick={() => openEditModal(task)}
-                                size="sm"
-                                variant="outline"
-                                className="flex items-center gap-1"
-                              >
-                                <Edit size={16} />
-                                Edit
-                              </Button>
-                              <Button
-                                onClick={() => openDeleteModal(task)}
-                                size="sm"
-                                variant="destructive"
-                                className="flex items-center gap-1"
-                              >
-                                <Trash2 size={16} />
-                                Delete
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                          </div>
+                        </div>
+                      </div>
 
-              {/* Mobile Cards */}
-              <div className="sm:hidden space-y-4">
-                {tasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className="bg-white p-4 rounded-lg shadow border border-gray-200"
-                  >
-                    <h2 className="font-semibold text-lg text-gray-800 mb-1">
-                      {task.title}
-                    </h2>
-                    {task.description && (
-                      <p className="text-gray-600 text-sm mb-2">
-                        {task.description}
-                      </p>
-                    )}
-                    <p className="text-gray-600 text-sm mb-1">
-                      <strong>Type:</strong>{' '}
-                      {task.type === 'YOGA' ? 'Yoga Task' : 'General Task'}
-                    </p>
-                    <p className="text-gray-600 text-sm mb-1">
-                      <strong>Package:</strong> {getPackageName(task)}
-                    </p>
-                    {task.shareableLink && (
-                      <p className="text-gray-600 text-sm mb-1">
-                        <strong>Link:</strong>{' '}
-                        <a
-                          href={task.shareableLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline"
+                      {task.description && (
+                        <p className="text-sm text-gray-600 mb-2">
+                          {task.description}
+                        </p>
+                      )}
+
+                      <div className="space-y-1 mb-3 text-sm">
+                        <p className="text-gray-600">
+                          <span className="font-medium">Package:</span>{' '}
+                          {getPackageName(task)}
+                        </p>
+                        <p className="text-gray-600">
+                          <span className="font-medium">Completed:</span>{' '}
+                          {task._count?.completions ?? 0} users
+                        </p>
+                        {task.shareableLink && (
+                          <a
+                            href={task.shareableLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                          >
+                            <LinkIcon size={14} />
+                            <span>View Link</span>
+                          </a>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => openEditModal(task)}
+                          size="sm"
+                          variant="outline"
+                          className="flex-1"
                         >
-                          View Link
-                        </a>
-                      </p>
-                    )}
-                    <p className="text-gray-600 text-sm mb-1">
-                      <strong>Completed Users:</strong>{' '}
-                      {task._count?.completions ?? 0}
-                    </p>
-                    <p className="text-gray-600 text-sm mb-3">
-                      <strong>Status:</strong>{' '}
-                      {task.isActive ? 'Active' : 'Inactive'}
-                    </p>
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => openEditModal(task)}
-                        size="sm"
-                        variant="outline"
-                        className="flex-1"
-                      >
-                        <Edit size={16} className="mr-1" />
-                        Edit
-                      </Button>
-                      <Button
-                        onClick={() => openDeleteModal(task)}
-                        size="sm"
-                        variant="destructive"
-                        className="flex-1"
-                      >
-                        <Trash2 size={16} className="mr-1" />
-                        Delete
-                      </Button>
+                          <Edit size={14} className="mr-1" />
+                          Edit
+                        </Button>
+                        <Button
+                          onClick={() => openDeleteModal(task)}
+                          size="sm"
+                          variant="destructive"
+                          className="flex-1"
+                        >
+                          <Trash2 size={14} className="mr-1" />
+                          Delete
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </main>
       </div>
 
+      {/* ✅ MODALS - Unchanged but optimized */}
+      
       {/* Create Task Modal */}
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Create New Task</DialogTitle>
             <DialogDescription>
@@ -559,7 +640,7 @@ const AdminTasksManagement: React.FC = () => {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="task-title">Title</Label>
+              <Label htmlFor="task-title">Title *</Label>
               <Input
                 id="task-title"
                 value={formData.title}
@@ -596,10 +677,10 @@ const AdminTasksManagement: React.FC = () => {
               </p>
             </div>
             <div>
-              <Label htmlFor="task-type">Task Type</Label>
+              <Label htmlFor="task-type">Task Type *</Label>
               <select
                 id="task-type"
-                className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
+                className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 value={formData.type}
                 onChange={(e) =>
                   setFormData({
@@ -613,10 +694,10 @@ const AdminTasksManagement: React.FC = () => {
               </select>
             </div>
             <div>
-              <Label htmlFor="task-package">Assign to Package</Label>
+              <Label htmlFor="task-package">Assign to Package *</Label>
               <select
                 id="task-package"
-                className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
+                className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 value={formData.packageId}
                 onChange={(e) =>
                   setFormData({ ...formData, packageId: e.target.value })
@@ -631,12 +712,12 @@ const AdminTasksManagement: React.FC = () => {
               </select>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setShowCreateModal(false)}>
               Cancel
             </Button>
             <Button onClick={handleCreateTask} disabled={submitting}>
-              {submitting ? <Processing /> : 'Create'}
+              {submitting ? <Processing /> : 'Create Task'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -644,14 +725,14 @@ const AdminTasksManagement: React.FC = () => {
 
       {/* Edit Task Modal */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Task</DialogTitle>
             <DialogDescription>Update task details.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="edit-task-title">Title</Label>
+              <Label htmlFor="edit-task-title">Title *</Label>
               <Input
                 id="edit-task-title"
                 value={formData.title}
@@ -683,10 +764,10 @@ const AdminTasksManagement: React.FC = () => {
               />
             </div>
             <div>
-              <Label htmlFor="edit-task-type">Task Type</Label>
+              <Label htmlFor="edit-task-type">Task Type *</Label>
               <select
                 id="edit-task-type"
-                className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
+                className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 value={formData.type}
                 onChange={(e) =>
                   setFormData({
@@ -700,12 +781,12 @@ const AdminTasksManagement: React.FC = () => {
               </select>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setShowEditModal(false)}>
               Cancel
             </Button>
             <Button onClick={handleUpdateTask} disabled={submitting}>
-              {submitting ? <Processing /> : 'Update'}
+              {submitting ? <Processing /> : 'Update Task'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -718,11 +799,11 @@ const AdminTasksManagement: React.FC = () => {
             <DialogTitle>Delete Task</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete{' '}
-              <strong>{selectedTask?.title}</strong>? This action cannot be
-              undone.
+              <strong className="text-gray-900">{selectedTask?.title}</strong>? 
+              This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setShowDeleteModal(false)}>
               Cancel
             </Button>
@@ -731,7 +812,7 @@ const AdminTasksManagement: React.FC = () => {
               onClick={handleDeleteTask}
               disabled={submitting}
             >
-              {submitting ? <Processing /> : 'Delete'}
+              {submitting ? <Processing /> : 'Delete Task'}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -323,7 +323,7 @@ const AdminProfileMenu: React.FC<Props> = ({ onSignout }) => {
               
               {/* Navigation Links */}
               <ul ref={linksRef} className="px-3 py-2 space-y-0.5">
-                <li>
+                {/* <li>
                   <button
                     onClick={() => handleNav("/admin-dashboard")}
                     className="w-full flex items-center gap-2.5 py-2 px-2.5 rounded-lg hover:bg-gray-50 text-gray-700 transition-all text-left group"
@@ -335,7 +335,7 @@ const AdminProfileMenu: React.FC<Props> = ({ onSignout }) => {
                     </div>
                     <span className="text-sm font-medium">My Dashboard</span>
                   </button>
-                </li>
+                </li> */}
                 <li>
                   <button
                     onClick={() => handleNav("/admin/all-users")}
