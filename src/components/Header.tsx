@@ -27,9 +27,6 @@ const Header1: React.FC<Header1Props> = ({ username, user }) => {
     setMenuOpen(false);
     
     switch (item) {
-      case 'dashboard':
-        navigate('/admin-dashboard');
-        break;
       case 'webinars':
         navigate('/admin/webinars');
         break;

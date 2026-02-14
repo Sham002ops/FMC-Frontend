@@ -16,33 +16,34 @@ import ProtectedRoute from "./pages/ProtectedRoute";
 import Register from "./pages/Register";
 import Unauthorized from "./pages/Unauthorized";
 import Psudopage from "./pages/Psudopage";
-import AllUsers from "./pages/AdminPages/AllUsers";
+// import AllUsers from "./pages/AdminPages/AllUsers";
 import ExexutiveDashboard from "./pages/ExecutivePages/exeDashboard";
 import AllExecutive from "./pages/AdminPages/AllExecutive";
-import AllPackages from "./pages/AdminPages/AllPackages";
+// import AllPackages from "./pages/AdminPages/AllPackages";
 import AllWebinars from "./pages/AdminPages/AllWebinar";
 import AllRefUsers from "./pages/ExecutivePages/AllRefUsers";
 import ProductOrderManagement from "./pages/AdminPages/AllOrders";
 import AnalyticsPage from "./pages/AdminPages/AnalyticsPage";
-import AllWebinarsWm from "./pages/WebinarManegerPages/MyWebinars";
+// import AllWebinarsWm from "./pages/WebinarManegerPages/MyWebinars";
 import MentorDashboard from "./pages/WebinarManegerPages/MentorDashboard";
 import MyWebinars from "./pages/WebinarManegerPages/MyWebinars";
 import MentorCalendar from "./pages/WebinarManegerPages/MentorCalendar";
 import AllMentors from "./pages/AdminPages/Mentors";
 import PrivacyPolicy from "./pages/privacy-policy";
-import TermsAndConditions from "./pages/terms";
+// import TermsAndConditions from "./pages/terms";
 import About from "./pages/about";
 import Terms from "./pages/terms";
 import AdminPackagesManagement from "./pages/AdminPages/AllPackages";
 import AdminTasksManagement from "./pages/AdminPages/TaskManeger";
 import AdminYogaSchedule from "./pages/AdminPages/AdminYogaSchedule";
-import YogaScheduleCalendar from "./components/userComponents/YogaScheduleCalendar";
+// import YogaScheduleCalendar from "./components/userComponents/YogaScheduleCalendar";
 import DeletedUsers from "./pages/AdminPages/DeletedUsers";
 import SuperAdminDashboard from "./pages/SuperAdmin Pages/SuperAdminDashboard";
 import AuditLogsPage from "./pages/AdminPages/AuditLogs";
 import PendingRegistrations from "./pages/AdminPages/PendingRegistrations";
 import ExportLogsPage from "./pages/SuperAdmin Pages/ExportLogsPage";
 import ForgotPasswordPage from "./pages/forgot-password";
+import AllUsersPage from "./pages/AdminPages/AllUsers/AllUsersPage";
 
 
 const queryClient = new QueryClient();
@@ -78,7 +79,7 @@ const App = () => {
             {/* Admin Routes */}
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/admin/all-users" element={<ProtectedRoute><AllUsers /></ProtectedRoute>} />
+            <Route path="/admin/all-users" element={<ProtectedRoute><AllUsersPage /></ProtectedRoute>} />
             <Route path="/admin/deleted-users" element={<ProtectedRoute><DeletedUsers /></ProtectedRoute>} />
             <Route path="/admin/executives" element={<ProtectedRoute><AllExecutive /></ProtectedRoute>} />
             <Route path="/admin/packages" element={<ProtectedRoute><AdminPackagesManagement /></ProtectedRoute>} />
