@@ -55,46 +55,45 @@ const Unauthorized: React.FC = () => {
     }
   }, [location]);
 
-  const handleGoBack = () => {
-    // Check if user is logged in
-    const token = localStorage.getItem('token');
-    
-    if (token) {
-      // Go to appropriate dashboard based on role
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        try {
-          const user = JSON.parse(userStr);
-          
-          // Route to role-specific dashboard
-          switch (user.role) {
-            case 'ADMIN':
-              navigate('/admin/dashboard');
-              break;
-            case 'SUPER_ADMIN':
-              navigate('/superadmin-dashboard');
-              break;
-            case 'MENTOR':
-              navigate('/mentor/dashboard');
-              break;
-            case 'EXECUTIVE':
-              navigate('/executive/dashboard');
-              break;
-            case 'USER':
-            default:
-              navigate('/user/dashboard');
-              break;
-          }
-        } catch {
-          navigate('/');
+const handleGoBack = () => {
+  const token = localStorage.getItem('token');
+  
+  if (token) {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        
+        // ✅ FIXED: Match your App.tsx routes exactly
+        switch (user.role) {
+          case 'SUPER_ADMIN':
+            navigate('/superadmin-dashboard', { replace: true });
+            break;
+          case 'ADMIN':
+            navigate('/admin-dashboard', { replace: true });
+            break;
+          case 'MENTOR':
+            navigate('/Mentor-dashboard', { replace: true });
+            break;
+          case 'EXECUTIVE':
+            navigate('/executive-dashboard', { replace: true });
+            break;
+          case 'USER':
+          default:
+            navigate('/dashboard', { replace: true });
+            break;
         }
-      } else {
-        navigate('/');
+      } catch {
+        navigate('/', { replace: true });
       }
     } else {
-      navigate('/');
+      navigate('/', { replace: true });
     }
-  };
+  } else {
+    navigate('/login', { replace: true });
+  }
+};
+
 
   const handleLogin = () => {
     // Clear old tokens

@@ -99,7 +99,7 @@ const App = () => {
             <Route path="/superadmin/export-logs" element={<ExportLogsPage />} />
 
             {/* Executive Routes */}
-            <Route path="/exexutive-dashboard" element={<ProtectedRoute><ExexutiveDashboard /></ProtectedRoute>} />
+            <Route path="/executive-dashboard" element={<ProtectedRoute requiredRole="EXECUTIVE"><ExexutiveDashboard /></ProtectedRoute>} />
             <Route path="/executive/referrals" element={<ProtectedRoute><AllRefUsers /></ProtectedRoute>} />
             
             {/* User Routes */}
