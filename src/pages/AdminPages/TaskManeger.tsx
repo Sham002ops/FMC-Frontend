@@ -288,9 +288,9 @@ const AdminTasksManagement: React.FC = () => {
       </div>
 
       {/* ✅ Main Content Area - Adjusted for sidebar */}
-      <div className="flex-1 flex flex-col lg:ml-64 w-full">
+      <div className="flex-1 flex flex-col lg:ml-16 w-full">
         {/* ✅ Fixed Header */}
-        <header className="fixed top-0 right-0 left-0 lg:left-64 bg-white shadow-sm z-40 h-16">
+        <header className="fixed top-0 right-0 left-0 lg:left-16 bg-white shadow-sm z-40 h-16">
           <Header1 />
         </header>
 
