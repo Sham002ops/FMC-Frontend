@@ -33,9 +33,9 @@ const LandingPage: React.FC = () => {
         {/* ✅ App Download Section */}
         <AppDownloadSection
           appName="Finite Marshall Club"
-          playStoreUrl="https://play.google.com/store/apps/details?id=com.finitemarshallclub"
+          playStoreUrl="https://drive.google.com/file/d/1-rur2iYWfrNyBfCMGgIYiqXa9n8BSb89/view"
           // appStoreUrl="https://apps.apple.com/app/your-app"
-          whatsappChannelUrl="https://whatsapp.com/channel/0029VarAlsO4WaC2OZ3umo1d"
+          whatsappChannelUrl="https://whatsapp.com/channel/0029Vb7ULSfHFxOsbADktD2m"
           stats={{
             downloads: '10K+',
             rating: '4.8',
